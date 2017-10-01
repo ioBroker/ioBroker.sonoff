@@ -1,0 +1,54 @@
+{
+    "common": {
+        "name":                     "sonoff",
+        "require": {
+            "js-controller": ">=4"
+        },
+        "version": "0.1.0",
+        "news": {
+            "0.1.0": {
+                "en": "initial commit",
+                "de": "initial commit",
+                "ru": "initial commit"
+            }
+        },
+        "title": "Sonoff Adapter",
+        "desc":                     {
+            "en": "This adapter allows to connect sonoff components via MQTT",
+            "de": "Dieser Adapter ermöglicht die Verbindung von Sonoff-Komponenten über MQTT",
+            "ru": "Этот адаптер позволяет подключать компоненты Sonoff через MQTT"
+        },
+        "authors": [
+            "bluefox <dogafox@gmail.com>"
+        ],
+        "license":                  "MIT",
+        "platform":                 "Javascript/Node.js",
+        "mode":                     "daemon",
+        "enabled":                  true,
+        "readme":                   "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
+        "loglevel":                 "info",
+        "icon":                     "sonoff.png",
+        "keywords":                 ["ITEAD", "MQTT", "Sonoff", "Tasmota"],
+        "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
+		"type":                     "communication"
+    },
+    "native": {
+        "port":                 1883,
+        "bind":                 "0.0.0.0",
+        "user":                 "",
+        "pass":                 ""
+    },
+    "objects": [
+
+    ],
+    "instanceObjects": [
+        {
+            "_id":  "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        }
+    ]
+}

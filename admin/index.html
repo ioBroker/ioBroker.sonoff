@@ -1,0 +1,261 @@
+<html>
+<head>
+<!-- these 4 files always have to be included -->
+<link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css"/>
+<script type="text/javascript" src="../../lib/js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+<script type="text/javascript" src="../../lib/js/jquery-ui-1.10.3.full.min.js"></script>
+
+<!-- these three files  have to be always included -->
+<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+<script type="text/javascript" src="../../js/translate.js"></script>
+<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+
+<!-- you have to define 2 functions in the global scope: -->
+<script type="text/javascript">
+    systemDictionary = {
+        "Sonoff adapter settings":  {"en": "Sonoff adapter settings",  "de": "Sonoff Adapter-Einstellungen",  "ru": "Настройки драйвера Sonoff"},
+        "Type:":                  {"en": "Type:",                  "de": "Typ:",                   "ru": "Тип:"},
+        "Port:":                  {"en": "Port:",                  "de": "Port:",                  "ru": "Порт:"},
+        "User:":                  {"en": "User:",                  "de": "Username:",              "ru": "Имя пользователя:"},
+        "Password:":              {"en": "Password:",              "de": "Kennwort:",              "ru": "Пароль:"},
+        "Password confirmation:": {"en": "Password confirmation:", "de": "Kennwort-Wiederholung:", "ru": "Подтверждение пароля:"},
+        "URL:":                   {"en": "URL:",                   "de": "URL:",                   "ru": "URL:"},
+        "Secure:":                {"en": "Secure:",                "de": "SSL:",                   "ru": "SSL:"},
+        "Public certificate:":    {"en": "Public certificate:",    "de": "Publikzertifikat:",      "ru": "'Public' сертификат:"},
+        "Private certificate:":   {"en": "Private certificate:",   "de": "Privatzertifikat:",      "ru": "'Private' сертификат:"},
+        "Chained certificate:":   {"en": "Chained certificate:",   "de": "Kettenzertifikat:",       "ru": "'Chained' сертификат:"},
+        "Patterns:":              {"en": "Subscribe patterns:",    "de": "Subscribe patterns:",    "ru": "Patterns:"},
+        "Use WebSockets:":        {"en": "Use WebSockets too:",    "de": "Benutze auch WebSockets:", "ru": "Сервер WebSockets тоже:"},
+        "Connection":             {"en": "Connection",             "de": "Verbindung",              "ru": "Соединение"},
+        "Sonoff Settings":          {"en": "Sonoff Settings",          "de": "Sonoff Einstellungen",     "ru": "Настройки Sonoff"},
+        "Client ID:":             {"en": "Client ID:",             "de": "Client ID:",             "ru": "ID Клиента:"},
+        "chars":                  {"en": "chars",                  "de": "Symbolen",               "ru": "символов"},
+        "ms":                     {"en": "ms",                     "de": "ms",                     "ru": "мс"},
+        "Interval before send topics by connection:": {
+            "en": "Interval before send topics by connection:",
+            "de": "Interval vom Senden von allen Topics bei der verbindung:",
+            "ru": "Интервал перед отсылкой всей топиков после соединения:"
+        },
+        "Send interval:":         {"en": "Send interval:",         "de": "Sendeintervall:",        "ru": "Интервал между пакетами:"},
+        "Use chunk patch:":       {"en": "Use chunk patch:",       "de": "Benutze Patch für Chunking:", "ru": "Использовать заплатку для Chunking:"},
+        "Divided by comma":       {
+            "en": "Divided by comma, e.g. 'mqtt/0/#,javascript/#'",
+            "de": "Mit Komma getrennt, z.B 'mqtt/0/#,javascript/#'",
+            "ru": "Использовать запятую, как разделитеть. Например 'mqtt/0/#,javascript/#'"
+        },
+        "Mask to publish":       {
+            "en": "e.g. 'mqtt.0.*,javascript.*'",
+            "de": "z.B 'mqtt.0.*,javascript.*'",
+            "ru": "Использовать запятую, как разделитеть. Например 'mqtt.0.*,javascript.*'"
+        },
+        "Store only on change:":  {"en": "Publish only on change:",  "de": "Publish nur bei Änderung:",  "ru": "Отсылать только изменения:"},
+        "Trace output for every message:": {
+            "en": "Trace output for every message:",
+            "de": "Trace Ausgabe für jede Meldung:",
+            "ru": "Вывод лога для каждого изменения:"
+        },
+        "Test connection":        {"en": "Test connection with Server", "de": "Teste Verbindung zum Server", "ru": "Проверить настройки"},
+        "Result: ":               {"en": "Result: ",               "de": "Ergebnis: ",             "ru": "Результат: "},
+        "connected":              {"en": "connected",              "de": "verbunden",              "ru": "успешно"},
+        "Main settings":          {"en": "Main settings",          "de": "Allgemeine Einstellungen","ru": "Основные настройки"},
+        "Connection settings":    {"en": "Connection settings",    "de": "Verbindungseinstellungen",    "ru": "Настройки соединения"},
+        "Authentication settings":{"en": "Authentication settings","de": "Authentication Einstellungen", "ru": "Настройки аутентификации"},
+        "Adapter settings":       {"en": "Sonoff settings",          "de": "Sonoff Einstellungen",     "ru": "Настройки Sonoff"},
+        "Mask to publish own states:":    {
+            "en": "Mask to publish own states:",
+            "de": "Maske für Bekanntgeben von eigenen States:",
+            "ru": "Маска для собственных значений:"
+        },
+        "Send states (ack=true) too:":    {
+            "en": "Send states (ack=true) too:",
+            "de": "Sende auch Zustände (ack=true):",
+            "ru": "Посылать не только команды, но и состояния (ack=true):"
+        },
+        "Publish all states at start:":    {
+            "en": "Publish own states on connect:",
+            "de": "Bekanntgeben eigene States beim Verbinden:",
+            "ru": "Выдавать собственные значения при старте:"
+        },
+        "Use different topic names for set and get:":    {
+            "en": "Use different topic names for set and get:",
+            "de": "Unterschiedliche Namen für setzten und lesen:",
+            "ru": "Использовать разные имена для чтения и записи:"
+        },
+        "Publish states on subscribe:":    {
+            "en": "Publish states on subscribe:",
+            "de": "Bekanntgeben von States bei Subscribe:",
+            "ru": "Публиковать состояния при подписке:"
+        },
+        "Set certificates or load it first in the system settings (right top).":    {
+            "en": "Set certificates or load it first in the system settings (right top).",
+            "de": "Setze Zertificate oder lade die erst unter System/Einstellungen (oben rechts).",
+            "ru": "Нужно выбрать сертификаты или сначала загрузить их в системных настройках (вверху справа)."
+        },
+        "Prefix for topics:":     {"en": "Prefix for all topics:", "de": "Prefix für alle Topics:","ru": "Префикс для всех значений:"},
+        "Max topic length:":      {"en": "Max topic name length:", "de": "Maximale Topicnamelänge","ru": "Максимальная длина имени топика:"},
+        "Server":                 {"en": "Server/broker",          "de": "Server/broker",          "ru": "Сервер/брокер"},
+        "Client":                 {"en": "Client/subscriber",      "de": "Client/subscriber",      "ru": "Клиент/подписчик"}
+    };
+
+	var onChange;
+	var secret;
+
+    function encrypt(key, value) {
+        var result = '';
+        for(var i = 0; i < value.length; ++i) {
+            result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
+        }
+        return result;
+    }
+
+    function decrypt(key, value) {
+        var result = '';
+        for(var i = 0; i < value.length; ++i) {
+            result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
+        }
+        return result;
+    }
+
+    function setValue(id, value) {
+        var $value = $('#' + id + '.value');
+        if ($value.attr('type') === 'checkbox') {
+            $value.prop('checked', value).change(function() {
+                onChange();
+            });
+        } else {
+            $value.val(value).change(function() {
+                onChange();
+            }).keyup(function() {
+                onChange();
+            });
+        }
+    }
+
+    function loadHelper(settings, param, subparam) {
+        if (!settings) return;
+
+		if (settings.useChunkPatch === undefined) settings.useChunkPatch = false;
+
+        if (subparam && param) {
+            for (var key in settings[param][subparam]) {
+                if (typeof settings[param][subparam][key] !== 'object') {
+                    setValue(param + '_' + subparam + '_' + key, settings[param][subparam][key]);
+                } else {
+                    alert('4th level is not supported');
+                }
+            }
+        } else if (param) {
+            for (var key in settings[param]) {
+                if (typeof settings[param][key] !== 'object') {
+                    setValue(param + '_' + key, settings[param][key]);
+                } else {
+                    loadHelper(settings, param, key);
+                }
+            }
+        } else {
+            for (var key in settings) {
+                if (typeof settings[key] !== 'object') {
+                    if (key === 'pass') {
+                        settings[key] = decrypt(secret, settings[key]);
+                    }
+                    setValue(key, settings[key]);
+                } else {
+                    loadHelper(settings, key);
+                }
+            }
+        }
+    }
+
+    // the function loadSettings has to exist ...
+    function load(settings, _onChange) {
+        $('#tabs').tabs();
+        onChange = _onChange;
+        socket.emit('getObject', 'system.config', function (err, obj) {
+            secret = (obj.native ? obj.native.secret : '') || 'Zgfr56gFe87jJOM';
+            loadHelper(settings);
+        });
+
+		onChange(false);
+    }
+
+    function saveHelper(obj, id, value) {
+        var ids = id.split('_');
+
+        if (ids.length === 1) {
+            if (ids[0] === 'pass') value = encrypt(secret, value);
+            obj[id] = value;
+        } else if (ids.length === 2) {
+            if (!obj[ids[0]]) obj[ids[0]] = {};
+            obj[ids[0]][ids[1]] = value;
+        } else if (ids.length === 3) {
+            if (!obj[ids[0]]) obj[ids[0]] = {};
+            if (!obj[ids[0]][ids[1]]) obj[ids[0]][ids[1]] = {};
+            obj[ids[0]][ids[1]][ids[2]] = value;
+        }
+        return obj;
+    }
+
+    function getSettings() {
+        var obj = {};
+        $('.value').each(function () {
+            var $this = $(this);
+            var id = $this.attr('id');
+
+            if ($this.attr('type') === 'checkbox') {
+                obj = saveHelper(obj, id, $this.prop('checked'))
+            } else {
+                obj = saveHelper(obj, id, $this.val())
+            }
+        });
+        return obj;
+    }
+
+    function save(callback) {
+        if ($('#pass').val() !== $('#pass_confirm').val()) {
+            showMessage(_('Password confirmation is not equal with password'));
+            return;
+        }
+
+        callback(getSettings());
+    }
+</script>
+</head>
+<body>
+<!-- you have to put your config page in a div with id adapter-container -->
+<div id="adapter-container">
+    <table><tr>
+        <td><img src="sonoff.png"></td>
+        <td style="padding-top: 20px;padding-left: 10px"><h3 class="translate">Sonoff adapter settings</h3></td>
+    </tr></table>
+    <table>
+        <tr>
+            <td colspan='3'><h4 class="translate">Connection settings</h4></td>
+        </tr>
+        <tr>
+            <td><label class="translate" for="port">Port:</label></td>
+            <td><input id="port" size="5" type="number" min="1" max="65565" class="value"/></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan='3'><h4 class="translate">Authentication settings</h4></td>
+        </tr>
+        <tr>
+            <td><label class="translate" for="user">User:</label></td>
+            <td><input id="user" size="17" class="value"/></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label class="translate" for="pass">Password:</label></td>
+            <td><input id="pass" type="password" size="17" class="value"/></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label class="translate" for="pass_confirm">Password confirmation:</label></td>
+            <td><input id="pass_confirm" type="password" size="17"/></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
