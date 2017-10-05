@@ -16,6 +16,9 @@ This adapter communicates with Sonoff devices with Tasmota firmware via MQTT.
 
 ## Changelog
 
+### 0.2.0 (2017-10-05)
+* (bluefox) Add ENERGY and DS18x20
+
 ### 0.1.0 (2017-10-01)
 * (bluefox) initial commit
 

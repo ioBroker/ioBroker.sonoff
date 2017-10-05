@@ -4,8 +4,13 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.1.0",
+        "version": "0.2.0",
         "news": {
+            "0.2.0": {
+                "en": "Add ENERGY and DS18x20",
+                "de": "ENERGY und DS18x20 sind hinzugefügt",
+                "ru": "Добавлены ENERGY и DS18x20"
+            },
             "0.1.0": {
                 "en": "initial commit",
                 "de": "initial commit",
