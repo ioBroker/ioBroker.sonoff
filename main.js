@@ -7,15 +7,16 @@
  *      MIT License
  *
  */
+'use strict';
 
-var utils   = require(__dirname + '/lib/utils'); // Get common adapter utils
-var adapter = new utils.Adapter('sonoff');
-var Server  = require(__dirname + '/lib/server');
-var server  = null;
+const utils   = require(__dirname + '/lib/utils'); // Get common adapter utils
+let   adapter = new utils.Adapter('sonoff');
+const Server  = require(__dirname + '/lib/server');
+let   server  = null;
 
 function decrypt(key, value) {
-    var result = '';
-    for (var i = 0; i < value.length; ++i) {
+    let result = '';
+    for (let i = 0; i < value.length; ++i) {
         result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
     }
     return result;

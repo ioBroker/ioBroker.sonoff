@@ -1,4 +1,5 @@
-const mqtt    = require('mqtt');
+'use strict';
+const mqtt = require('mqtt');
 
 function Client(cbConnected, cbChanged, config) {
     let that = this;

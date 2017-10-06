@@ -1,7 +1,9 @@
+'use strict';
 var path        = require('path');
 var rootDir     = path.normalize(__dirname + '/../../');
 var adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
 adapterName     = adapterName[adapterName.length - 2];
+var callbackId  = 1;
 
 var logger = {
     info:  function (msg) {
@@ -42,7 +44,7 @@ function States(cb, stateChange) {
         },
         logger: logger,
         change: function (id, state) {
-            if (!id || typeof id != 'string') {
+            if (!id || typeof id !== 'string') {
                 console.log('Something is wrong! ' + JSON.stringify(id));
                 return;
             }
@@ -56,11 +58,11 @@ function States(cb, stateChange) {
             if (that.logList && id.match(/\.logging$/)) {
                 that.logRedirect(state ? state.val : false, id.substring(0, id.length - '.logging'.length));
             } else
-            if (id == 'log.system.adapter.' + that.namespace) {
+            if (id === 'log.system.adapter.' + that.namespace) {
                 that.processLog(state);
             } else
             // If this is messagebox
-            if (id == 'messagebox.system.adapter.' + that.namespace && state) {
+            if (id === 'messagebox.system.adapter.' + that.namespace && state) {
                 // Read it from fifo list
                 that.states.delMessage('system.adapter.' + that.namespace, state._id);
                 var obj = state;
@@ -100,7 +102,7 @@ function States(cb, stateChange) {
 
                 } else {
                     if (typeof options.stateChange === 'function') options.stateChange(id, state);
-                    if (id.substring(0, 4) == 'log.') {
+                    if (id.substring(0, 4) === 'log.') {
                         console.log("LOG");
                     }
                     if (that.emit) {
@@ -120,7 +122,7 @@ function States(cb, stateChange) {
 
     // Send message to other adapter instance or all instances of adapter
     that.sendTo = function sendTo(objName, command, message, callback) {
-        if (typeof message == 'undefined') {
+        if (typeof message === 'undefined') {
             message = command;
             command = 'send';
         }
@@ -142,7 +144,7 @@ function States(cb, stateChange) {
             });
         } else {
             if (callback) {
-                if (typeof callback == 'function') {
+                if (typeof callback === 'function') {
                     // force subscribe even no messagebox enabled
                     if (!that.common.messagebox && !that.mboxSubscribed) {
                         that.mboxSubscribed = true;
@@ -176,13 +178,13 @@ function States(cb, stateChange) {
 
     // Send message to specific host or to all hosts
     that.sendToHost = function sendToHost(objName, command, message, callback) {
-        if (typeof message == 'undefined') {
+        if (typeof message === 'undefined') {
             message = command;
             command = 'send';
         }
         var obj = {command: command, message: message, from: 'system.adapter.' + that.namespace};
 
-        if (objName && objName.substring(0, 'system.host.'.length) != 'system.host.') objName = 'system.host.' + objName;
+        if (objName && objName.substring(0, 'system.host.'.length) !== 'system.host.') objName = 'system.host.' + objName;
 
         if (!objName) {
             // Send to all hosts
@@ -191,7 +193,7 @@ function States(cb, stateChange) {
                     for (var i = 0; i < res.rows.length; i++) {
                         var parts = res.rows[i].id.split('.');
                         // ignore system.host.name.alive and so on
-                        if (parts.length == 3) {
+                        if (parts.length === 3) {
                             that.states.pushMessage(res.rows[i].id, obj);
                         }
                     }
@@ -199,7 +201,7 @@ function States(cb, stateChange) {
             });
         } else {
             if (callback) {
-                if (typeof callback == "function") {
+                if (typeof callback === 'function') {
                     // force subscribe even no messagebox enabled
                     if (!that.common.messagebox && !that.mboxSubscribed) {
                         that.mboxSubscribed = true;
@@ -226,18 +228,18 @@ function States(cb, stateChange) {
     };
 
     that.setState = function setState(id, state, ack, options, callback) {
-        if (typeof state == 'object' && typeof ack != 'boolean') {
+        if (typeof state === 'object' && typeof ack !== 'boolean') {
             callback = options;
             options  = ack;
             ack      = undefined;
         }
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
         id = that._fixId(id, 'state');
 
-        if (typeof ack == 'function') {
+        if (typeof ack === 'function') {
             callback = ack;
             ack = undefined;
         }
@@ -249,10 +251,10 @@ function States(cb, stateChange) {
         }
 
         state.from = 'system.adapter.' + that.namespace;
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'setState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.setState(id, state, callback);
                 }
@@ -263,18 +265,18 @@ function States(cb, stateChange) {
     };
 
     that.setForeignState = function setForeignState(id, state, ack, options, callback) {
-        if (typeof state == 'object' && typeof ack != 'boolean') {
+        if (typeof state === 'object' && typeof ack !== 'boolean') {
             callback = options;
             options  = ack;
             ack = undefined;
         }
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
 
-        if (typeof ack == 'function') {
+        if (typeof ack === 'function') {
             callback = ack;
             ack = undefined;
         }
@@ -287,10 +289,10 @@ function States(cb, stateChange) {
 
         state.from = 'system.adapter.' + that.namespace;
 
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'setState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.setState(id, state, callback);
                 }
@@ -301,15 +303,15 @@ function States(cb, stateChange) {
     };
 
     that.getState = function getState(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
         id = that._fixId(id, 'state');
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'getState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.getState(id, callback);
                 }
@@ -320,7 +322,7 @@ function States(cb, stateChange) {
     };
 
     that.getStateHistory = function getStateHistory(id, start, end, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
@@ -329,7 +331,7 @@ function States(cb, stateChange) {
     };
 
     that.getForeignStateHistory = function getForeignStateHistory(id, start, end, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
@@ -370,7 +372,7 @@ function States(cb, stateChange) {
 
                 that.log.debug('got ' + res.length + ' datapoints for ' + id);
             } else {
-                if (err != 'Not exists') {
+                if (err !== 'Not exists') {
                     that.log.error(err);
                 } else {
                     that.log.debug('datapoints for ' + id + ' do not yet exist');
@@ -458,7 +460,7 @@ function States(cb, stateChange) {
     that.idToDCS = function idToDCS(id) {
         if (!id) return null;
         var parts = id.split('.');
-        if (parts[0] + '.' + parts[1] != that.namespace) {
+        if (parts[0] + '.' + parts[1] !== that.namespace) {
             that.log.warn("Try to decode id not from this adapter");
             return null;
         }
@@ -466,14 +468,14 @@ function States(cb, stateChange) {
     };
 
     that.getForeignState = function getForeignState(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'getState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.getState(id, callback);
                 }
@@ -484,15 +486,15 @@ function States(cb, stateChange) {
     };
 
     that.delForeignState = function delForeignState(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
 
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'delState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.delState(id, callback);
                 }
@@ -504,15 +506,15 @@ function States(cb, stateChange) {
     };
 
     that.delState = function delState(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
         id = that._fixId(id);
-        if (options && options.user && options.user != 'system.user.admin') {
+        if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'delState', function (err) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                 } else {
                     that.states.delState(id, callback);
                 }
@@ -523,7 +525,7 @@ function States(cb, stateChange) {
     };
 
     that.getStates = function getStates(pattern, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
@@ -532,22 +534,22 @@ function States(cb, stateChange) {
     };
 
     that.getForeignStates = function getForeignStates(pattern, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
         var list = {};
-        if (typeof pattern == 'function') {
+        if (typeof pattern === 'function') {
             callback = pattern;
             pattern = '*';
         }
 
-        if (typeof callback != 'function') {
+        if (typeof callback !== 'function') {
             logger.error('getForeignStates invalid callback for ' + pattern);
             return;
         }
 
-        if (typeof pattern == 'object') {
+        if (typeof pattern === 'object') {
             that.states.getStates(pattern, function (err, arr) {
                 if (err) {
                     callback(err);
@@ -571,7 +573,7 @@ function States(cb, stateChange) {
         }
         that.objects.getObjectView('system', 'state', params, options, function (err, res) {
             if (err) {
-                if (typeof callback == 'function') callback(err);
+                if (typeof callback === 'function') callback(err);
                 return;
             }
 
@@ -579,10 +581,10 @@ function States(cb, stateChange) {
                 keys.push(res.rows[i].id);
             }
 
-            if (options && options.user && options.user != 'system.user.admin') {
+            if (options && options.user && options.user !== 'system.user.admin') {
                 checkStates(keys, options, 'getState', function (err, keys) {
                     if (err) {
-                        if (typeof callback == 'function') callback(err);
+                        if (typeof callback === 'function') callback(err);
                         return;
                     }
                     that.states.getStates(keys, function (err, arr) {
@@ -594,7 +596,7 @@ function States(cb, stateChange) {
                             if (typeof arr[i] === 'string') arr[i] = JSON.parse(arr[i]);
                             list[keys[i]] = arr[i] || {};
                         }
-                        if (typeof callback == 'function') callback(null, list);
+                        if (typeof callback === 'function') callback(null, list);
                     });
                 });
             } else {
@@ -607,7 +609,7 @@ function States(cb, stateChange) {
                         if (typeof arr[i] === 'string') arr[i] = JSON.parse(arr[i]);
                         list[keys[i]] = arr[i] || {};
                     }
-                    if (typeof callback == 'function') callback(null, list);
+                    if (typeof callback === 'function') callback(null, list);
                 });
             }
         });
@@ -625,7 +627,7 @@ function States(cb, stateChange) {
 
     that.subscribeStates = function subscribeStates(pattern, options) {
         // Exception. Threat the '*' case automatically
-        if (!pattern || pattern == '*') {
+        if (!pattern || pattern === '*') {
             that.states.subscribe(that.namespace + '.*', options);
         } else {
             pattern = that._fixId(pattern, 'state');
@@ -634,7 +636,7 @@ function States(cb, stateChange) {
     };
 
     that.unsubscribeStates = function unsubscribeStates(pattern, options) {
-        if (!pattern || pattern == '*') {
+        if (!pattern || pattern === '*') {
             that.states.unsubscribe(that.namespace + '.*', options);
         } else {
             pattern = that._fixId(pattern, 'state');
@@ -686,7 +688,7 @@ function States(cb, stateChange) {
 
     // Write binary block into redis, e.g image
     that.setBinaryState = function setBinaryState(id, binary, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
@@ -695,7 +697,7 @@ function States(cb, stateChange) {
 
     // Read binary block fromredis, e.g. image
     that.getBinaryState = function getBinaryState(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }

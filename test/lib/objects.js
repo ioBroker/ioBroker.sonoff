@@ -1,3 +1,4 @@
+'use strict';
 var path        = require('path');
 var rootDir     = path.normalize(__dirname + '/../../');
 var adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
@@ -78,7 +79,7 @@ function Objects(cb) {
     that._fixId = function _fixId(id) {
         var result  = '';
         // If id is an object
-        if (typeof id == "object") {
+        if (typeof id === 'object') {
             // Add namespace + device + channel
             result = that.namespace + '.' + (id.device ? id.device + '.' : '') + (id.channel ? id.channel + '.' : '') + id.state;
         } else {
@@ -89,7 +90,7 @@ function Objects(cb) {
     };
 
     that.setObject = function setObject(id, obj, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -144,7 +145,7 @@ function Objects(cb) {
     };
 
     that.extendObject = function extendObject(id, obj, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -163,7 +164,7 @@ function Objects(cb) {
             // Read whole object
             that.objects.getObject(id, options, function (err, oldObj) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                     return;
                 }
                 if (!oldObj) {
@@ -192,7 +193,7 @@ function Objects(cb) {
     };
 
     that.setForeignObject = function setForeignObject(id, obj, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -200,7 +201,7 @@ function Objects(cb) {
     };
 
     that.extendForeignObject = function extendForeignObject(id, obj, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -210,7 +211,7 @@ function Objects(cb) {
             // Read whole object
             that.objects.getObject(id, options, function (err, oldObj) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                     return;
                 }
                 if (!oldObj) {
@@ -239,7 +240,7 @@ function Objects(cb) {
     };
 
     that.getObject = function getObject(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -248,7 +249,7 @@ function Objects(cb) {
 
     // Get the enum tree
     that.getEnum = function getEnum(_enum, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -257,7 +258,7 @@ function Objects(cb) {
 
         that.objects.getObjectView('system', 'enum', {startkey: _enum + '.', endkey: _enum + '.\u9999'}, options, function (err, res) {
             if (err) {
-                if (typeof callback == 'function') callback(err);
+                if (typeof callback === 'function') callback(err);
                 return;
             }
             // Read all
@@ -267,7 +268,7 @@ function Objects(cb) {
                 count++;
                 that.objects.getObject(res.rows[t].id, options, function (err, _obj) {
                     if (err) {
-                        if (typeof callback == 'function') callback(err);
+                        if (typeof callback === 'function') callback(err);
                         callback = null;
                         return;
                     }
@@ -282,13 +283,13 @@ function Objects(cb) {
 
     // read for given enums the members of them
     that.getEnums = function getEnums(_enumList, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
         var _enums = {};
         if (_enumList) {
-            if (typeof _enumList == 'string') _enumList = [_enumList];
+            if (typeof _enumList === 'string') _enumList = [_enumList];
             var count = 0;
             for (var t = 0; t < _enumList.length; t++) {
                 count++;
@@ -318,7 +319,7 @@ function Objects(cb) {
     };
 
     that.getForeignObjects = function getForeignObjects(pattern, type, enums, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -329,11 +330,11 @@ function Objects(cb) {
                 endkey:   pattern.replace('*', '\u9999')
             };
         }
-        if (typeof enums == 'function') {
+        if (typeof enums === 'function') {
             callback = enums;
             enums = null;
         }
-        if (typeof type  == 'function') {
+        if (typeof type  === 'function') {
             callback = type;
             type = null;
         }
@@ -360,9 +361,9 @@ function Objects(cb) {
                         for (var es in _enums) {
                             for (var e in _enums[es]) {
                                 if (!_enums[es][e] || !_enums[es][e].common || !_enums[es][e].common.members) continue;
-                                if (_enums[es][e].common.members.indexOf(res.rows[i].id) != -1 ||
-                                    _enums[es][e].common.members.indexOf(channel)        != -1 ||
-                                    _enums[es][e].common.members.indexOf(device)         != -1) {
+                                if (_enums[es][e].common.members.indexOf(res.rows[i].id) !== -1 ||
+                                    _enums[es][e].common.members.indexOf(channel)        !== -1 ||
+                                    _enums[es][e].common.members.indexOf(device)         !== -1) {
                                     list[res.rows[i].id].enums[e] = _enums[es][e].common.name;
                                 }
                             }
@@ -376,7 +377,7 @@ function Objects(cb) {
     };
 
     that.findForeignObject = function findForeignObject(id, type, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -384,7 +385,7 @@ function Objects(cb) {
     };
 
     that.getForeignObject = function getForeignObject(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -392,7 +393,7 @@ function Objects(cb) {
     };
 
     that.delObject = function delObject(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -401,7 +402,7 @@ function Objects(cb) {
     };
 
     that.delForeignObject = function delForeignObject(id, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -409,7 +410,7 @@ function Objects(cb) {
     };
 
     that.subscribeObjects = function subscribeObjects(pattern, options) {
-        if (pattern == '*') {
+        if (pattern === '*') {
             that.objects.subscribe(that.namespace + '.*');
         } else {
             pattern = that._fixId(pattern);
@@ -427,7 +428,7 @@ function Objects(cb) {
     };
 
     that.unsubscribeObjects = function unsubscribeObjects(pattern, options) {
-        if (pattern == '*') {
+        if (pattern === '*') {
             that.objects.unsubscribe(that.namespace + '.*', options);
         } else {
             pattern = that._fixId(pattern);
@@ -436,7 +437,7 @@ function Objects(cb) {
     };
 
     that.setObjectNotExists = function setObjectNotExists(id, object, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -454,7 +455,7 @@ function Objects(cb) {
     };
 
     that.setForeignObjectNotExists = function setForeignObjectNotExists(id, obj, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -479,19 +480,19 @@ function Objects(cb) {
     };
 
     that.createDevice = function createDevice(deviceName, common, _native, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
         if (!deviceName) {
-            that.log.error("Try to create device with empty name!");
+            that.log.error('Try to create device with empty name!');
             return;
         }
-        if (typeof _native == 'function') {
+        if (typeof _native === 'function') {
             callback = _native;
             _native = {};
         }
-        if (typeof common == 'function') {
+        if (typeof common === 'function') {
             callback = common;
             common = {};
         }
@@ -510,28 +511,28 @@ function Objects(cb) {
 
     // name of channel must be in format "channel"
     that.createChannel = function createChannel(parentDevice, channelName, roleOrCommon, _native, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
-        if (!channelName) throw "Try to create channel without name!";
+        if (!channelName) throw 'Try to create channel without name!';
 
-        if (typeof _native == "function") {
+        if (typeof _native === 'function') {
             callback = _native;
             _native = {};
         }
 
-        if (typeof roleOrCommon == "function") {
+        if (typeof roleOrCommon === 'function') {
             callback = roleOrCommon;
             roleOrCommon = undefined;
         }
 
         var common = {};
-        if (typeof roleOrCommon == "string") {
+        if (typeof roleOrCommon === 'string') {
             common = {
                 role: roleOrCommon
             };
-        } else if (typeof roleOrCommon == "object") {
+        } else if (typeof roleOrCommon === 'object') {
             common = roleOrCommon;
         }
         common.name = common.name || channelName;
@@ -543,37 +544,37 @@ function Objects(cb) {
         _native = _native || {};
 
         var obj = {
-            "type":     "channel",
-            "common":   common,
-            "native":   _native
+            type:     'channel',
+            common:   common,
+            native:   _native
         };
 
         that.setObject(channelName, obj, options, callback);
     };
 
     that.createState = function createState(parentDevice, parentChannel, stateName, roleOrCommon, _native, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
         if (!stateName) throw 'Empty name is not allowed!';
 
-        if (typeof _native == "function") {
+        if (typeof _native === 'function') {
             callback = _native;
             _native = {};
         }
 
-        if (typeof roleOrCommon == "function") {
+        if (typeof roleOrCommon === 'function') {
             callback = roleOrCommon;
             roleOrCommon = undefined;
         }
 
         var common = {};
-        if (typeof roleOrCommon == "string") {
+        if (typeof roleOrCommon === 'string') {
             common = {
                 role: roleOrCommon
             };
-        } else if (typeof roleOrCommon == "object") {
+        } else if (typeof roleOrCommon === 'object') {
             common = roleOrCommon;
         }
 
@@ -607,7 +608,7 @@ function Objects(cb) {
     };
 
     that.deleteDevice = function deleteDevice(deviceName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -616,7 +617,7 @@ function Objects(cb) {
 
         that.objects.getObjectView('system', 'device', {startkey: deviceName, endkey: deviceName}, options, function (err, res) {
             if (err || !res || !res.rows) {
-                if (typeof callback == 'function') callback(err);
+                if (typeof callback === 'function') callback(err);
                 callback = null;
                 return;
             }
@@ -627,7 +628,7 @@ function Objects(cb) {
                 cnt++;
                 that.delObject(res.rows[t].id, options, function (err) {
                     if (err) {
-                        if (typeof callback == 'function') callback(err);
+                        if (typeof callback === 'function') callback(err);
                         callback = null;
                         return;
                     }
@@ -636,7 +637,7 @@ function Objects(cb) {
                         cnt = 0; // just to better understand
                         that.objects.getObjectView('system', 'channel', {startkey: deviceName + '.', endkey: deviceName + '.\u9999'}, options, function (err, res) {
                             if (err) {
-                                if (typeof callback == 'function') callback(err);
+                                if (typeof callback === 'function') callback(err);
                                 return;
                             }
                             for (var k = 0; k < res.rows.length; k++) {
@@ -646,9 +647,8 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback == 'function') callback(err);
+                                            if (typeof callback === 'function') callback(err);
                                             callback = null;
-                                            return;
                                         }
                                     }
                                 });
@@ -663,7 +663,7 @@ function Objects(cb) {
     };
 
     that.addChannelToEnum = function addChannelToEnum(enumName, addTo, parentDevice, channelName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -677,7 +677,7 @@ function Objects(cb) {
         if (that._namespaceRegExp.test(channelName)) {
             channelName = channelName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && channelName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && channelName.substring(0, parentDevice.length) === parentDevice) {
             channelName = channelName.substring(parentDevice.length + 1);
         }
         channelName = channelName.replace(/[.\s]+/g, '_');
@@ -687,12 +687,12 @@ function Objects(cb) {
         if (addTo.match(/^enum\./)) {
             that.objects.getObject(addTo, options, function (err, obj) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                     return;
                 }
                 if (!err && obj) {
                     var pos = obj.common.members.indexOf(objId);
-                    if (pos == -1) {
+                    if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, function (err) {
                             if (callback) callback(err);
@@ -705,13 +705,13 @@ function Objects(cb) {
 
             that.objects.getObject('enum.' + enumName + '.' + addTo, options, function (err, obj) {
                 if (err) {
-                    if (typeof callback == 'function') callback(err);
+                    if (typeof callback === 'function') callback(err);
                     return;
                 }
 
                 if (obj) {
                     var pos = obj.common.members.indexOf(objId);
-                    if (pos == -1) {
+                    if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, callback);
                     } else {
@@ -732,21 +732,21 @@ function Objects(cb) {
     };
 
     that.deleteChannelFromEnum = function deleteChannelFromEnum(enumName, parentDevice, channelName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
         if (parentDevice) {
-            if (parentDevice.substring(0, that.namespace.length) == that.namespace) {
+            if (parentDevice.substring(0, that.namespace.length) === that.namespace) {
                 parentDevice = parentDevice.substring(that.namespace.length + 1);
             }
             parentDevice = parentDevice.replace(/[.\s]+/g, '_');
         }
 
-        if (channelName && channelName.substring(0, that.namespace.length) == that.namespace) {
+        if (channelName && channelName.substring(0, that.namespace.length) === that.namespace) {
             channelName = channelName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && channelName && channelName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && channelName && channelName.substring(0, parentDevice.length) === parentDevice) {
             channelName = channelName.substring(parentDevice.length + 1);
         }
         channelName = channelName || '';
@@ -762,7 +762,7 @@ function Objects(cb) {
 
         that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options, function (err, res) {
             if (err) {
-                if (typeof callback == 'function') callback(err);
+                if (typeof callback === 'function') callback(err);
                 return;
             }
             if (res) {
@@ -771,13 +771,13 @@ function Objects(cb) {
                     count++;
                     that.objects.getObject(res.rows[i].id, options, function (err, obj) {
                         if (err) {
-                            if (typeof callback == 'function') callback(err);
+                            if (typeof callback === 'function') callback(err);
                             callback = null;
                             return;
                         }
                         if (!err && obj && obj.common && obj.common.members) {
                             var pos = obj.common.members.indexOf(objId);
-                            if (pos != -1) {
+                            if (pos !== -1) {
                                 obj.common.members.splice(pos, 1);
                                 count++;
                                 that.objects.setObject(obj._id, obj, options, function (err) {
@@ -785,15 +785,15 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback == 'function') callback(err);
+                                            if (typeof callback === 'function') callback(err);
                                             callback = null;
                                         }
                                     }
                                 });
                             }
                         }
-                        count--;
-                        if (!count && callback) callback(err);
+
+                        if (!--count && callback) callback(err);
                     });
                 }
             } else if (callback) {
@@ -803,11 +803,11 @@ function Objects(cb) {
     };
 
     that.deleteChannel = function deleteChannel(parentDevice, channelName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
-        if (typeof channelName == 'function') {
+        if (typeof channelName === 'function') {
             callback = channelName;
             channelName = parentDevice;
             parentDevice = '';
@@ -815,7 +815,7 @@ function Objects(cb) {
         if (parentDevice && !channelName) {
             channelName = parentDevice;
             parentDevice = '';
-        } else if (parentDevice && typeof channelName == 'function') {
+        } else if (parentDevice && typeof channelName === 'function') {
             callback     = channelName;
             channelName  = parentDevice;
             parentDevice = '';
@@ -835,7 +835,7 @@ function Objects(cb) {
         if (channelName && that._namespaceRegExp.test(channelName)) {
             channelName = channelName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && channelName && channelName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && channelName && channelName.substring(0, parentDevice.length) === parentDevice) {
             channelName = channelName.substring(parentDevice.length + 1);
         }
         channelName = channelName || '';
@@ -847,7 +847,7 @@ function Objects(cb) {
 
         that.objects.getObjectView('system', 'channel', {startkey: channelName, endkey: channelName}, options, function (err, res) {
             if (err || !res || !res.rows) {
-                if (typeof callback == 'function') callback(err);
+                if (typeof callback === 'function') callback(err);
                 callback = null;
                 return;
             }
@@ -858,7 +858,7 @@ function Objects(cb) {
                 cnt++;
                 that.delObject(res.rows[t].id, options, function (err) {
                     if (err) {
-                        if (typeof callback == 'function') callback(err);
+                        if (typeof callback === 'function') callback(err);
                         callback = null;
                         return;
                     }
@@ -866,7 +866,7 @@ function Objects(cb) {
                     if (!cnt) {
                         that.objects.getObjectView('system', 'state', {startkey: channelName + '.', endkey: channelName + '.\u9999'}, options, function (err, res) {
                             if (err || !res || !res.rows) {
-                                if (typeof callback == 'function') callback(err);
+                                if (typeof callback === 'function') callback(err);
                                 callback = null;
                                 return;
                             }
@@ -876,7 +876,7 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback == 'function') callback(err);
+                                            if (typeof callback === 'function') callback(err);
                                             callback = null;
                                             return;
                                         }
@@ -904,23 +904,23 @@ function Objects(cb) {
             parentDevice  = '';
             parentChannel = '';
         } else {
-            if (typeof options == 'function') {
+            if (typeof options === 'function') {
                 callback = options;
                 options  = null;
             }
-            if (typeof stateName == 'function') {
+            if (typeof stateName === 'function') {
                 callback      = stateName;
                 stateName     = parentChannel;
                 parentChannel = parentDevice;
                 parentDevice  = '';
             }
-            if (typeof parentChannel == 'function') {
+            if (typeof parentChannel === 'function') {
                 callback      = parentChannel;
                 stateName     = parentDevice;
                 parentChannel = '';
                 parentDevice  = '';
             }
-            if (typeof parentChannel == 'function') {
+            if (typeof parentChannel === 'function') {
                 callback      = parentChannel;
                 stateName     = parentDevice;
                 parentChannel = '';
@@ -942,7 +942,7 @@ function Objects(cb) {
             if (that._namespaceRegExp.test(parentChannel)) {
                 parentChannel = parentChannel.substring(that.namespace.length + 1);
             }
-            if (parentDevice && parentChannel.substring(0, parentDevice.length) == parentDevice) {
+            if (parentDevice && parentChannel.substring(0, parentDevice.length) === parentDevice) {
                 parentChannel = parentChannel.substring(parentDevice.length + 1);
             }
 
@@ -952,10 +952,10 @@ function Objects(cb) {
         if (that._namespaceRegExp.test(stateName)) {
             stateName = stateName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && stateName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && stateName.substring(0, parentDevice.length) === parentDevice) {
             stateName = stateName.substring(parentDevice.length + 1);
         }
-        if (parentChannel && stateName.substring(0, parentChannel.length) == parentChannel) {
+        if (parentChannel && stateName.substring(0, parentChannel.length) === parentChannel) {
             stateName = stateName.substring(parentChannel.length + 1);
         }
         stateName = stateName || '';
@@ -968,7 +968,7 @@ function Objects(cb) {
     };
 
     that.getDevices = function getDevices(callback, options) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -988,11 +988,11 @@ function Objects(cb) {
     };
 
     that.getChannelsOf = function getChannelsOf(parentDevice, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
-        if (typeof parentDevice == 'function') {
+        if (typeof parentDevice === 'function') {
             callback = parentDevice;
             parentDevice = null;
         }
@@ -1022,16 +1022,16 @@ function Objects(cb) {
     that.getChannels = that.getChannelsOf;
 
     that.getStatesOf = function getStatesOf(parentDevice, parentChannel, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
-        if (typeof parentDevice == 'function') {
+        if (typeof parentDevice === 'function') {
             callback = parentDevice;
             parentDevice = null;
             parentChannel = null;
         }
-        if (typeof parentChannel == 'function') {
+        if (typeof parentChannel === 'function') {
             callback = parentChannel;
             parentChannel = null;
         }
@@ -1052,7 +1052,7 @@ function Objects(cb) {
             parentChannel = parentChannel.substring(that.namespace.length + 1);
         }
 
-        if (parentDevice && parentChannel && parentChannel.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && parentChannel && parentChannel.substring(0, parentDevice.length) === parentDevice) {
             parentChannel = parentChannel.substring(parentDevice.length + 1);
         }
 
@@ -1081,7 +1081,7 @@ function Objects(cb) {
     };
 
     that.addStateToEnum = function addStateToEnum(enumName, addTo, parentDevice, parentChannel, stateName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1097,7 +1097,7 @@ function Objects(cb) {
             if (that._namespaceRegExp.test(parentChannel)) {
                 parentChannel = parentChannel.substring(that.namespace.length + 1);
             }
-            if (parentDevice && parentChannel.substring(0, parentDevice.length) == parentDevice) {
+            if (parentDevice && parentChannel.substring(0, parentDevice.length) === parentDevice) {
                 parentChannel = parentChannel.substring(parentDevice.length + 1);
             }
 
@@ -1107,10 +1107,10 @@ function Objects(cb) {
         if (that._namespaceRegExp.test(stateName)) {
             stateName = stateName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && stateName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && stateName.substring(0, parentDevice.length) === parentDevice) {
             stateName = stateName.substring(parentDevice.length + 1);
         }
-        if (parentChannel && stateName.substring(0, parentChannel.length) == parentChannel) {
+        if (parentChannel && stateName.substring(0, parentChannel.length) === parentChannel) {
             stateName = stateName.substring(parentChannel.length + 1);
         }
         stateName = stateName.replace(/[.\s]+/g, '_');
@@ -1121,7 +1121,7 @@ function Objects(cb) {
             that.objects.getObject(addTo, options, function (err, obj) {
                 if (!err && obj) {
                     var pos = obj.common.members.indexOf(objId);
-                    if (pos == -1) {
+                    if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, function (err) {
                             if (callback) callback(err);
@@ -1135,7 +1135,7 @@ function Objects(cb) {
             that.objects.getObject('enum.' + enumName + '.' + addTo, options, function (err, obj) {
                 if (!err && obj) {
                     var pos = obj.common.members.indexOf(objId);
-                    if (pos == -1) {
+                    if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, callback);
                     } else {
@@ -1143,7 +1143,7 @@ function Objects(cb) {
                     }
                 } else {
                     if (err) {
-                        if (typeof callback == 'function') callback(err);
+                        if (typeof callback === 'function') callback(err);
                         return;
                     }
 
@@ -1161,7 +1161,7 @@ function Objects(cb) {
     };
 
     that.deleteStateFromEnum = function deleteStateFromEnum(enumName, parentDevice, parentChannel, stateName, options, callback) {
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1177,7 +1177,7 @@ function Objects(cb) {
             if (that._namespaceRegExp.test(parentChannel)) {
                 parentChannel = parentChannel.substring(that.namespace.length + 1);
             }
-            if (parentDevice && parentChannel.substring(0, parentDevice.length) == parentDevice) {
+            if (parentDevice && parentChannel.substring(0, parentDevice.length) === parentDevice) {
                 parentChannel = parentChannel.substring(parentDevice.length + 1);
             }
 
@@ -1187,10 +1187,10 @@ function Objects(cb) {
         if (that._namespaceRegExp.test(stateName)) {
             stateName = stateName.substring(that.namespace.length + 1);
         }
-        if (parentDevice && stateName.substring(0, parentDevice.length) == parentDevice) {
+        if (parentDevice && stateName.substring(0, parentDevice.length) === parentDevice) {
             stateName = stateName.substring(parentDevice.length + 1);
         }
-        if (parentChannel && stateName.substring(0, parentChannel.length) == parentChannel) {
+        if (parentChannel && stateName.substring(0, parentChannel.length) === parentChannel) {
             stateName = stateName.substring(parentChannel.length + 1);
         }
         stateName = stateName.replace(/[.\s]+/g, '_');
@@ -1217,7 +1217,7 @@ function Objects(cb) {
 
                         if (!err && obj && obj.common && obj.common.members) {
                             var pos = obj.common.members.indexOf(objId);
-                            if (pos != -1) {
+                            if (pos !== -1) {
                                 obj.common.members.splice(pos, 1);
                                 count++;
                                 that.objects.setObject(obj._id, obj, function (err) {
@@ -1237,7 +1237,7 @@ function Objects(cb) {
     that.chmodFile = function readDir(adapter, path, options, callback) {
         if (adapter === null) adapter = that.name;
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1248,7 +1248,7 @@ function Objects(cb) {
     that.readDir = function readDir(adapter, path, options, callback) {
         if (adapter === null) adapter = that.name;
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1259,7 +1259,7 @@ function Objects(cb) {
     that.unlink = function unlink(adapter, name, options, callback) {
         if (adapter === null) adapter = that.name;
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1269,7 +1269,7 @@ function Objects(cb) {
 
     that.rename = function rename(adapter, oldName, newName, options, callback) {
         if (adapter === null) adapter = that.name;
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1278,7 +1278,7 @@ function Objects(cb) {
 
     that.mkdir = function mkdir(adapter, dirname, options, callback) {
         if (adapter === null) adapter = that.name;
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1289,7 +1289,7 @@ function Objects(cb) {
     that.readFile = function readFile(adapter, filename, options, callback) {
         if (adapter === null) adapter = that.name;
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1300,7 +1300,7 @@ function Objects(cb) {
     that.writeFile = function writeFile(adapter, filename, data, options, callback) {
         if (adapter === null) adapter = that.name;
 
-        if (typeof options == 'function') {
+        if (typeof options === 'function') {
             callback = options;
             options = null;
         }
@@ -1309,7 +1309,7 @@ function Objects(cb) {
     };
 
     that.formatDate = function formatDate(dateObj, isSeconds, _format) {
-        if (typeof isSeconds != 'boolean') {
+        if (typeof isSeconds !== 'boolean') {
             _format = isSeconds;
             isSeconds = false;
         }
@@ -1318,47 +1318,47 @@ function Objects(cb) {
 
         if (!dateObj) return '';
         var text = typeof dateObj;
-        if (text == 'string') {
+        if (text === 'string') {
             var pos = dateObj.indexOf('.');
-            if (pos != -1) dateObj = dateObj.substring(0, pos);
+            if (pos !== -1) dateObj = dateObj.substring(0, pos);
             return dateObj;
         }
-        if (text != 'object') dateObj = isSeconds ? new Date(dateObj * 1000) : new Date(dateObj);
+        if (text !== 'object') dateObj = isSeconds ? new Date(dateObj * 1000) : new Date(dateObj);
 
         var v;
 
         // Year
-        if (format.indexOf('YYYY') != -1 || format.indexOf('JJJJ') != -1 || format.indexOf('ГГГГ') != -1) {
+        if (format.indexOf('YYYY') !== -1 || format.indexOf('JJJJ') !== -1 || format.indexOf('ГГГГ') !== -1) {
             v = dateObj.getFullYear();
             format = format.replace('YYYY', v);
             format = format.replace('JJJJ', v);
             format = format.replace('ГГГГ', v);
-        } else if (format.indexOf('YY') != -1 || format.indexOf('JJ') != -1 || format.indexOf('ГГ') != -1) {
+        } else if (format.indexOf('YY') !== -1 || format.indexOf('JJ') !== -1 || format.indexOf('ГГ') !== -1) {
             v = dateObj.getFullYear() % 100;
             format = format.replace('YY', v);
             format = format.replace('JJ', v);
             format = format.replace('ГГ', v);
         }
         // Month
-        if (format.indexOf('MM') != -1 || format.indexOf('ММ') != -1) {
+        if (format.indexOf('MM') !== -1 || format.indexOf('ММ') !== -1) {
             v =  dateObj.getMonth() + 1;
             if (v < 10) v = '0' + v;
             format = format.replace('MM', v);
             format = format.replace('ММ', v);
-        } else if (format.indexOf('M') != -1 || format.indexOf('М') != -1) {
+        } else if (format.indexOf('M') !== -1 || format.indexOf('М') !== -1) {
             v =  dateObj.getMonth() + 1;
             format = format.replace('M', v);
             format = format.replace('М', v);
         }
 
         // Day
-        if (format.indexOf('DD') != -1 || format.indexOf('TT') != -1 || format.indexOf('ДД') != -1) {
+        if (format.indexOf('DD') !== -1 || format.indexOf('TT') !== -1 || format.indexOf('ДД') !== -1) {
             v =  dateObj.getDate();
             if (v < 10) v = '0' + v;
             format = format.replace('DD', v);
             format = format.replace('TT', v);
             format = format.replace('ДД', v);
-        } else if (format.indexOf('D') != -1 || format.indexOf('TT') != -1 || format.indexOf('Д') != -1) {
+        } else if (format.indexOf('D') !== -1 || format.indexOf('TT') !== -1 || format.indexOf('Д') !== -1) {
             v =  dateObj.getDate();
             format = format.replace('D', v);
             format = format.replace('T', v);
@@ -1366,13 +1366,13 @@ function Objects(cb) {
         }
 
         // hours
-        if (format.indexOf('hh') != -1 || format.indexOf('SS') != -1 || format.indexOf('чч') != -1) {
+        if (format.indexOf('hh') !== -1 || format.indexOf('SS') !== -1 || format.indexOf('чч') !== -1) {
             v =  dateObj.getHours();
             if (v < 10) v = '0' + v;
             format = format.replace('hh', v);
             format = format.replace('SS', v);
             format = format.replace('чч', v);
-        } else if (format.indexOf('h') != -1 || format.indexOf('S') != -1 || format.indexOf('ч') != -1) {
+        } else if (format.indexOf('h') !== -1 || format.indexOf('S') !== -1 || format.indexOf('ч') !== -1) {
             v =  dateObj.getHours();
             format = format.replace('h', v);
             format = format.replace('S', v);
@@ -1380,25 +1380,25 @@ function Objects(cb) {
         }
 
         // minutes
-        if (format.indexOf('mm') != -1 || format.indexOf('мм') != -1) {
+        if (format.indexOf('mm') !== -1 || format.indexOf('мм') !== -1) {
             v =  dateObj.getMinutes();
             if (v < 10) v = '0' + v;
             format = format.replace('mm', v);
             format = format.replace('мм', v);
-        } else if (format.indexOf('m') != -1 ||  format.indexOf('м') != -1) {
+        } else if (format.indexOf('m') !== -1 ||  format.indexOf('м') !== -1) {
             v =  dateObj.getMinutes();
             format = format.replace('m', v);
             format = format.replace('v', v);
         }
 
         // seconds
-        if (format.indexOf('ss') != -1 || format.indexOf('сс') != -1) {
+        if (format.indexOf('ss') !== -1 || format.indexOf('сс') !== -1) {
             v =  dateObj.getSeconds();
             if (v < 10) v = '0' + v;
             v = v.toString();
             format = format.replace('ss', v);
             format = format.replace('cc', v);
-        } else if (format.indexOf('s') != -1 || format.indexOf('с') != -1) {
+        } else if (format.indexOf('s') !== -1 || format.indexOf('с') !== -1) {
             v =  dateObj.getHours().toString();
             format = format.replace('s', v);
             format = format.replace('с', v);
