@@ -12,9 +12,26 @@ Requires node.js 4.0 or higher.
 
 ## Usage
 
-This adapter communicates with Sonoff devices with Tasmota firmware via MQTT.
+This adapter communicates with Sonoff devices with Tasmota firmware or ESP devices via MQTT.
+
+Following topics are expected:
+- tele/DeviceNAME/STATE
+- tele/DeviceNAME/SENSOR
+- tele/DeviceNAME/INFOx
+- tele/DeviceNAME/ENERGY
+- cmnd/DeviceNAME/POWERx
+- stat/DeviceNAME/POWERx
+- /DeviceNAME/BM280/Pressure
+- /DeviceNAME/BM280/Humidity
+- /DeviceNAME/BM280/Temperature
+- /DeviceNAME/BM280/Approx. Altitude
+
+**Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 0.3.0 (2017-10-06)
+* (bluefox) Add INFO and ESP
 
 ### 0.2.0 (2017-10-05)
 * (bluefox) Add ENERGY and DS18x20

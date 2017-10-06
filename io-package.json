@@ -4,8 +4,13 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.2.0",
+        "version": "0.3.0",
         "news": {
+            "0.3.0": {
+                "en": "Add INFO and ESP",
+                "de": "INFO und ESP sind hinzugefügt",
+                "ru": "Добавлены INFO и ESP"
+            },
             "0.2.0": {
                 "en": "Add ENERGY and DS18x20",
                 "de": "ENERGY und DS18x20 sind hinzugefügt",
@@ -52,6 +57,18 @@
             "type": "channel",
             "common": {
                 "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id":  "info.connection",
+            "type": "state",
+            "common": {
+                "role":  "info.clients",
+                "name":  "List of connected clients",
+                "type":  "string",
+                "read":  true,
+                "write": false
             },
             "native": {}
         }
