@@ -40,7 +40,7 @@
         "icon":                     "sonoff.png",
         "keywords":                 ["ITEAD", "MQTT", "Sonoff", "Tasmota"],
         "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
-		"type":                     "communication"
+		"type":                     "lighting"
     },
     "native": {
         "port":                 1883,
