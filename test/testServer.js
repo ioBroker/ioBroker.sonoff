@@ -36,6 +36,13 @@ let rules = {
     'stat/sonoff/LWT':                 {send: 'someTopic',  expect: {'LWT': null}},
     'stat/sonoff/ABC':                 {send: 'text',       expect: {'ABC': null}}
 };
+function decrypt(key, value) {
+    let result = '';
+    for (let i = 0; i < value.length; ++i) {
+        result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
+    }
+    return result;
+}
 
 function startClients(_done) {
     // start mqtt client
@@ -173,13 +180,14 @@ describe('Sonoff server: Test mqtt server', function() {
         this.timeout(600000); // because of first install from npm
         setup.adapterStarted = false;
 
-        setup.setupController(function () {
+        setup.setupController(function (systemConfig) {
             let config = setup.getAdapterConfig();
             // enable adapter
             config.common.enabled  = true;
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
-            config.native.pass     = '*\u0006\u0015\u0001\u0004';
+            config.native.pass     = decrypt(systemConfig.native.secret, 'pass1');
+
             setup.setAdapterConfig(config.common, config.native);
 
             setup.startController(function (_objects, _states) {

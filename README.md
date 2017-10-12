@@ -30,6 +30,9 @@ Following topics are expected:
 
 ## Changelog
 
+### 0.3.1 (2017-10-12)
+* (bluefox) Fix tests and LWT
+
 ### 0.3.0 (2017-10-06)
 * (bluefox) Add INFO and ESP
 

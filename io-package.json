@@ -4,8 +4,13 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.3.0",
+        "version": "0.3.1",
         "news": {
+            "0.3.1": {
+                "en": "Fix tests and LWT",
+                "de": "Korrigiere Tests und LWT",
+                "ru": "Исправлены тесты и LWT"
+            },
             "0.3.0": {
                 "en": "Add INFO and ESP",
                 "de": "INFO und ESP sind hinzugefügt",

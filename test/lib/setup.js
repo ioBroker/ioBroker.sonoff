@@ -116,7 +116,6 @@ function restoreOriginalFiles() {
     catch (err) {
         console.log('no states.json.original found - ignore');
     }
-
 }
 
 function checkIsAdapterInstalled(cb, counter, customName) {
@@ -448,7 +447,14 @@ function setupController(cb) {
             restoreOriginalFiles();
             copyAdapterToController();
         }
-        if (cb) cb();
+        // read system.config object
+        var dataDir = rootDir + 'tmp/' + appName + '-data/';
+
+        var objs = fs.readFileSync(dataDir + 'objects.json');
+        objs = JSON.parse(objs);
+
+
+        if (cb) cb(objs['system.config']);
     });
 }
 
@@ -487,7 +493,7 @@ function startAdapter(objects, states, callback) {
 function startController(isStartAdapter, onObjectChange, onStateChange, callback) {
     if (typeof isStartAdapter === 'function') {
         callback = onStateChange;
-        onStateChange = onObjectChange
+        onStateChange = onObjectChange;
         onObjectChange = isStartAdapter;
         isStartAdapter = true;
     }
