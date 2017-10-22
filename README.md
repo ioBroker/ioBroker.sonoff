@@ -30,6 +30,9 @@ Following topics are expected:
 
 ## Changelog
 
+### 0.3.2 (2017-10-22)
+* (Tan-DE) Small change for Switch1. Switch2 and additional IPaddress added.
+
 ### 0.3.1 (2017-10-12)
 * (bluefox) Fix tests and LWT
 

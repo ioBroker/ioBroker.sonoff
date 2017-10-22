@@ -4,14 +4,18 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.3.1",
+        "version": "0.3.2",
         "news": {
+            "0.3.2": {
+                "en": "Small change for Switch1. Switch2 and additional IPaddress added.",
+                "de": "Kleine Änderung für Switch1. Switch2 und zusätzliche IP-Adresse hinzugefügt.",
+                "ru": "Небольшое изменение для Switch1. Добавлен Switch2 и добавлен дополнительный IPaddress."
+            },
             "0.3.1": {
                 "en": "Fix tests and LWT",
                 "de": "Korrigiere Tests und LWT",
                 "ru": "Исправлены тесты и LWT"
-            },
-            "0.3.0": {
+            },            "0.3.0": {
                 "en": "Add INFO and ESP",
                 "de": "INFO und ESP sind hinzugefügt",
                 "ru": "Добавлены INFO и ESP"
