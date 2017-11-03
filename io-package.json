@@ -4,8 +4,13 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.3.2",
+        "version": "0.3.3",
         "news": {
+            "0.3.3": {
+              "en": "Add counters",
+              "de": "Zähler sind hinzugefügt",
+              "ru": "Добавлены счетчики"
+            },
             "0.3.2": {
                 "en": "Small change for Switch1. Switch2 and additional IPaddress added.",
                 "de": "Kleine Änderung für Switch1. Switch2 und zusätzliche IP-Adresse hinzugefügt.",

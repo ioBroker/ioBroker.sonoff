@@ -24,11 +24,17 @@ Following topics are expected:
 - /DeviceNAME/BM280/Pressure
 - /DeviceNAME/BM280/Humidity
 - /DeviceNAME/BM280/Temperature
+- /DeviceNAME/BM280/Luftfeuchtigkeit
+- /DeviceNAME/BM280/Temperatur
 - /DeviceNAME/BM280/Approx. Altitude
+
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 0.3.3 (2017-11-03)
+* (bluefox) Add counters
 
 ### 0.3.2 (2017-10-22)
 * (Tan-DE) Small change for Switch1. Switch2 and additional IPaddress added.
