@@ -33,6 +33,11 @@ Following topics are expected:
 
 ## Changelog
 
+### 1.0.0 (2017-11-27)
+* (AlZiBa) typo @ alive
+* (AlZiBa) add Todays power consumption for Sonoff POW
+* (AlZiBa) unit of power consumption is kWh
+
 ### 0.3.3 (2017-11-03)
 * (bluefox) Add counters
 

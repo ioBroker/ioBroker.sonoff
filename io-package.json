@@ -4,12 +4,17 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "0.3.3",
+        "version": "1.0.0",
         "news": {
+            "1.0.0": {
+              "en": "typo @ alive\nadd Todays power consumption for Sonoff POW\nunit of power consumption is kWh",
+              "de": "typo @ alive\nfüge heutigen Stromverbrauch für Sonoff POW hinzu\nEinheit des Energieverbrauchs ist kWh",
+              "ru": "опечатка @ alive\nдобавить сегодняшнее энергопотребление для Sonoff POW\nединица потребляемой мощности - kWh"
+            },
             "0.3.3": {
-              "en": "Add counters",
-              "de": "Zähler sind hinzugefügt",
-              "ru": "Добавлены счетчики"
+                "en": "Add counters",
+                "de": "Zähler sind hinzugefügt",
+                "ru": "Добавлены счетчики"
             },
             "0.3.2": {
                 "en": "Small change for Switch1. Switch2 and additional IPaddress added.",
