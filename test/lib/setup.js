@@ -1,8 +1,6 @@
-/* jshint -W097 */
-// jshint strict:false */
-/* jslint node: true */
+/* jshint -W097 */// jshint strict:false
+/*jslint node: true */
 // check if tmp directory exists
-'use strict';
 var fs            = require('fs');
 var path          = require('path');
 var child_process = require('child_process');
@@ -116,6 +114,7 @@ function restoreOriginalFiles() {
     catch (err) {
         console.log('no states.json.original found - ignore');
     }
+
 }
 
 function checkIsAdapterInstalled(cb, counter, customName) {
@@ -447,14 +446,7 @@ function setupController(cb) {
             restoreOriginalFiles();
             copyAdapterToController();
         }
-        // read system.config object
-        var dataDir = rootDir + 'tmp/' + appName + '-data/';
-
-        var objs = fs.readFileSync(dataDir + 'objects.json');
-        objs = JSON.parse(objs);
-
-
-        if (cb) cb(objs['system.config']);
+        if (cb) cb();
     });
 }
 
@@ -470,13 +462,13 @@ function startAdapter(objects, states, callback) {
         try {
             if (debug) {
                 // start controller
-                pid = child_process.exec('node node_modules/' + pkg.name + '/' + pkg.main + ' --console debug', {
+                pid = child_process.exec('node node_modules/' + pkg.name + '/' + pkg.main + ' --console silly', {
                     cwd: rootDir + 'tmp',
                     stdio: [0, 1, 2]
                 });
             } else {
                 // start controller
-                pid = child_process.fork('node_modules/' + pkg.name + '/' + pkg.main, ['--console', 'debug'], {
+                pid = child_process.fork('node_modules/' + pkg.name + '/' + pkg.main, ['--console', 'silly'], {
                     cwd:   rootDir + 'tmp',
                     stdio: [0, 1, 2, 'ipc']
                 });
@@ -523,6 +515,9 @@ function startController(isStartAdapter, onObjectChange, onStateChange, callback
                 "connectTimeout": 2000
             },
             logger: {
+                silly: function (msg) {
+                    console.log(msg);
+                },
                 debug: function (msg) {
                     console.log(msg);
                 },
@@ -563,9 +558,14 @@ function startController(isStartAdapter, onObjectChange, onStateChange, callback
                 }
             },
             logger: {
+                silly: function (msg) {
+                    console.log(msg);
+                },
                 debug: function (msg) {
+                    console.log(msg);
                 },
                 info: function (msg) {
+                    console.log(msg);
                 },
                 warn: function (msg) {
                     console.log(msg);
