@@ -1,3 +1,8 @@
+/* jshint -W097 */
+// jshint strict:true
+/*jslint node: true */
+/*jslint esversion: 6 */
+
 /**
  *
  *      ioBroker sonoff Adapter
@@ -71,4 +76,3 @@ function main() {
 
     server = new Server(adapter);
 }
-

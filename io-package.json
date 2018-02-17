@@ -4,8 +4,19 @@
         "require": {
             "js-controller": ">=4"
         },
-        "version": "1.0.1",
+        "version": "1.0.2",
         "news": {
+            "1.0.2": {
+                "en": "Add Illuminance sensor",
+                "de": "Beleuchtungsstärkesensor hinzufügen",
+                "ru": "Добавить датчик освещенности",
+                "pt": "Adicionar sensor de iluminação",
+                "nl": "Voeg verlichtingsensor toe",
+                "fr": "Ajouter un capteur d'éclairement",
+                "it": "Aggiungi sensore di illuminamento",
+                "es": "Agregar sensor de iluminancia",
+                "pl": "Dodaj czujnik natężenia oświetlenia"
+            },
             "1.0.1": {
                 "en": "Ready for admin3\nAdded CO2 sensor",
                 "de": "Bereit für admin3\nHinzugefügt CO2-Sensor",

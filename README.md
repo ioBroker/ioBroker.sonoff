@@ -64,10 +64,14 @@ Following topics are expected:
 - /DeviceNAME/BM280/IPaddress
 - /DeviceNAME/BM280/RestartReason
 - /DeviceNAME/BM280/CarbonDioxide
+- /DeviceNAME/DHT11/Illuminance
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 1.0.2 (2018-02-17)
+* (Apollon77) Add Illuminance sensor
 
 ### 1.0.1 (2018-02-05)
 * (bluefox) Ready for admin3
