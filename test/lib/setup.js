@@ -446,7 +446,14 @@ function setupController(cb) {
             restoreOriginalFiles();
             copyAdapterToController();
         }
-        if (cb) cb();
+        // read system.config object
+        var dataDir = rootDir + 'tmp/' + appName + '-data/';
+
+        var objs = fs.readFileSync(dataDir + 'objects.json');
+        objs = JSON.parse(objs);
+
+
+        if (cb) cb(objs['system.config']);
     });
 }
 

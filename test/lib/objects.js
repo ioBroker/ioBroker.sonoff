@@ -1,3 +1,7 @@
+/* jshint -W097 */
+// jshint strict:true
+/*jslint node: true */
+/*jslint esversion: 6 */
 'use strict';
 var path        = require('path');
 var rootDir     = path.normalize(__dirname + '/../../');
