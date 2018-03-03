@@ -1,5 +1,5 @@
 ![Logo](admin/sonoff.png)
-# ioBroker Sonoff Adapter
+# ioBroker Sonoff
 ==============
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
@@ -69,6 +69,9 @@ Following topics are expected:
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 1.0.3 (2018-03-03)
+* (bluefox) Add Analog0/1/2/3 sensor
 
 ### 1.0.2 (2018-02-17)
 * (Apollon77) Add Illuminance sensor

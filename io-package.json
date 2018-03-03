@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "news": {
+            "1.0.3": {
+                "en": "Add Analog0/1/2/3 sensor",
+                "de": "Fügen Sie den Analog0/1/2/3-Sensor hinzu",
+                "ru": "Добавить датчик Analog0/1/2/3",
+                "pt": "Adicionar sensor Analog0/1/2/3",
+                "nl": "Analog0/1/2/3-sensor toevoegen",
+                "fr": "Ajouter un capteur Analog0/1/2/3",
+                "it": "Aggiungi il sensore Analog0/1/2/3",
+                "es": "Agregar sensor Analog0/1/2/3",
+                "pl": "Dodaj czujnik Analog0/1/2/3"
+            },
             "1.0.2": {
                 "en": "Add Illuminance sensor",
                 "de": "Beleuchtungsstärkesensor hinzufügen",

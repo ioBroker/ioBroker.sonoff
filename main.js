@@ -1,13 +1,13 @@
 /* jshint -W097 */
-// jshint strict:true
-/*jslint node: true */
-/*jslint esversion: 6 */
+/* jshint strict:true */
+/* jslint node: true */
+/* jslint esversion: 6 */
 
 /**
  *
  *      ioBroker sonoff Adapter
  *
- *      (c) 2017 bluefox
+ *      (c) 2017-2018 bluefox
  *
  *      MIT License
  *
