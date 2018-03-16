@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "1.0.3",
+        "version": "2.0.0",
         "news": {
+            "2.0.0": {
+                "en": "Add Light/Noise/AirQuality",
+                "de": "Fügen Sie den Light/Noise/AirQuality hinzu",
+                "ru": "Добавлены Light/Noise/AirQuality",
+                "pt": "Adicionar Light/Noise/AirQuality",
+                "nl": "Light/Noise/AirQuality toevoegen",
+                "fr": "Ajouter un capteur Light/Noise/AirQuality",
+                "it": "Aggiungi il Light/Noise/AirQuality",
+                "es": "Agregar Light/Noise/AirQuality",
+                "pl": "Dodaj Light/Noise/AirQuality"
+            },
             "1.0.3": {
                 "en": "Add Analog0/1/2/3 sensor",
                 "de": "Fügen Sie den Analog0/1/2/3-Sensor hinzu",
@@ -102,7 +113,8 @@
         "port":                 1883,
         "bind":                 "0.0.0.0",
         "user":                 "",
-        "pass":                 ""
+        "pass":                 "",
+        "timeout":              300
     },
     "objects": [
 

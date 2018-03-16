@@ -51,6 +51,7 @@
         if (!settings) return;
 
 		if (settings.useChunkPatch === undefined) settings.useChunkPatch = false;
+        if (settings.timeout === undefined) settings.timeout = 300;
 
         if (subparam && param) {
             for (var key in settings[param][subparam]) {
@@ -165,6 +166,10 @@
                 <div class="input-field col s6 m4 l2">
                     <input id="port" type="number" min="1" max="65565" class="value"/>
                     <label class="translate" for="port">Port:</label>
+                </div>
+                <div class="input-field col s6 m4 l2">
+                    <input id="timeout" type="number" min="1" max="99999" class="value"/>
+                    <label class="translate" for="timeout">Client timeout (sec):</label>
                 </div>
             </div>
             <div class="row">

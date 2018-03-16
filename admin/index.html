@@ -51,6 +51,7 @@
         if (!settings) return;
 
 		if (settings.useChunkPatch === undefined) settings.useChunkPatch = false;
+        if (settings.timeout === undefined) settings.timeout = 300;
 
         if (subparam && param) {
             for (var key in settings[param][subparam]) {
@@ -145,30 +146,30 @@
     </tr></table>
     <table>
         <tr>
-            <td colspan='3'><h4 class="translate">Connection settings</h4></td>
+            <td colspan='2'><h4 class="translate">Connection settings</h4></td>
         </tr>
         <tr>
             <td><label class="translate" for="port">Port:</label></td>
-            <td><input id="port" size="5" type="number" min="1" max="65565" class="value"/></td>
-            <td></td>
+            <td><input id="port" type="number" min="1" max="65565" class="value"/></td>
         </tr>
         <tr>
-            <td colspan='3'><h4 class="translate">Authentication settings</h4></td>
+            <td><label class="translate" for="timeout">Client timeout (sec):</label></td>
+            <td><input id="timeout" type="number" min="1" max="65565" class="value"/></td>
+        </tr>
+        <tr>
+            <td colspan='2'><h4 class="translate">Authentication settings</h4></td>
         </tr>
         <tr>
             <td><label class="translate" for="user">User:</label></td>
             <td><input id="user" size="17" class="value"/></td>
-            <td></td>
         </tr>
         <tr>
             <td><label class="translate" for="pass">Password:</label></td>
             <td><input id="pass" type="password" size="17" class="value"/></td>
-            <td></td>
         </tr>
         <tr>
             <td><label class="translate" for="pass_confirm">Password confirmation:</label></td>
             <td><input id="pass_confirm" type="password" size="17"/></td>
-            <td></td>
         </tr>
     </table>
 </div>

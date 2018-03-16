@@ -65,10 +65,18 @@ Following topics are expected:
 - /DeviceNAME/BM280/RestartReason
 - /DeviceNAME/BM280/CarbonDioxide
 - /DeviceNAME/DHT11/Illuminance
+- /DeviceNAME/SonoffSC/Light
+- /DeviceNAME/SonoffSC/Noise
+- /DeviceNAME/SonoffSC/AirQuality
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 2.0.0 (2018-03-16)
+* (bluefox) Replace stream handler
+* (bluefox) Add timeout for clients
+* (bluefox) Add Light/Noise/AirQuality
 
 ### 1.0.3 (2018-03-03)
 * (bluefox) Add Analog0/1/2/3 sensor
