@@ -30,7 +30,7 @@ function decrypt(key, value) {
 adapter.on('ready', function () {
     // it must be like this
 
-    adapter.getForeignObject('system.config', function (err, obj) {
+    adapter.getForeignObject('system.config', (err, obj) => {
         if (obj && obj.native && obj.native.secret) {
             //noinspection JSUnresolvedVariable
             adapter.config.pass = decrypt(obj.native.secret, adapter.config.pass);
@@ -42,7 +42,7 @@ adapter.on('ready', function () {
     });
 });
 
-adapter.on('unload', function (cb) {
+adapter.on('unload', cb => {
     if (server) {
         server.destroy(cb);
     } else if (cb) {
@@ -51,7 +51,7 @@ adapter.on('unload', function (cb) {
 });
 
 // is called if a subscribed state changes
-adapter.on('stateChange', function (id, state) {
+adapter.on('stateChange', (id, state) => {
     adapter.log.debug('stateChange ' + id + ': ' + JSON.stringify(state));
     // you can use the ack flag to detect if state is desired or acknowledged
     if (state && !state.ack && server) {
@@ -64,7 +64,7 @@ function main() {
     adapter.subscribeStates('*');
 
     // read all states and set alive to false
-    adapter.getStatesOf('', '', function (err, states) {
+    adapter.getStatesOf('', '', (err, states) => {
         if (states && states.length) {
             states.forEach(state => {
                 if (state._id.match(/\.alive$/)) {

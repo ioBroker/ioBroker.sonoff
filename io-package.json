@@ -1,12 +1,12 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.0.0",
+        "version": "2.0.1",
         "news": {
-            "2.0.0": {
-                "en": "Add Light/Noise/AirQuality",
-                "de": "Fügen Sie den Light/Noise/AirQuality hinzu",
-                "ru": "Добавлены Light/Noise/AirQuality",
+            "2.0.1": {
+                "en": "Add Light/Noise/AirQuality\nDo not send pingresp for invalid clients",
+                "de": "Fügen Sie den Light/Noise/AirQuality hinzu\nSendet keine Pingresp für ungültige Clients",
+                "ru": "Добавлены Light/Noise/AirQuality\nНе отправляen pingresp для недействительных клиентов",
                 "pt": "Adicionar Light/Noise/AirQuality",
                 "nl": "Light/Noise/AirQuality toevoegen",
                 "fr": "Ajouter un capteur Light/Noise/AirQuality",

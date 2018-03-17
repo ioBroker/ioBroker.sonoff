@@ -73,10 +73,11 @@ Following topics are expected:
 
 ## Changelog
 
-### 2.0.0 (2018-03-16)
+### 2.0.1 (2018-03-17)
 * (bluefox) Replace stream handler
 * (bluefox) Add timeout for clients
 * (bluefox) Add Light/Noise/AirQuality
+* (bluefox) Do not send pingresp for invalid clients
 
 ### 1.0.3 (2018-03-03)
 * (bluefox) Add Analog0/1/2/3 sensor
