@@ -55,6 +55,7 @@ Following topics are expected:
 - /DeviceNAME/BM280/Counter3
 - /DeviceNAME/BM280/Counter4
 - /DeviceNAME/BM280/Pressure
+- /DeviceNAME/BM280/SeaPressure
 - /DeviceNAME/BM280/Druck
 - /DeviceNAME/BM280/Approx. Altitude
 - /DeviceNAME/BM280/Module
@@ -72,6 +73,10 @@ Following topics are expected:
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+
+### 2.0.2 (2018-03-19)
+* (modmax) Fixing reconnection of clients
+* (bluefox) Add SeaPressure
 
 ### 2.0.1 (2018-03-17)
 * (bluefox) Replace stream handler

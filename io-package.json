@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.0.1",
+        "version": "2.0.2",
         "news": {
+            "2.0.2": {
+                "en": "Fixing re-connection of clients\nSeaPressure was added",
+                "de": "Reparieren der Neuverbindung von Clients\nSeaPressure wurde hinzugefügt",
+                "ru": "Фиксация повторного подключения клиентов\nДобавлено SeaPressure",
+                "pt": "Reparando conexão de clientes\nA SeaPressure foi adicionada",
+                "nl": "Bevestiging van opnieuw verbinden van clients\nSeaPressure is toegevoegd",
+                "fr": "Correction de la reconnexion des clients\nSeaPressure a été ajouté",
+                "it": "Risolvere la riconnessione dei client\nSeaPressure è stato aggiunto",
+                "es": "Reparar la reconexión de los clientes\nSeaPressure fue agregado",
+                "pl": "Naprawianie ponownego połączenia klientów\nSeaPressure zostało dodane"
+            },
             "2.0.1": {
                 "en": "Add Light/Noise/AirQuality\nDo not send pingresp for invalid clients",
                 "de": "Fügen Sie den Light/Noise/AirQuality hinzu\nSendet keine Pingresp für ungültige Clients",
