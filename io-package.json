@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.1.0",
+        "version": "2.1.1",
         "news": {
+            "2.1.1": {
+                "en": "Support of the particle concentration sensor",
+                "de": "Unterstützung des Partikelkonzentrationssensors",
+                "ru": "Поддержка датчика концентрации частиц",
+                "pt": "Suporte do sensor de concentração de partículas",
+                "nl": "Ondersteuning van de deeltjesconcentratiesensor",
+                "fr": "Support du capteur de concentration de particules",
+                "it": "Supporto del sensore di concentrazione di particelle",
+                "es": "Soporte del sensor de concentración de partículas",
+                "pl": "Wsparcie czujnika stężenia cząstek"
+            },
             "2.1.0": {
                 "en": "Support of the devices control",
                 "de": "Unterstützung der Gerätekontrolle",

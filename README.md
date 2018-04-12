@@ -69,10 +69,16 @@ Following topics are expected:
 - /DeviceNAME/SonoffSC/Light
 - /DeviceNAME/SonoffSC/Noise
 - /DeviceNAME/SonoffSC/AirQuality
+- /DeviceNAME/SDS0X1/PM2.5
+- /DeviceNAME/SDS0X1/PM10
+
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+### 2.1.1 (2018-04-13)
+* (bluefox) Support of the particle concentration sensor
+
 ### 2.1.0 (2018-03-30)
 * (gemu2015) Support of the devices control (many thanks :)
 * (gemu2015) Support of many new values 
