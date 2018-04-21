@@ -1,8 +1,30 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.0.2",
+        "version": "2.1.1",
         "news": {
+            "2.1.1": {
+                "en": "Support of the particle concentration sensor",
+                "de": "Unterstützung des Partikelkonzentrationssensors",
+                "ru": "Поддержка датчика концентрации частиц",
+                "pt": "Suporte do sensor de concentração de partículas",
+                "nl": "Ondersteuning van de deeltjesconcentratiesensor",
+                "fr": "Support du capteur de concentration de particules",
+                "it": "Supporto del sensore di concentrazione di particelle",
+                "es": "Soporte del sensor de concentración de partículas",
+                "pl": "Wsparcie czujnika stężenia cząstek"
+            },
+            "2.1.0": {
+                "en": "Support of the devices control",
+                "de": "Unterstützung der Gerätekontrolle",
+                "ru": "Поддержка управления устройствами",
+                "pt": "Suporte do controle de dispositivos",
+                "nl": "Ondersteuning van de apparatencontrole",
+                "fr": "Prise en charge du contrôle des appareils",
+                "it": "Supporto del controllo dei dispositivi",
+                "es": "Soporte del control de dispositivos",
+                "pl": "Obsługa sterowania urządzeniami"
+            },
             "2.0.2": {
                 "en": "Fixing re-connection of clients\nSeaPressure was added",
                 "de": "Reparieren der Neuverbindung von Clients\nSeaPressure wurde hinzugefügt",
