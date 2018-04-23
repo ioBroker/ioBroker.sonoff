@@ -71,11 +71,17 @@ Following topics are expected:
 - /DeviceNAME/SonoffSC/AirQuality
 - /DeviceNAME/SDS0X1/PM2.5
 - /DeviceNAME/SDS0X1/PM10
+- /DeviceNAME/SDS0X1/UvLevel
+- /DeviceNAME/SDS0X1/Latitude
+- /DeviceNAME/SDS0X1/Longitude
 
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+### 2.1.2 (2018-04-23)
+* (bluefox) Added support of UvLight, Longitude and Latitude
+
 ### 2.1.1 (2018-04-13)
 * (bluefox) Support of the particle concentration sensor
 

@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.1.1",
+        "version": "2.1.2",
         "news": {
+            "2.1.2": {
+                "en": "Added support of UvLight, Longitude and Latitude",
+                "de": "Zusätzliche Unterstützung von UvLight, Longitude und Latitude",
+                "ru": "Добавлена ​​поддержка UvLight, долготы и широты",
+                "pt": "Adicionado suporte de UvLight, Longitude e Latitude",
+                "nl": "Ondersteuning toegevoegd van UvLight, Longitude en Latitude",
+                "fr": "Ajout du support de UvLight, Longitude et Latitude",
+                "it": "Aggiunto il supporto di UvLight, Longitude e Latitude",
+                "es": "Se agregó soporte de UvLight, Longitude y Latitude",
+                "pl": "Dodano obsługę UvLight, długości i szerokości geograficznej"
+            },
             "2.1.1": {
                 "en": "Support of the particle concentration sensor",
                 "de": "Unterstützung des Partikelkonzentrationssensors",
@@ -46,73 +57,6 @@
                 "it": "Aggiungi il Light/Noise/AirQuality",
                 "es": "Agregar Light/Noise/AirQuality",
                 "pl": "Dodaj Light/Noise/AirQuality"
-            },
-            "1.0.3": {
-                "en": "Add Analog0/1/2/3 sensor",
-                "de": "Fügen Sie den Analog0/1/2/3-Sensor hinzu",
-                "ru": "Добавить датчик Analog0/1/2/3",
-                "pt": "Adicionar sensor Analog0/1/2/3",
-                "nl": "Analog0/1/2/3-sensor toevoegen",
-                "fr": "Ajouter un capteur Analog0/1/2/3",
-                "it": "Aggiungi il sensore Analog0/1/2/3",
-                "es": "Agregar sensor Analog0/1/2/3",
-                "pl": "Dodaj czujnik Analog0/1/2/3"
-            },
-            "1.0.2": {
-                "en": "Add Illuminance sensor",
-                "de": "Beleuchtungsstärkesensor hinzufügen",
-                "ru": "Добавить датчик освещенности",
-                "pt": "Adicionar sensor de iluminação",
-                "nl": "Voeg verlichtingsensor toe",
-                "fr": "Ajouter un capteur d'éclairement",
-                "it": "Aggiungi sensore di illuminamento",
-                "es": "Agregar sensor de iluminancia",
-                "pl": "Dodaj czujnik natężenia oświetlenia"
-            },
-            "1.0.1": {
-                "en": "Ready for admin3\nAdded CO2 sensor",
-                "de": "Bereit für admin3\nHinzugefügt CO2-Sensor",
-                "ru": "Готово для admin3\nДобавлен датчик CO2",
-                "pt": "Pronto para admin3\nSensor de CO2 adicionado",
-                "nl": "Klaar voor admin3\nCO2-sensor toegevoegd",
-                "fr": "Prêt pour admin3\nCapteur de CO2 ajouté",
-                "it": "Pronto per admin3\nAggiunto sensore di CO2",
-                "es": "Listo para admin3\nSensor de CO2 agregado",
-                "pl": "Gotowy na admin3\nDodano czujnik CO2"
-            },
-            "1.0.0": {
-              "en": "typo @ alive\nadd Todays power consumption for Sonoff POW\nunit of power consumption is kWh",
-              "de": "typo @ alive\nfüge heutigen Stromverbrauch für Sonoff POW hinzu\nEinheit des Energieverbrauchs ist kWh",
-              "ru": "опечатка @ alive\nдобавить сегодняшнее энергопотребление для Sonoff POW\nединица потребляемой мощности - kWh"
-            },
-            "0.3.3": {
-                "en": "Add counters",
-                "de": "Zähler sind hinzugefügt",
-                "ru": "Добавлены счетчики"
-            },
-            "0.3.2": {
-                "en": "Small change for Switch1. Switch2 and additional IPaddress added.",
-                "de": "Kleine Änderung für Switch1. Switch2 und zusätzliche IP-Adresse hinzugefügt.",
-                "ru": "Небольшое изменение для Switch1. Добавлен Switch2 и добавлен дополнительный IPaddress."
-            },
-            "0.3.1": {
-                "en": "Fix tests and LWT",
-                "de": "Korrigiere Tests und LWT",
-                "ru": "Исправлены тесты и LWT"
-            },            "0.3.0": {
-                "en": "Add INFO and ESP",
-                "de": "INFO und ESP sind hinzugefügt",
-                "ru": "Добавлены INFO и ESP"
-            },
-            "0.2.0": {
-                "en": "Add ENERGY and DS18x20",
-                "de": "ENERGY und DS18x20 sind hinzugefügt",
-                "ru": "Добавлены ENERGY и DS18x20"
-            },
-            "0.1.0": {
-                "en": "initial commit",
-                "de": "initial commit",
-                "ru": "initial commit"
             }
         },
         "title": "Sonoff",
