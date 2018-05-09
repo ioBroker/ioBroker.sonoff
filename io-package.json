@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.1.2",
+        "version": "2.1.3",
         "news": {
+            "2.1.3": {
+                "en": "Added HC-SR04 Ultrasonic Sensor",
+                "de": "HC-SR04 Ultraschallsensor hinzugefügt",
+                "ru": "Добавлен ультразвуковой датчик HC-SR04",
+                "pt": "Adicionado Sensor Ultrassônico HC-SR04",
+                "nl": "HC-SR04 ultrasone sensor toegevoegd",
+                "fr": "Capteur à ultrasons HC-SR04 ajouté",
+                "it": "Aggiunto il sensore a ultrasuoni HC-SR04",
+                "es": "Sensor ultrasónico HC-SR04 agregado",
+                "pl": "Dodano czujnik ultradźwiękowy HC-SR04"
+            },
             "2.1.2": {
                 "en": "Added support of UvLight, Longitude and Latitude",
                 "de": "Zusätzliche Unterstützung von UvLight, Longitude und Latitude",

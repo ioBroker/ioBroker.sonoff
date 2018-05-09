@@ -74,11 +74,15 @@ Following topics are expected:
 - /DeviceNAME/SDS0X1/UvLevel
 - /DeviceNAME/SDS0X1/Latitude
 - /DeviceNAME/SDS0X1/Longitude
+- /DeviceNAME/SR04/Distance
 
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
+### 2.1.3 (2018-05-08)
+* (bluefox) Added HC-SR04 Ultrasonic Sensor
+
 ### 2.1.2 (2018-04-23)
 * (bluefox) Added support of UvLight, Longitude and Latitude
 
