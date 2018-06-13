@@ -1,7 +1,6 @@
 {
     "common": {
         "name":                     "sonoff",
-<<<<<<< HEAD
         "version": "2.1.4",
         "news": {
             "2.1.4": {
@@ -15,10 +14,6 @@
                 "es": "auto generate objects",
                 "pl": "auto generate objects"
             },
-=======
-        "version": "2.1.3",
-        "news": {
->>>>>>> ioBroker/master
             "2.1.3": {
                 "en": "Added HC-SR04 Ultrasonic Sensor",
                 "de": "HC-SR04 Ultraschallsensor hinzugefügt",

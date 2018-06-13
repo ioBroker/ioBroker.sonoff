@@ -80,12 +80,10 @@ Following topics are expected:
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Changelog
-<<<<<<< HEAD
+
 ### 2.1.4 (2018-05-22)
 * (gemu2015) auto generate objects, support for arrays (channel), ledcontrollers improved
 
-=======
->>>>>>> ioBroker/master
 ### 2.1.3 (2018-05-08)
 * (bluefox) Added HC-SR04 Ultrasonic Sensor
 
