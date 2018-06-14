@@ -113,7 +113,10 @@
         "bind":                 "0.0.0.0",
         "user":                 "",
         "pass":                 "",
-        "timeout":              300
+        "timeout":              300,
+        "TELE_SENSOR":          false,
+        "TELE_STATE":           false,
+        "STAT_RESULT":          false
     },
     "objects": [
 

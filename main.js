@@ -60,6 +60,10 @@ adapter.on('stateChange', (id, state) => {
 });
 
 function main() {
+    adapter.config.TELE_SENSOR = adapter.config.TELE_SENSOR === true || adapter.config.TELE_SENSOR === 'true';
+    adapter.config.TELE_STATE  = adapter.config.TELE_STATE  === true || adapter.config.TELE_STATE  === 'true';
+    adapter.config.STAT_RESULT = adapter.config.STAT_RESULT === true || adapter.config.STAT_RESULT === 'true';
+
     // subscribe for all variables
     adapter.subscribeStates('*');
 

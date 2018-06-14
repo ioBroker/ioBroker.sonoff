@@ -79,6 +79,14 @@ Following topics are expected:
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
+## Flags
+For every connection the additional flag LED_Mode will be created.
+You can control the behaviour of the auto-objects creation mode.
+
+Every bit in this mode means:
+- 1 -
+- 2 -
+
 ## Changelog
 
 ### 2.2.0 (2018-05-22)
