@@ -1,18 +1,18 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.1.4",
+        "version": "2.2.0",
         "news": {
-            "2.1.4": {
-                "en": "auto generate objects",
-                "de": "auto generate objects",
-                "ru": "auto generate objects",
-                "pt": "auto generate objects",
-                "nl": "auto generate objects",
-                "fr": "auto generate objects",
-                "it": "auto generate objects",
-                "es": "auto generate objects",
-                "pl": "auto generate objects"
+            "2.2.0": {
+                "en": "Auto generate of objects was implemented",
+                "de": "Auto-Generierung von Objekten wurde implementiert",
+                "ru": "Была реализована автоматическая генерация объектов",
+                "pt": "Geração automática de objetos foi implementada",
+                "nl": "Automatisch genereren van objecten is geïmplementeerd",
+                "fr": "La génération automatique d'objets a été implémentée",
+                "it": "È stata implementata la generazione automatica di oggetti",
+                "es": "Generación automática de objetos fue implementado",
+                "pl": "Automatycznie generowano obiekty"
             },
             "2.1.3": {
                 "en": "Added HC-SR04 Ultrasonic Sensor",

@@ -81,7 +81,7 @@ Following topics are expected:
 
 ## Changelog
 
-### 2.1.4 (2018-05-22)
+### 2.2.0 (2018-05-22)
 * (gemu2015) auto generate objects, support for arrays (channel), ledcontrollers improved
 
 ### 2.1.3 (2018-05-08)
