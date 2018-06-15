@@ -27,7 +27,7 @@ function decrypt(key, value) {
     return result;
 }
 
-adapter.on('ready', function () {
+adapter.on('ready', () => {
     // it must be like this
 
     adapter.getForeignObject('system.config', (err, obj) => {

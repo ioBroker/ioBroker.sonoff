@@ -116,7 +116,11 @@
         "timeout":              300,
         "TELE_SENSOR":          false,
         "TELE_STATE":           false,
-        "STAT_RESULT":          false
+        "STAT_RESULT":          false,
+        "storeClientsTime":     1440,
+        "defaultQoS":           0,
+        "retransmitInterval":   2000,
+        "retransmitCount":      10
     },
     "objects": [
 

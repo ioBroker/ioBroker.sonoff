@@ -53,7 +53,7 @@ function startClients(_done) {
     const MqttClient = require(__dirname + '/lib/mqttClient.js');
 
     // Start client to emit topics
-    mqttClientEmitter = new MqttClient(function () {
+    mqttClientEmitter = new MqttClient(() => {
         // on connected
         console.log('Test MQTT Emitter is connected to MQTT broker');
         clientConnected1 = true;
@@ -69,7 +69,7 @@ function startClients(_done) {
     }, {name: 'Emitter', user: 'user', pass: 'pass1'});
 
     // Start client to receive topics
-    mqttClientDetector = new MqttClient(function () {
+    mqttClientDetector = new MqttClient(() => {
         // on connected
         console.log('Test MQTT Detector is connected to MQTT broker');
         clientConnected2 = true;
@@ -94,7 +94,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
     lastReceivedTopic2   = null;
     lastReceivedMessage2 = null;
 
-    mqttClientEmitter.publish(id, task.send, function (err) {
+    mqttClientEmitter.publish(id, task.send, (err) => {
         expect(err).to.be.undefined;
 
         setTimeout(function () {
@@ -103,7 +103,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                 if (! task.expect.hasOwnProperty(e)) continue;
                 count++;
                 (function (_id, _val) {
-                    objects.getObject('sonoff.0.Emitter.' + _id, function (err, obj) {
+                    objects.getObject('sonoff.0.Emitter.' + _id, (err, obj) => {
                         if (_val !== null) {
                             expect(obj).to.be.not.null.and.not.undefined;
                             expect(obj._id).to.be.equal('sonoff.0.Emitter.' + _id);
@@ -118,7 +118,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                         } else {
                             expect(obj).to.be.undefined;
 
-                            states.getState('sonoff.0.Emitter.' + _id, function (err, state) {
+                            states.getState('sonoff.0.Emitter.' + _id, (err, state) => {
                                 expect(state).to.be.undefined;
                                 if (!--count) _done();
                             });
@@ -143,9 +143,9 @@ function checkAdapter2Mqtt(id, mqttid, value, _done) {
         val: value,
         ack: false
     }, function (err, id) {
-        setTimeout(function () {
+        setTimeout(() => {
             if (!lastReceivedTopic1) {
-                setTimeout(function () {
+                setTimeout(() => {
                     expect(lastReceivedTopic1).to.be.equal(mqttid);
                     expect(lastReceivedMessage1).to.be.equal(value ? 'ON' : 'OFF');
                     _done();
@@ -166,25 +166,25 @@ function checkConnection(value, done, counter) {
         return;
     }
 
-    states.getState('sonoff.0.info.connection', function (err, state) {
+    states.getState('sonoff.0.info.connection', (err, state) => {
         if (err) console.error(err);
         if (state && typeof state.val === 'string' && ((value && state.val.indexOf(',') !== -1) || (!value && state.val.indexOf(',') === -1))) {
             connected = value;
             done();
         } else {
-            setTimeout(function () {
+            setTimeout(() => {
                 checkConnection(value, done, counter + 1);
             }, 1000);
         }
     });
 }
 
-describe('Sonoff server: Test mqtt server', function() {
-    before('Sonoff server: Start js-controller', function (_done) {
+describe('Sonoff server: Test mqtt server', () => {
+    before('Sonoff server: Start js-controller', function (_done) { //
         this.timeout(600000); // because of first install from npm
         setup.adapterStarted = false;
 
-        setup.setupController(function (systemConfig) {
+        setup.setupController(systemConfig => {
             let config = setup.getAdapterConfig();
             // enable adapter
             config.common.enabled  = true;
@@ -194,7 +194,7 @@ describe('Sonoff server: Test mqtt server', function() {
 
             setup.setAdapterConfig(config.common, config.native);
 
-            setup.startController(function (_objects, _states) {
+            setup.startController((_objects, _states) => {
                 objects = _objects;
                 states  = _states;
                 brokerStarted = true;
@@ -208,56 +208,48 @@ describe('Sonoff server: Test mqtt server', function() {
         startClients(_done);
     });
 
-    it('Sonoff Server: Check if connected to MQTT broker', function (done) {
-        this.timeout(2000);
+    it('Sonoff Server: Check if connected to MQTT broker', done => {
         if (!connected) {
             checkConnection(true, done);
         } else {
             done();
         }
-    });
+    }).timeout(2000);
 
     for (let r in rules) {
         (function(id, task) {
-            it('Sonoff Server: Check receive ' + id, function (done) {
+            it('Sonoff Server: Check receive ' + id, done => {
                 checkMqtt2Adapter(id, task, this, done);
             });
         })(r, rules[r]);
     }
 
     // give time to client to receive all messages
-    it('wait', function (done) {
-        this.timeout(3000);
-        setTimeout(function () {
-            done();
-        }, 1000);
-    });
+    it('wait', done => {
+        setTimeout(() => done(), 1000);
+    }).timeout(3000);
 
-    it('Sonoff server: detector must receive cmnd/sonoff/POWER', function (done) {
-        this.timeout(2000);
+    it('Sonoff server: detector must receive cmnd/sonoff/POWER', done => {
         checkAdapter2Mqtt('sonoff.0.Emitter.POWER', 'cmnd/sonoff/POWER', false, done);
-    });
+    }).timeout(2000);
 
-    it('Sonoff Server: check reconnection', function (done) {
-        this.timeout(10000);
+    it('Sonoff Server: check reconnection', done => {
         mqttClientEmitter.stop();
         mqttClientDetector.stop();
-        checkConnection(false, function (error) {
+        checkConnection(false, error => {
             expect(error).to.be.not.ok;
             startClients();
-            checkConnection(true, function (error) {
+            checkConnection(true, error => {
                 expect(error).to.be.not.ok;
                 done();
             });
         });
-    });
+    }).timeout(10000)
 
-    after('Sonoff Server: Stop js-controller', function (done) {
+    after('Sonoff Server: Stop js-controller', function (_done) { // let FUNCTION and not => here
         this.timeout(5000);
         mqttClientEmitter.stop();
         mqttClientDetector.stop();
-        setup.stopController(function () {
-            done();
-        });
+        setup.stopController(() => done());
     });
 });

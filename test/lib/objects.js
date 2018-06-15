@@ -1,14 +1,10 @@
-/* jshint -W097 */
-// jshint strict:true
-/*jslint node: true */
-/*jslint esversion: 6 */
 'use strict';
-var path        = require('path');
-var rootDir     = path.normalize(__dirname + '/../../');
-var adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
+const path        = require('path');
+const rootDir     = path.normalize(__dirname + '/../../');
+let adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
 adapterName = adapterName[adapterName.length - 2];
 
-var logger = {
+const logger = {
     info:  function (msg) {
         console.log(msg);
     },
@@ -26,31 +22,31 @@ var logger = {
 function Objects(cb) {
     if (!(this instanceof Objects)) return new Objects(cb);
 
-    var _Objects = require(rootDir + 'tmp/node_modules/iobroker.js-controller/lib/objects');
+    const _Objects = require(rootDir + 'tmp/node_modules/iobroker.js-controller/lib/objects');
     this.connected = false;
-    var that = this;
+    const that = this;
 
     that.namespace = 'test';
 
     this.objects = new _Objects({
         connection: {
-            "type" : "file",
-            "host" : "127.0.0.1",
-            "port" : 19001,
-            "user" : "",
-            "pass" : "",
-            "noFileCache": false,
-            "connectTimeout": 2000
+            type : 'file',
+            host : '127.0.0.1',
+            port : 19001,
+            user : '',
+            pass : '',
+            noFileCache: false,
+            connectTimeout: 2000
         },
         logger:     logger,
-        connected: function () {
+        connected: () => {
             this.connected = true;
             if (typeof cb === 'function') cb();
         },
-        disconnected: function () {
+        disconnected: () => {
             this.connected = false;
         },
-        change: function (id, obj) {
+        change: (id, obj) => {
             if (!id) {
                 logger.error(that.namespace + ' change ID is empty:  ' + JSON.stringify(obj));
                 return;
@@ -60,19 +56,15 @@ function Objects(cb) {
                 if (typeof options.objectChange === 'function') options.objectChange(id.slice(that.namespace.length + 1), obj);
 
                 // emit 'objectChange' event instantly
-                setTimeout(function () {
-                    that.emit('objectChange', id.slice(that.namespace.length + 1), obj);
-                }, 0);
+                setImmediate(() => that.emit('objectChange', id.slice(that.namespace.length + 1), obj));
             } else {
                 if (typeof options.objectChange === 'function') options.objectChange(id, obj);
 
                 // emit 'objectChange' event instantly
-                setTimeout(function () {
-                    that.emit('objectChange', id, obj);
-                }, 0);
+                setImmediate(() => that.emit('objectChange', id, obj));
             }
         },
-        connectTimeout: function (error) {
+        connectTimeout: error => {
             if (logger) logger.error(that.namespace + ' no connection to objects DB');
             if (typeof cb === 'function') cb('Connect timeout');
         }
@@ -81,7 +73,7 @@ function Objects(cb) {
     that._namespaceRegExp = new RegExp('^' + that.namespace);       // cache the regex object 'adapter.0'
 
     that._fixId = function _fixId(id) {
-        var result  = '';
+        let result  = '';
         // If id is an object
         if (typeof id === 'object') {
             // Add namespace + device + channel
@@ -166,7 +158,7 @@ function Objects(cb) {
             (obj.native && obj.native.devices))
         ) {
             // Read whole object
-            that.objects.getObject(id, options, function (err, oldObj) {
+            that.objects.getObject(id, options, (err, oldObj) => {
                 if (err) {
                     if (typeof callback === 'function') callback(err);
                     return;
@@ -213,7 +205,7 @@ function Objects(cb) {
         if (obj && ((obj.native && (obj.native.repositories || obj.native.certificates || obj.native.devices)) ||
             (obj.common && obj.common.members))) {
             // Read whole object
-            that.objects.getObject(id, options, function (err, oldObj) {
+            that.objects.getObject(id, options, (err, oldObj) => {
                 if (err) {
                     if (typeof callback === 'function') callback(err);
                     return;
@@ -258,19 +250,19 @@ function Objects(cb) {
             options = null;
         }
         if (!_enum.match('^enum.')) _enum = 'enum.' + _enum;
-        var result = {};
+        const result = {};
 
-        that.objects.getObjectView('system', 'enum', {startkey: _enum + '.', endkey: _enum + '.\u9999'}, options, function (err, res) {
+        that.objects.getObjectView('system', 'enum', {startkey: _enum + '.', endkey: _enum + '.\u9999'}, options, (err, res) => {
             if (err) {
                 if (typeof callback === 'function') callback(err);
                 return;
             }
             // Read all
-            var count = 0;
+            let count = 0;
 
-            for (var t = 0; t < res.rows.length; t++) {
+            for (let t = 0; t < res.rows.length; t++) {
                 count++;
-                that.objects.getObject(res.rows[t].id, options, function (err, _obj) {
+                that.objects.getObject(res.rows[t].id, options, (err, _obj) => {
                     if (err) {
                         if (typeof callback === 'function') callback(err);
                         callback = null;
@@ -291,27 +283,27 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        var _enums = {};
+        const _enums = {};
         if (_enumList) {
             if (typeof _enumList === 'string') _enumList = [_enumList];
-            var count = 0;
-            for (var t = 0; t < _enumList.length; t++) {
+            let count = 0;
+            for (let t = 0; t < _enumList.length; t++) {
                 count++;
-                that.getEnum(_enumList[t], options, function (list, _enum) {
+                that.getEnum(_enumList[t], options, (list, _enum) => {
                     _enums[_enum] = list;
                     if (!--count && callback) callback(_enums);
                 });
             }
         } else {
             // Read all enums
-            that.objects.getObjectView('system', 'enum', {startkey: 'enum.', endkey: 'enum.\u9999'}, options, function (err, res) {
+            that.objects.getObjectView('system', 'enum', {startkey: 'enum.', endkey: 'enum.\u9999'}, options, (err, res) => {
                 if (err) {
                     callback(err);
                     return;
                 }
-                var result = {};
-                for (var i = 0; i < res.rows.length; i++) {
-                    var parts = res.rows[i].id.split('.', 3);
+                const result = {};
+                for (let i = 0; i < res.rows.length; i++) {
+                    const parts = res.rows[i].id.split('.', 3);
                     if (!parts[2]) continue;
                     if (!result[parts[0] + '.' + parts[1]]) result[parts[0] + '.' + parts[1]] = {};
                     result[parts[0] + '.' + parts[1]][res.rows[i].id] = res.rows[i].value;
@@ -327,7 +319,7 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        var params = {};
+        let params = {};
         if (pattern && pattern !== '*') {
             params = {
                 startkey: pattern.replace('*', ''),
@@ -342,28 +334,30 @@ function Objects(cb) {
             callback = type;
             type = null;
         }
-        that.objects.getObjectView('system', type || 'state', params, options, function (err, res) {
+        that.objects.getObjectView('system', type || 'state', params, options, (err, res) => {
             if (err) {
                 callback(err);
                 return;
             }
 
-            that.getEnums(enums, function (_enums) {
-                var list = {};
-                for (var i = 0; i < res.rows.length; i++) {
+            that.getEnums(enums, (_enums) => {
+                const list = {};
+                for (let i = 0; i < res.rows.length; i++) {
                     list[res.rows[i].id] = res.rows[i].value;
 
                     if (_enums) {
                         // get device or channel of this state and check it too
-                        var parts = res.rows[i].id.split('.');
+                        const parts = res.rows[i].id.split('.');
                         parts.splice(parts.length - 1, 1);
-                        var channel = parts.join('.');
+                        const channel = parts.join('.');
                         parts.splice(parts.length - 1, 1);
-                        var device = parts.join('.');
+                        const device = parts.join('.');
 
                         list[res.rows[i].id].enums = {};
-                        for (var es in _enums) {
-                            for (var e in _enums[es]) {
+                        for (const es in _enums) {
+                            if (!_enums.hasOwnProperty(es)) continue;
+                            for (const e in _enums[es]) {
+                                if (!_enums[es].hasOwnProperty(e)) continue;
                                 if (!_enums[es][e] || !_enums[es][e].common || !_enums[es][e].common.members) continue;
                                 if (_enums[es][e].common.members.indexOf(res.rows[i].id) !== -1 ||
                                     _enums[es][e].common.members.indexOf(channel)        !== -1 ||
@@ -451,7 +445,7 @@ function Objects(cb) {
             logger.warn('Do not use parent or children for ' + id);
         }
 
-        that.objects.getObject(id, options, function (err, obj) {
+        that.objects.getObject(id, options, (err, obj) => {
             if (!obj) {
                 that.objects.setObject(id, object, callback);
             }
@@ -463,7 +457,7 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        that.objects.getObject(id, options, function (err, obj) {
+        that.objects.getObject(id, options, (err, obj) => {
             if (!obj) {
                 that.objects.setObject(id, obj, callback);
             }
@@ -471,7 +465,7 @@ function Objects(cb) {
     };
 
     that._DCS2ID = function (device, channel, stateOrPoint) {
-        var id = '';
+        let id = '';
         if (device)  id += device;
         if (channel) id += ((id) ? '.' : '') + channel;
 
@@ -507,13 +501,13 @@ function Objects(cb) {
         _native = _native || {};
 
         that.setObjectNotExists(deviceName, {
-            "type":     "device",
-            "common":   common,
-            "native":   _native
+            'type':     'device',
+            'common':   common,
+            'native':   _native
         }, options, callback);
     };
 
-    // name of channel must be in format "channel"
+    // name of channel must be in format 'channel'
     that.createChannel = function createChannel(parentDevice, channelName, roleOrCommon, _native, options, callback) {
         if (typeof options === 'function') {
             callback = options;
@@ -531,7 +525,7 @@ function Objects(cb) {
             roleOrCommon = undefined;
         }
 
-        var common = {};
+        let common = {};
         if (typeof roleOrCommon === 'string') {
             common = {
                 role: roleOrCommon
@@ -547,10 +541,10 @@ function Objects(cb) {
 
         _native = _native || {};
 
-        var obj = {
-            type:     'channel',
-            common:   common,
-            native:   _native
+        const obj = {
+            'type':     'channel',
+            'common':   common,
+            'native':   _native
         };
 
         that.setObject(channelName, obj, options, callback);
@@ -573,7 +567,7 @@ function Objects(cb) {
             roleOrCommon = undefined;
         }
 
-        var common = {};
+        let common = {};
         if (typeof roleOrCommon === 'string') {
             common = {
                 role: roleOrCommon
@@ -589,14 +583,14 @@ function Objects(cb) {
         common.write = (common.write === undefined) ? false : common.write;
 
         if (!common.role) {
-            logger.error("Try to create state " + (parentDevice ? (parentDevice + '.') : '') + parentChannel + '.' + stateName + " without role");
+            logger.error('Try to create state ' + (parentDevice ? (parentDevice + '.') : '') + parentChannel + '.' + stateName + ' without role');
             return;
         }
 
         if (parentDevice)  parentDevice  = parentDevice.replace(/[.\s]+/g, '_');
         if (parentChannel) parentChannel = parentChannel.replace(/[.\s]+/g, '_');
         stateName = stateName.replace(/[.\s]+/g, '_');
-        var id = that._fixId({device: parentDevice, channel: parentChannel, state: stateName});
+        const id = that._fixId({device: parentDevice, channel: parentChannel, state: stateName});
 
         that.setObjectNotExists(id, {
             type:     'state',
@@ -619,18 +613,18 @@ function Objects(cb) {
         deviceName = deviceName.replace(/[.\s]+/g, '_');
         if (!that._namespaceRegExp.test(deviceName)) deviceName = that.namespace + '.' + deviceName;
 
-        that.objects.getObjectView('system', 'device', {startkey: deviceName, endkey: deviceName}, options, function (err, res) {
+        that.objects.getObjectView('system', 'device', {startkey: deviceName, endkey: deviceName}, options, (err, res) => {
             if (err || !res || !res.rows) {
                 if (typeof callback === 'function') callback(err);
                 callback = null;
                 return;
             }
-            var cnt = 0;
+            let cnt = 0;
             if (res.rows.length > 1) that.log.warn('Found more than one device ' + deviceName);
 
-            for (var t = 0; t < res.rows.length; t++) {
+            for (let t = 0; t < res.rows.length; t++) {
                 cnt++;
-                that.delObject(res.rows[t].id, options, function (err) {
+                that.delObject(res.rows[t].id, options, err => {
                     if (err) {
                         if (typeof callback === 'function') callback(err);
                         callback = null;
@@ -639,14 +633,14 @@ function Objects(cb) {
 
                     if (!--cnt) {
                         cnt = 0; // just to better understand
-                        that.objects.getObjectView('system', 'channel', {startkey: deviceName + '.', endkey: deviceName + '.\u9999'}, options, function (err, res) {
+                        that.objects.getObjectView('system', 'channel', {startkey: deviceName + '.', endkey: deviceName + '.\u9999'}, options, (err, res) => {
                             if (err) {
                                 if (typeof callback === 'function') callback(err);
                                 return;
                             }
-                            for (var k = 0; k < res.rows.length; k++) {
+                            for (let k = 0; k < res.rows.length; k++) {
                                 cnt++;
-                                that.deleteChannel(deviceName, res.rows[k].id, options, function (err) {
+                                that.deleteChannel(deviceName, res.rows[k].id, options, err => {
                                     if (!(--cnt) && callback) {
                                         callback(err);
                                     } else {
@@ -686,19 +680,19 @@ function Objects(cb) {
         }
         channelName = channelName.replace(/[.\s]+/g, '_');
 
-        var objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
+        const objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
 
         if (addTo.match(/^enum\./)) {
-            that.objects.getObject(addTo, options, function (err, obj) {
+            that.objects.getObject(addTo, options, (err, obj) => {
                 if (err) {
                     if (typeof callback === 'function') callback(err);
                     return;
                 }
                 if (!err && obj) {
-                    var pos = obj.common.members.indexOf(objId);
+                    const pos = obj.common.members.indexOf(objId);
                     if (pos === -1) {
                         obj.common.members.push(objId);
-                        that.objects.setObject(obj._id, obj, options, function (err) {
+                        that.objects.setObject(obj._id, obj, options, err => {
                             if (callback) callback(err);
                         });
                     }
@@ -707,14 +701,14 @@ function Objects(cb) {
         } else {
             if (enumName.match(/^enum\./)) enumName = enumName.substring(5);
 
-            that.objects.getObject('enum.' + enumName + '.' + addTo, options, function (err, obj) {
+            that.objects.getObject('enum.' + enumName + '.' + addTo, options, (err, obj) => {
                 if (err) {
                     if (typeof callback === 'function') callback(err);
                     return;
                 }
 
                 if (obj) {
-                    var pos = obj.common.members.indexOf(objId);
+                    const pos = obj.common.members.indexOf(objId);
                     if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, callback);
@@ -756,7 +750,7 @@ function Objects(cb) {
         channelName = channelName || '';
         channelName = channelName.replace(/[.\s]+/g, '_');
 
-        var objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
+        const objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
 
         if (enumName) {
             enumName = 'enum.' + enumName + '.';
@@ -764,27 +758,27 @@ function Objects(cb) {
             enumName = 'enum.';
         }
 
-        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options, function (err, res) {
+        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options, (err, res) => {
             if (err) {
                 if (typeof callback === 'function') callback(err);
                 return;
             }
             if (res) {
-                var count = 0;
-                for (var i = 0; i < res.rows.length; i++) {
+                let count = 0;
+                for (let i = 0; i < res.rows.length; i++) {
                     count++;
-                    that.objects.getObject(res.rows[i].id, options, function (err, obj) {
+                    that.objects.getObject(res.rows[i].id, options, (err, obj) => {
                         if (err) {
                             if (typeof callback === 'function') callback(err);
                             callback = null;
                             return;
                         }
                         if (!err && obj && obj.common && obj.common.members) {
-                            var pos = obj.common.members.indexOf(objId);
+                            const pos = obj.common.members.indexOf(objId);
                             if (pos !== -1) {
                                 obj.common.members.splice(pos, 1);
                                 count++;
-                                that.objects.setObject(obj._id, obj, options, function (err) {
+                                that.objects.setObject(obj._id, obj, options, err => {
                                     if (!(--count) && callback) {
                                         callback(err);
                                     } else {
@@ -796,8 +790,8 @@ function Objects(cb) {
                                 });
                             }
                         }
-
-                        if (!--count && callback) callback(err);
+                        count--;
+                        if (!count && callback) callback(err);
                     });
                 }
             } else if (callback) {
@@ -826,8 +820,8 @@ function Objects(cb) {
         }
         if (!parentDevice) parentDevice = '';
         that.deleteChannelFromEnum('', parentDevice, channelName);
-        var _parentDevice = parentDevice;
-        var _channelName  = channelName;
+        const _parentDevice = parentDevice;
+        const _channelName  = channelName;
 
         if (parentDevice) {
             if (that._namespaceRegExp.test(parentDevice)) {
@@ -847,20 +841,22 @@ function Objects(cb) {
 
         channelName  = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
 
-        logger.info("Delete channel " + channelName);
+        logger.info('Delete channel ' + channelName);
 
-        that.objects.getObjectView('system', 'channel', {startkey: channelName, endkey: channelName}, options, function (err, res) {
+        that.objects.getObjectView('system', 'channel', {startkey: channelName, endkey: channelName}, options, (err, res) => {
             if (err || !res || !res.rows) {
                 if (typeof callback === 'function') callback(err);
                 callback = null;
                 return;
             }
-            var cnt = 0;
-            if (res.rows.length > 1) that.log.warn('Found more than one channel ' + channelName);
+            let cnt = 0;
+            if (res.rows.length > 1) {
+                that.log.warn('Found more than one channel ' + channelName);
+            }
 
-            for (var t = 0; t < res.rows.length; t++) {
+            for (let t = 0; t < res.rows.length; t++) {
                 cnt++;
-                that.delObject(res.rows[t].id, options, function (err) {
+                that.delObject(res.rows[t].id, options, err => {
                     if (err) {
                         if (typeof callback === 'function') callback(err);
                         callback = null;
@@ -868,21 +864,20 @@ function Objects(cb) {
                     }
                     cnt--;
                     if (!cnt) {
-                        that.objects.getObjectView('system', 'state', {startkey: channelName + '.', endkey: channelName + '.\u9999'}, options, function (err, res) {
+                        that.objects.getObjectView('system', 'state', {startkey: channelName + '.', endkey: channelName + '.\u9999'}, options, (err, res) => {
                             if (err || !res || !res.rows) {
                                 if (typeof callback === 'function') callback(err);
                                 callback = null;
                                 return;
                             }
-                            for (var k = 0; k < res.rows.length; k++) {
-                                that.deleteState(_parentDevice, _channelName, res.rows[k].id, options, function (err) {
+                            for (let k = 0; k < res.rows.length; k++) {
+                                that.deleteState(_parentDevice, _channelName, res.rows[k].id, options, err => {
                                     if (!(--cnt) && callback) {
                                         callback(err);
                                     } else {
                                         if (err) {
                                             if (typeof callback === 'function') callback(err);
                                             callback = null;
-                                            return;
                                         }
                                     }
                                 });
@@ -965,7 +960,7 @@ function Objects(cb) {
         stateName = stateName || '';
         stateName = stateName.replace(/[.\s]+/g, '_');
 
-        var _name = that._DCS2ID(parentDevice, parentChannel, stateName);
+        const _name = that._DCS2ID(parentDevice, parentChannel, stateName);
         that.delState(_name, options, function () {
             that.delObject(_name, options, callback);
         });
@@ -976,11 +971,11 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        that.objects.getObjectView("system", "device", {startkey: that.namespace + '.', endkey: that.namespace + '.\u9999'}, options, function (err, obj) {
+        that.objects.getObjectView('system', 'device', {startkey: that.namespace + '.', endkey: that.namespace + '.\u9999'}, options, (err, obj) => {
             if (callback) {
                 if (obj.rows.length) {
-                    var res = [];
-                    for (var i = 0; i < obj.rows.length; i++) {
+                    const res = [];
+                    for (let i = 0; i < obj.rows.length; i++) {
                         res.push(obj.rows[i].value);
                     }
                     callback(null, res);
@@ -1008,11 +1003,11 @@ function Objects(cb) {
 
         parentDevice  = parentDevice.replace(/[.\s]+/g, '_');
         parentDevice = that.namespace + (parentDevice ? ('.' + parentDevice) : '');
-        that.objects.getObjectView('system', 'channel', {startkey: parentDevice + '.', endkey: parentDevice + '.\u9999'}, options, function (err, obj) {
+        that.objects.getObjectView('system', 'channel', {startkey: parentDevice + '.', endkey: parentDevice + '.\u9999'}, options, (err, obj) => {
             if (callback) {
                 if (obj.rows.length) {
-                    var res = [];
-                    for (var i = 0; i < obj.rows.length; i++) {
+                    const res = [];
+                    for (let i = 0; i < obj.rows.length; i++) {
                         res.push(obj.rows[i].value);
                     }
                     callback(null, res);
@@ -1062,16 +1057,16 @@ function Objects(cb) {
 
         parentChannel = parentChannel.replace(/[.\s]+/g, '_');
 
-        var id = that.namespace + '.' + that._DCS2ID(parentDevice, parentChannel, true);
+        const id = that.namespace + '.' + that._DCS2ID(parentDevice, parentChannel, true);
 
-        that.objects.getObjectView('system', 'state', {startkey: id, endkey: id + '\u9999'}, options, function (err, obj) {
+        that.objects.getObjectView('system', 'state', {startkey: id, endkey: id + '\u9999'}, options, (err, obj) => {
             if (callback) {
-                var res = [];
+                const res = [];
                 if (obj.rows.length) {
-                    var read = 0;
-                    for (var i = 0; i < obj.rows.length; i++) {
+                    let read = 0;
+                    for (let i = 0; i < obj.rows.length; i++) {
                         read++;
-                        that.objects.getObject(obj.rows[i].id, function (err, subObj) {
+                        that.objects.getObject(obj.rows[i].id, (err, subObj) => {
                             if (subObj) res.push(subObj);
 
                             if (!--read) callback(null, res);
@@ -1119,15 +1114,15 @@ function Objects(cb) {
         }
         stateName = stateName.replace(/[.\s]+/g, '_');
 
-        var objId = that._fixId({device: parentDevice, channel: parentChannel, state: stateName});
+        const objId = that._fixId({device: parentDevice, channel: parentChannel, state: stateName});
 
         if (addTo.match(/^enum\./)) {
-            that.objects.getObject(addTo, options, function (err, obj) {
+            that.objects.getObject(addTo, options, (err, obj) => {
                 if (!err && obj) {
-                    var pos = obj.common.members.indexOf(objId);
+                    const pos = obj.common.members.indexOf(objId);
                     if (pos === -1) {
                         obj.common.members.push(objId);
-                        that.objects.setObject(obj._id, obj, options, function (err) {
+                        that.objects.setObject(obj._id, obj, options, err => {
                             if (callback) callback(err);
                         });
                     }
@@ -1136,9 +1131,9 @@ function Objects(cb) {
         } else {
             if (enumName.match(/^enum\./)) enumName = enumName.substring(5);
 
-            that.objects.getObject('enum.' + enumName + '.' + addTo, options, function (err, obj) {
+            that.objects.getObject('enum.' + enumName + '.' + addTo, options, (err, obj) => {
                 if (!err && obj) {
-                    var pos = obj.common.members.indexOf(objId);
+                    const pos = obj.common.members.indexOf(objId);
                     if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, callback);
@@ -1199,7 +1194,7 @@ function Objects(cb) {
         }
         stateName = stateName.replace(/[.\s]+/g, '_');
 
-        var objId = that._fixId({device: parentDevice, channel: parentChannel, state: stateName}, 'state');
+        const objId = that._fixId({device: parentDevice, channel: parentChannel, state: stateName}, 'state');
 
         if (enumName) {
             enumName = 'enum.' + enumName + '.';
@@ -1207,12 +1202,12 @@ function Objects(cb) {
             enumName = 'enum.';
         }
 
-        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options,  function (err, res) {
+        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options,  (err, res) => {
             if (!err && res) {
-                var count = 0;
-                for (var i = 0; i < res.rows.length; i++) {
+                let count = 0;
+                for (let i = 0; i < res.rows.length; i++) {
                     count++;
-                    that.objects.getObject(res.rows[i].id, options, function (err, obj) {
+                    that.objects.getObject(res.rows[i].id, options, (err, obj) => {
                         if (err) {
                             if (callback) callback(err);
                             callback = null;
@@ -1220,11 +1215,11 @@ function Objects(cb) {
                         }
 
                         if (!err && obj && obj.common && obj.common.members) {
-                            var pos = obj.common.members.indexOf(objId);
+                            const pos = obj.common.members.indexOf(objId);
                             if (pos !== -1) {
                                 obj.common.members.splice(pos, 1);
                                 count++;
-                                that.objects.setObject(obj._id, obj, function (err) {
+                                that.objects.setObject(obj._id, obj, err => {
                                     if (!--count && callback) callback(err);
                                 });
                             }
@@ -1318,18 +1313,18 @@ function Objects(cb) {
             isSeconds = false;
         }
 
-        var format = _format || that.dateFormat || 'DD.MM.YYYY';
+        let format = _format || that.dateFormat || 'DD.MM.YYYY';
 
         if (!dateObj) return '';
-        var text = typeof dateObj;
+        const text = typeof dateObj;
         if (text === 'string') {
-            var pos = dateObj.indexOf('.');
+            const pos = dateObj.indexOf('.');
             if (pos !== -1) dateObj = dateObj.substring(0, pos);
             return dateObj;
         }
         if (text !== 'object') dateObj = isSeconds ? new Date(dateObj * 1000) : new Date(dateObj);
 
-        var v;
+        let v;
 
         // Year
         if (format.indexOf('YYYY') !== -1 || format.indexOf('JJJJ') !== -1 || format.indexOf('ГГГГ') !== -1) {

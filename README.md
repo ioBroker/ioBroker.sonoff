@@ -76,16 +76,18 @@ Following topics are expected:
 - /DeviceNAME/SDS0X1/Longitude
 - /DeviceNAME/SR04/Distance
 
-
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
 ## Flags
-For every connection the additional flag LED_Mode will be created.
+For every connection the additional flags will be created.
 You can control the behaviour of the auto-objects creation mode.
 
-Every bit in this mode means:
-- 1 -
-- 2 -
+The mode states will be created only if device has one of the states:
+- 'Red', 'Green', 'Blue', 'WW', 'CW', 'Color', 'RGB_POWER', 'WW_POWER', 'CW_POWER', 'Hue', 'Saturation'
+
+States:
+- modeLedExor - exor for white LEDs and color leds => if the white LEDs are switched on, color LEDs are switched off and vice versa (default true)
+- modeReadColors - allow for color read from MQTT (default false)
 
 ## Changelog
 
