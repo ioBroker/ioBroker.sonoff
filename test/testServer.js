@@ -62,11 +62,11 @@ function startClients(_done) {
             _done = null;
         }
     }, function (topic, message) {
-        console.log((new Date()).getTime() + ' emitter received ' + topic + ': ' + message.toString());
+        console.log(Date.now() + ' emitter received ' + topic + ': ' + message.toString());
         // on receive
         lastReceivedTopic1   = topic;
         lastReceivedMessage1 = message ? message.toString() : null;
-    }, {name: 'Emitter', user: 'user', pass: 'pass1'});
+    }, {name: 'Emitter*1', user: 'user', pass: 'pass1'});
 
     // Start client to receive topics
     mqttClientDetector = new MqttClient(() => {
@@ -78,12 +78,12 @@ function startClients(_done) {
             _done = null;
         }
     }, function (topic, message) {
-        console.log((new Date()).getTime() + ' detector received ' + topic + ': ' + message.toString());
+        console.log(Date.now() + ' detector received ' + topic + ': ' + message.toString());
         // on receive
         lastReceivedTopic2   = topic;
         lastReceivedMessage2 = message ? message.toString() : null;
         console.log(JSON.stringify(lastReceivedMessage2));
-    }, {name: 'Detector', user: 'user', pass: 'pass1'});
+    }, {name: 'Detector-1', user: 'user', pass: 'pass1'});
 }
 
 function checkMqtt2Adapter(id, task, _it, _done) {
@@ -94,19 +94,20 @@ function checkMqtt2Adapter(id, task, _it, _done) {
     lastReceivedTopic2   = null;
     lastReceivedMessage2 = null;
 
-    mqttClientEmitter.publish(id, task.send, (err) => {
+    console.log(`[${new Date().toISOString()}] Publish ${id}: ${task.send}`);
+    mqttClientEmitter.publish(id, task.send, err => {
         expect(err).to.be.undefined;
 
-        setTimeout(function () {
+        setTimeout(() => {
             let count = 0;
             for (let e in task.expect) {
                 if (! task.expect.hasOwnProperty(e)) continue;
                 count++;
                 (function (_id, _val) {
-                    objects.getObject('sonoff.0.Emitter.' + _id, (err, obj) => {
+                    objects.getObject('sonoff.0.Emitter_1.' + _id, (err, obj) => {
                         if (_val !== null) {
                             expect(obj).to.be.not.null.and.not.undefined;
-                            expect(obj._id).to.be.equal('sonoff.0.Emitter.' + _id);
+                            expect(obj._id).to.be.equal('sonoff.0.Emitter_1.' + _id);
                             expect(obj.type).to.be.equal('state');
 
                             states.getState(obj._id, function (err, state) {
@@ -118,7 +119,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                         } else {
                             expect(obj).to.be.undefined;
 
-                            states.getState('sonoff.0.Emitter.' + _id, (err, state) => {
+                            states.getState('sonoff.0.Emitter_1.' + _id, (err, state) => {
                                 expect(state).to.be.undefined;
                                 if (!--count) _done();
                             });
@@ -127,12 +128,12 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                 })(e, task.expect[e]);
             }
             if (!count) _done();
-        }, 100);
+        }, 200);
     });
 }
 
 function checkAdapter2Mqtt(id, mqttid, value, _done) {
-    console.log(new Date().getTime() + ' Send ' + id + ' with value '+ value);
+    console.log(new Date().toISOString() + ' Send ' + id + ' with value '+ value);
 
     lastReceivedTopic1   = null;
     lastReceivedMessage1 = null;
@@ -142,7 +143,7 @@ function checkAdapter2Mqtt(id, mqttid, value, _done) {
     states.setState(id, {
         val: value,
         ack: false
-    }, function (err, id) {
+    }, (err, id) => {
         setTimeout(() => {
             if (!lastReceivedTopic1) {
                 setTimeout(() => {
@@ -155,7 +156,7 @@ function checkAdapter2Mqtt(id, mqttid, value, _done) {
                 expect(lastReceivedMessage1).to.be.equal(value ? 'ON' : 'OFF');
                 _done();
             }
-        }, 200);
+        }, 400);
     });
 }
 
@@ -218,7 +219,7 @@ describe('Sonoff server: Test mqtt server', () => {
 
     for (let r in rules) {
         (function(id, task) {
-            it('Sonoff Server: Check receive ' + id, done => {
+            it('Sonoff Server: Check receive ' + id, function (done) { // let FUNCTION here
                 checkMqtt2Adapter(id, task, this, done);
             });
         })(r, rules[r]);
@@ -230,7 +231,7 @@ describe('Sonoff server: Test mqtt server', () => {
     }).timeout(3000);
 
     it('Sonoff server: detector must receive cmnd/sonoff/POWER', done => {
-        checkAdapter2Mqtt('sonoff.0.Emitter.POWER', 'cmnd/sonoff/POWER', false, done);
+        checkAdapter2Mqtt('sonoff.0.Emitter_1.POWER', 'cmnd/sonoff/POWER', false, done);
     }).timeout(2000);
 
     it('Sonoff Server: check reconnection', done => {
@@ -244,12 +245,12 @@ describe('Sonoff server: Test mqtt server', () => {
                 done();
             });
         });
-    }).timeout(10000)
+    }).timeout(10000);
 
     after('Sonoff Server: Stop js-controller', function (_done) { // let FUNCTION and not => here
         this.timeout(5000);
         mqttClientEmitter.stop();
         mqttClientDetector.stop();
-        setup.stopController(() => done());
+        setup.stopController(() => _done());
     });
 });
