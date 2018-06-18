@@ -29,6 +29,7 @@ let rules = {
     'tele/SonoffPOW/INFO3':            {send: '{"RestartReason":"Software/System restart"}',  expect: {'INFO.RestartReason': 'Software/System restart'}},
     'tele/sonoff_4ch/ENERGY':          {send: '{"Time":"2017-10-02T19:24:32", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":0, "Power":3, "Factor":0.12, "Voltage":221, "Current":0.097}',  expect: {'ENERGY.Total': 1.753, 'ENERGY.Current': 0.097}},
     'tele/sonoff_4ch/ENERGY1':         {send: '"Time":"2017-10-02T19:24:32", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":0, "Power":3, "Factor":0.12, "Voltage":221, "Current":0.097}',  expect: {}},
+    'tele/sonoff_1ch/STATE':           {send: '{"Time":"2017-10-02T19:24:32", "Color": "112233"}',  expect: {}},
 
     '/ESP_BOX/BM280/Pressure':         {send: '1010.09',    expect: {'Pressure': 1010.09}},
     '/ESP_BOX/BM280/Humidity':         {send: '42.39',      expect: {'Humidity': 42.39}},
@@ -106,6 +107,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                 (function (_id, _val) {
                     objects.getObject('sonoff.0.Emitter_1.' + _id, (err, obj) => {
                         if (_val !== null) {
+                            if (!obj) console.error('Object sonoff.0.Emitter_1.' + _id + ' not found');
                             expect(obj).to.be.not.null.and.not.undefined;
                             expect(obj._id).to.be.equal('sonoff.0.Emitter_1.' + _id);
                             expect(obj.type).to.be.equal('state');

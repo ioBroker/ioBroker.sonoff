@@ -36,7 +36,8 @@ function Client(cbConnected, cbChanged, config) {
             console.log('Test MQTT Client received "' + topic + '": ' + message.toString());
         }
     });
-    this.client.on('close', () => {
+    this.client.on('close', err => {
+        if (err) console.error('Connection closed: ' + err);
         // message is Buffer
         if (cbConnected) {
             cbConnected(false);
