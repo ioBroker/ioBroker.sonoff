@@ -91,6 +91,9 @@ States:
 
 ## Changelog
 
+### 2.2.1 (2018-06-20)
+* (bluefox) '-' in names was allowed again
+
 ### 2.2.0 (2018-05-22)
 * (gemu2015) auto generate objects, support for arrays (channel), ledcontrollers improved
 

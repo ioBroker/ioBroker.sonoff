@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.2.0",
+        "version": "2.2.1",
         "news": {
+            "2.2.1": {
+                "en": "- in names was allowed again",
+                "de": "- in Namen wurde wieder erlaubt",
+                "ru": "- в именах снова было разрешено",
+                "pt": "- nos nomes foi permitido novamente",
+                "nl": "- in namen was weer toegestaan",
+                "fr": "- dans les noms a été autorisé à nouveau",
+                "it": "- nei nomi è stato permesso di nuovo",
+                "es": "- en los nombres se permitió de nuevo",
+                "pl": "- w nazwach było ponownie dozwolone"
+            },
             "2.2.0": {
                 "en": "Auto generate of objects was implemented",
                 "de": "Auto-Generierung von Objekten wurde implementiert",
