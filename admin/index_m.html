@@ -35,13 +35,13 @@
     function setValue(id, value) {
         var $value = $('#' + id + '.value');
         if ($value.attr('type') === 'checkbox') {
-            $value.prop('checked', value).change(function() {
+            $value.prop('checked', value).on('change', function () {
                 onChange();
             });
         } else {
-            $value.val(value).change(function() {
+            $value.val(value).on('change', function () {
                 onChange();
-            }).keyup(function() {
+            }).keyup(function () {
                 onChange();
             });
         }
@@ -53,33 +53,12 @@
 		if (settings.useChunkPatch === undefined) settings.useChunkPatch = false;
         if (settings.timeout === undefined) settings.timeout = 300;
 
-        if (subparam && param) {
-            for (var key in settings[param][subparam]) {
-                if (typeof settings[param][subparam][key] !== 'object') {
-                    setValue(param + '_' + subparam + '_' + key, settings[param][subparam][key]);
-                } else {
-                    alert('4th level is not supported');
-                }
+        for (var key in settings) {
+            if (!settings.hasOwnProperty(key)) continue;
+            if (key === 'pass') {
+                settings[key] = decrypt(secret, settings[key]);
             }
-        } else if (param) {
-            for (var key in settings[param]) {
-                if (typeof settings[param][key] !== 'object') {
-                    setValue(param + '_' + key, settings[param][key]);
-                } else {
-                    loadHelper(settings, param, key);
-                }
-            }
-        } else {
-            for (var key in settings) {
-                if (typeof settings[key] !== 'object') {
-                    if (key === 'pass') {
-                        settings[key] = decrypt(secret, settings[key]);
-                    }
-                    setValue(key, settings[key]);
-                } else {
-                    loadHelper(settings, key);
-                }
-            }
+            setValue(key, settings[key]);
         }
     }
 
@@ -95,23 +74,6 @@
         onChange(false);
     }
 
-    function saveHelper(obj, id, value) {
-        var ids = id.split('_');
-
-        if (ids.length === 1) {
-            if (ids[0] === 'pass') value = encrypt(secret, value);
-            obj[id] = value;
-        } else if (ids.length === 2) {
-            if (!obj[ids[0]]) obj[ids[0]] = {};
-            obj[ids[0]][ids[1]] = value;
-        } else if (ids.length === 3) {
-            if (!obj[ids[0]]) obj[ids[0]] = {};
-            if (!obj[ids[0]][ids[1]]) obj[ids[0]][ids[1]] = {};
-            obj[ids[0]][ids[1]][ids[2]] = value;
-        }
-        return obj;
-    }
-
     function getSettings() {
         var obj = {};
         $('.value').each(function () {
@@ -119,9 +81,13 @@
             var id = $this.attr('id');
 
             if ($this.attr('type') === 'checkbox') {
-                obj = saveHelper(obj, id, $this.prop('checked'))
+                obj[id] = $this.prop('checked');
             } else {
-                obj = saveHelper(obj, id, $this.val())
+                var value = $this.val();
+                if (id === 'pass') {
+                    value = encrypt(secret, value);
+                }
+                obj[id] = value;
             }
         });
         return obj;
@@ -199,19 +165,15 @@
             <div class="row">
                 <div class="input-field col s6 m4">
                     <input id="TELE_SENSOR"  type="checkbox" class="value"/>
-                    <span class="translate" for="user">For tele/SENSOR:</span>
+                    <span class="translate" for="user">For tele/SENSOR</span>
                 </div>
-            </div>
-            <div class="row">
                 <div class="input-field col s6 m4">
                     <input id="TELE_STATE"  type="checkbox" class="value"/>
-                    <span class="translate" for="TELE_STATE">For tele/STATE:</span>
+                    <span class="translate" for="TELE_STATE">For tele/STATE</span>
                 </div>
-            </div>
-            <div class="row">
                 <div class="input-field col s6 m4">
                     <input id="STAT_RESULT"  type="checkbox" class="value"/>
-                    <span class="translate" for="STAT_RESULT">For stat/RESULT:</span>
+                    <span class="translate" for="STAT_RESULT">For stat/RESULT</span>
                 </div>
             </div>
         </div>

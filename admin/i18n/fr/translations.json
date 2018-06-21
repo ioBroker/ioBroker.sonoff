@@ -40,5 +40,10 @@
   "Prefix for topics:": "Préfixe pour tous les sujets",
   "Max topic length:": "Longueur maximale du nom de la rubrique",
   "Server": "Serveur/courtier",
-  "Client": "Client/abonné"
+  "Client": "Client/abonné",
+  "For tele/SENSOR": "Pour tele/SENSOR",
+  "For tele/STATE": "Pour tele/STATE",
+  "For stat/RESULT": "Pour stat/RESULT",
+  "Client timeout (sec):": "Délai d'expiration du client (sec)",
+  "Auto creation of states": "Création automatique d'états"
 }

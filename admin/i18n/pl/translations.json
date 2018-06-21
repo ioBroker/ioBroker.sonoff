@@ -40,5 +40,10 @@
   "Prefix for topics:": "Prefiks dla wszystkich tematów",
   "Max topic length:": "Maksymalna długość nazwy tematu",
   "Server": "Serwer / broker",
-  "Client": "Klient / subskrybent"
+  "Client": "Klient / subskrybent",
+  "For tele/SENSOR": "Dla tele/SENSOR",
+  "For tele/STATE": "Dla tele/STATE",
+  "For stat/RESULT": "Dla stat/RESULT",
+  "Client timeout (sec):": "Limit czasu klienta (s)",
+  "Auto creation of states": "Automatyczne tworzenie stanów"
 }

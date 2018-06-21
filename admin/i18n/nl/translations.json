@@ -40,5 +40,10 @@
   "Prefix for topics:": "Prefix para todos os tópicos",
   "Max topic length:": "Nome máximo do nome do tópico",
   "Server": "Servidor/corretor",
-  "Client": "Cliente/assinante"
+  "Client": "Cliente/assinante",
+  "For tele/SENSOR": "Voor tele/SENSOR",
+  "For tele/STATE": "Voor tele/STATE",
+  "For stat/RESULT": "Voor stat/RESULT",
+  "Client timeout (sec):": "Clienttimeout (sec)",
+  "Auto creation of states": "Automatisch creëren van staten"
 }

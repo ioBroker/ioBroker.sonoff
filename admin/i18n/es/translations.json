@@ -40,5 +40,10 @@
   "Prefix for topics:": "Prefijo para todos los temas",
   "Max topic length:": "Longitud máxima del nombre del tema",
   "Server": "Servidor/intermediario",
-  "Client": "Cliente/suscriptor"
+  "Client": "Cliente/suscriptor",
+  "For tele/SENSOR": "Por tele/SENSOR",
+  "For tele/STATE": "Por tele/STATE",
+  "For stat/RESULT": "Por stat/RESULT",
+  "Client timeout (sec):": "Tiempo de espera del cliente (seg)",
+  "Auto creation of states": "Creación automática de estados"
 }

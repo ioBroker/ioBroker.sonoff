@@ -40,5 +40,10 @@
   "Prefix for topics:": "Префикс для всех значений",
   "Max topic length:": "Максимальная длина имени топика",
   "Server": "Сервер/брокер",
-  "Client": "Клиент/подписчик"
+  "Client": "Клиент/подписчик",
+  "For tele/SENSOR": "Для tele/SENSOR",
+  "For tele/STATE": "Для tele/STATE",
+  "For stat/RESULT": "Для stat/RESULT",
+  "Client timeout (sec):": "Client timeout (sec):",
+  "Auto creation of states": "Auto creation of states"
 }
