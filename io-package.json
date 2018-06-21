@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.2.1",
+        "version": "2.2.2",
         "news": {
+            "2.2.2": {
+                "en": "Configuration was fixed",
+                "de": "Die Konfiguration wurde repariert",
+                "ru": "Конфигурация была исправлена",
+                "pt": "Configuração foi corrigida",
+                "nl": "Configuratie was opgelost",
+                "fr": "La configuration a été corrigée",
+                "it": "La configurazione è stata riparata",
+                "es": "La configuración fue arreglada",
+                "pl": "Konfiguracja została naprawiona"
+            },
             "2.2.1": {
                 "en": "- in names was allowed again",
                 "de": "- in Namen wurde wieder erlaubt",

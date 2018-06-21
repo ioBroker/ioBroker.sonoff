@@ -91,6 +91,9 @@ States:
 
 ## Changelog
 
+### 2.2.2 (2018-06-22)
+* (bluefox) Configuration was fixed
+
 ### 2.2.1 (2018-06-20)
 * (bluefox) '-' in names was allowed again
 
