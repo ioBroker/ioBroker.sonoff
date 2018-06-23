@@ -78,16 +78,24 @@ Following topics are expected:
 
 **Note**: The list could be easily extended. Please send *Pull Requests* or *debug data* for unknown states to developer (via issue).
 
-## Flags
-For every connection the additional flags will be created.
-You can control the behaviour of the auto-objects creation mode.
+## Auto-creation of objects
+In the web config you can determine which MQTT telegrams create the new objects not in default datapoints
 
+* TELE_SENSOR creates objects from tele/xxx/SENSOR telegrams
+* TELE_STATE creates objects from tele/xxx/STATE telegrams
+* STAT_RESULT creates objects from stat/xxx/RESULT telegrams
+
+Usually TELE_SENSOR should be sufficient for most users.
+
+## Flags for LED controllers
 The mode states will be created only if device has one of the states:
+
 - 'Red', 'Green', 'Blue', 'WW', 'CW', 'Color', 'RGB_POWER', 'WW_POWER', 'CW_POWER', 'Hue', 'Saturation'
 
 States:
-- modeLedExor - exor for white LEDs and color leds => if the white LEDs are switched on, color LEDs are switched off and vice versa (default true)
-- modeReadColors - allow for color read from MQTT (default false)
+
+* modeLedExor - exor for white LEDs and color leds => if the white LEDs are switched on, color LEDs are switched off and vice versa (default true)
+* modeReadColors - allow for color read from MQTT (default false)
 
 ## Changelog
 
