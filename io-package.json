@@ -1,8 +1,19 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.2.2",
+        "version": "2.2.3",
         "news": {
+            "2.2.3": {
+                "en": "Support for compact mode",
+                "de": "Unterstützung für den Kompaktmodus",
+                "ru": "Поддержка компактного режима",
+                "pt": "Suporte para o modo compacto",
+                "nl": "Ondersteuning voor de compacte modus",
+                "fr": "Prise en charge du mode compact",
+                "it": "Supporto per la modalità compatta",
+                "es": "Soporte para modo compacto",
+                "pl": "Obsługa trybu kompaktowego"
+            },
             "2.2.2": {
                 "en": "Configuration was fixed",
                 "de": "Die Konfiguration wurde repariert",
@@ -121,6 +132,7 @@
         "license":                  "MIT",
         "platform":                 "Javascript/Node.js",
         "mode":                     "daemon",
+        "compact":                  true,
         "enabled":                  true,
         "readme":                   "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
         "loglevel":                 "info",

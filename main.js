@@ -7,7 +7,7 @@
  *
  *      ioBroker sonoff Adapter
  *
- *      (c) 2017-2018 bluefox
+ *      (c) 2017-2019 bluefox
  *
  *      MIT License
  *
@@ -15,7 +15,8 @@
 'use strict';
 
 const utils   = require(__dirname + '/lib/utils'); // Get common adapter utils
-let   adapter = new utils.Adapter('sonoff');
+let   adapter;
+const adapterName = require('./package.json').name.split('.').pop();
 const Server  = require(__dirname + '/lib/server');
 let   server  = null;
 
@@ -27,37 +28,45 @@ function decrypt(key, value) {
     return result;
 }
 
-adapter.on('ready', () => {
-    // it must be like this
+function startAdapter(options) {
+    options = options || {};
+    Object.assign(options, {name: adapterName});
 
-    adapter.getForeignObject('system.config', (err, obj) => {
-        if (obj && obj.native && obj.native.secret) {
-            //noinspection JSUnresolvedVariable
-            adapter.config.pass = decrypt(obj.native.secret, adapter.config.pass);
-        } else {
-            //noinspection JSUnresolvedVariable
-            adapter.config.pass = decrypt('Zgfr56gFe87jJOM', adapter.config.pass);
-        }
-        main();
+    adapter = new utils.Adapter(options);
+
+    adapter.on('ready', () => {
+        // it must be like this
+
+        adapter.getForeignObject('system.config', (err, obj) => {
+            if (obj && obj.native && obj.native.secret) {
+                //noinspection JSUnresolvedVariable
+                adapter.config.pass = decrypt(obj.native.secret, adapter.config.pass);
+            } else {
+                //noinspection JSUnresolvedVariable
+                adapter.config.pass = decrypt('Zgfr56gFe87jJOM', adapter.config.pass);
+            }
+            main();
+        });
     });
-});
 
-adapter.on('unload', cb => {
-    if (server) {
-        server.destroy(cb);
-    } else if (cb) {
-        cb();
-    }
-});
+    adapter.on('unload', cb => {
+        if (server) {
+            server.destroy(cb);
+        } else if (cb) {
+            cb();
+        }
+    });
 
-// is called if a subscribed state changes
-adapter.on('stateChange', (id, state) => {
-    adapter.log.debug('stateChange ' + id + ': ' + JSON.stringify(state));
-    // you can use the ack flag to detect if state is desired or acknowledged
-    if (state && !state.ack && server) {
-        server.onStateChange(id, state);
-    }
-});
+    // is called if a subscribed state changes
+    adapter.on('stateChange', (id, state) => {
+        adapter.log.debug('stateChange ' + id + ': ' + JSON.stringify(state));
+        // you can use the ack flag to detect if state is desired or acknowledged
+        if (state && !state.ack && server) {
+            server.onStateChange(id, state);
+        }
+    });
+    return adapter;
+}
 
 function main() {
     adapter.config.TELE_SENSOR = adapter.config.TELE_SENSOR === true || adapter.config.TELE_SENSOR === 'true';
@@ -79,4 +88,12 @@ function main() {
     });
 
     server = new Server(adapter);
+}
+
+// If started as allInOne/compact mode => return function to create instance
+if (module && module.parent) {
+    module.exports = startAdapter;
+} else {
+    // or start the instance directly
+    startAdapter();
 }
