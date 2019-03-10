@@ -2,7 +2,7 @@
 # ioBroker Sonoff
 ==============
 
-[![NPM version](http://img.shields.io/npm/v/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
+![Number of Installations](http://iobroker.live/badges/sonoff-installed.svg) ![Number of Installations](http://iobroker.live/badges/sonoff-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
 [![Tests](https://travis-ci.org/ioBroker/ioBroker.sonoff.svg?branch=master)](https://travis-ci.org/ioBroker/ioBroker.sonoff)
 
