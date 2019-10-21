@@ -1,10 +1,10 @@
 /* jshint -W097 */
-// jshint strict:true
-/*jslint node: true */
-/*jslint esversion: 6 */
+/* jshint strict: true */
+/* jslint node: true */
+/* jslint esversion: 6 */
 'use strict';
-let expect = require('chai').expect;
-let setup  = require(__dirname + '/lib/setup');
+const expect = require('chai').expect;
+const setup  = require(__dirname + '/lib/setup');
 
 let objects = null;
 let states  = null;
@@ -20,7 +20,7 @@ let clientConnected1 = false;
 let clientConnected2 = false;
 let brokerStarted    = false;
 
-let rules = {
+const rules = {
     'tele/sonoff_4ch/STATE':           {send: '{"Time":"2017-10-02T19:26:06", "Uptime":0, "Vcc":3.226, "POWER1":"OFF", "POWER2":"OFF", "POWER3":"OFF", "POWER4":"OFF", "Wifi":{"AP":1, "SSId":"AAA", "RSSI": 15}}',  expect: {Vcc: 3.226, Wifi_RSSI: 15}},
     'tele/sonoff/SENSOR':              {send: '{"Time":"2017-10-05T17:43:19", "DS18x20":{"DS1":{"Type":"DS18B20", "Address":"28FF9A9876815022A", "Temperature":12.2}}, "TempUnit":"C"}',  expect: {DS18x20_DS1_Temperature: 12.2}},
     'tele/sonoff5/SENSOR':             {send: '{"Time":"2017-10-03T14:02:25", "AM2301-14":{"Temperature":21.6, "Humidity":54.7}, "TempUnit":"C"}',  expect: {'AM2301-14_Temperature': 21.6, 'AM2301-14_Humidity': 54.7}},
@@ -53,7 +53,7 @@ function decrypt(key, value) {
 
 function startClients(_done) {
     // start mqtt client
-    const MqttClient = require(__dirname + '/lib/mqttClient.js');
+    const MqttClient = require('./lib/mqttClient.js');
 
     // Start client to emit topics
     mqttClientEmitter = new MqttClient(connected => {
@@ -128,7 +128,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                             expect(obj).to.be.undefined;
 
                             states.getState('sonoff.0.Emitter_1.' + _id, (err, state) => {
-                                expect(state).to.be.undefined;
+                                expect(state).to.be.null;
                                 if (!--count) _done();
                             });
                         }

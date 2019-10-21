@@ -8,12 +8,6 @@
     "type": "git",
     "url": "https://github.com/ioBroker/ioBroker.sonoff"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/ioBroker/ioBroker.sonoff/blob/master/LICENSE"
-    }
-  ],
   "keywords": [
     "iobroker",
     "sonoff",
@@ -21,17 +15,15 @@
     "tasmota",
     "esp"
   ],
-  "devDependencies ": {
-    "mqtt": "^2.18.1"
-  },
   "dependencies": {
     "mqtt-connection": "^4.0.0",
     "@iobroker/adapter-core": "^1.0.3"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "mocha": "^6.0.2",
-    "chai": "^4.1.2"
+    "mqtt": "^3.0.0",
+    "gulp": "^4.0.2",
+    "mocha": "^6.2.2",
+    "chai": "^4.2.0"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"

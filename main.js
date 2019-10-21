@@ -14,11 +14,11 @@
  */
 'use strict';
 
-const utils = require('@iobroker/adapter-core'); // Get common adapter utils
-let   adapter;
+const utils       = require('@iobroker/adapter-core'); // Get common adapter utils
 const adapterName = require('./package.json').name.split('.').pop();
-const Server  = require(__dirname + '/lib/server');
-let   server  = null;
+const Server      = require('./lib/server');
+let   server      = null;
+let   adapter;
 
 function decrypt(key, value) {
     let result = '';
@@ -52,7 +52,8 @@ function startAdapter(options) {
     adapter.on('unload', cb => {
         if (server) {
             server.destroy(cb);
-        } else if (cb) {
+            server = null;
+        } else if (typeof cb === 'function') {
             cb();
         }
     });
@@ -61,9 +62,7 @@ function startAdapter(options) {
     adapter.on('stateChange', (id, state) => {
         adapter.log.debug('stateChange ' + id + ': ' + JSON.stringify(state));
         // you can use the ack flag to detect if state is desired or acknowledged
-        if (state && !state.ack && server) {
-            server.onStateChange(id, state);
-        }
+        state && !state.ack && server && server.onStateChange(id, state);
     });
     return adapter;
 }
@@ -73,19 +72,13 @@ function main() {
     adapter.config.TELE_STATE  = adapter.config.TELE_STATE  === true || adapter.config.TELE_STATE  === 'true';
     adapter.config.STAT_RESULT = adapter.config.STAT_RESULT === true || adapter.config.STAT_RESULT === 'true';
 
-    // subscribe for all variables
+    // subscribe for all own variables
     adapter.subscribeStates('*');
 
     // read all states and set alive to false
-    adapter.getStatesOf('', '', (err, states) => {
-        if (states && states.length) {
-            states.forEach(state => {
-                if (state._id.match(/\.alive$/)) {
-                    adapter.setForeignState(state._id, false, true);
-                }
-            });
-        }
-    });
+    adapter.getStatesOf('', '', (err, states) =>
+        states && states.length && states.forEach(state =>
+                state._id.match(/\.alive$/) && adapter.setForeignState(state._id, false, true)));
 
     server = new Server(adapter);
 }

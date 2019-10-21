@@ -60,6 +60,11 @@
             }
             setValue(key, settings[key]);
         }
+        $('#pass_confirm').val(settings.pass).on('change', function () {
+            onChange();
+        }).keyup(function () {
+            onChange();
+        });
     }
 
     // the function loadSettings has to exist ...
@@ -68,6 +73,14 @@
         socket.emit('getObject', 'system.config', function (err, obj) {
             secret = (obj.native ? obj.native.secret : '') || 'Zgfr56gFe87jJOM';
             loadHelper(settings);
+
+            getIPs(function (ips) {
+                for (var i = 0; i < ips.length; i++) {
+                    $('#bind').append('<option value="' + ips[i].address + '">' + ips[i].name + '</option>');
+                }
+                $('#bind.value').val(settings.bind).select();
+            });
+
             M.updateTextFields();
         });
 
@@ -115,6 +128,7 @@
 </style>
 </head>
 <body>
+<form autocomplete="off" method="post" action="">
 <div class="m adapter-container">
     <div class="row">
         <div class="col s12">
@@ -126,6 +140,12 @@
             <div class="row">
                 <div class="col s12">
                     <h6 class="title translate">Connection settings</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m8 l5 input-field">
+                    <select class="value" id="bind"></select>
+                    <label class="translate" for="bind">IP</label>
                 </div>
             </div>
             <div class="row">
@@ -145,15 +165,15 @@
             </div>
             <div class="row">
                 <div class="input-field col s6 m4">
-                    <input id="user"  type="text" class="value"/>
+                    <input id="user" autocomplete="new-password" type="text" class="value"/>
                     <label class="translate" for="user">User:</label>
                 </div>
                 <div class="input-field col s6 m4">
-                    <input id="pass" type="password" class="value"/>
+                    <input id="pass" autocomplete="new-password" type="password" class="value"/>
                     <label class="translate" for="pass">Password:</label>
                 </div>
                 <div class="input-field col s6 m4">
-                    <input id="pass_confirm" type="password" />
+                    <input id="pass_confirm" autocomplete="new-password" type="password" />
                     <label class="translate" for="pass_confirm">Password confirmation:</label>
                 </div>
             </div>
@@ -176,8 +196,20 @@
                     <span class="translate" for="STAT_RESULT">For stat/RESULT</span>
                 </div>
             </div>
+            <div class="row">
+                <div class="col s12">
+                    <h6 class="title translate">Connection settings</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s6 m4">
+                    <input class="value" type="checkbox" id="ignorePings"/>
+                    <span class="translate" for="bind">Ignore warnings with pingreq</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+</form>
 </body>
 </html>

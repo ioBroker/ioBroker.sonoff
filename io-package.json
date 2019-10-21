@@ -124,7 +124,8 @@
             "fr": "Cet adaptateur permet de connecter des composants sonoff via MQTT",
             "it": "Questo adattatore consente di collegare i componenti Sonoff via MQTT",
             "es": "Este adaptador permite conectar componentes de sonof a través de MQTT",
-            "pl": "Ten adapter umożliwia łączenie komponentów sonoff za pośrednictwem MQTT"
+            "pl": "Ten adapter umożliwia łączenie komponentów sonoff za pośrednictwem MQTT",
+            "zh-cn": "该适配器允许通过MQTT连接Sonoff组件"
         },
         "authors": [
             "bluefox <dogafox@gmail.com>"
@@ -154,7 +155,8 @@
         "storeClientsTime":     1440,
         "defaultQoS":           0,
         "retransmitInterval":   2000,
-        "retransmitCount":      10
+        "retransmitCount":      10,
+        "ignorePings":          false
     },
     "objects": [
 
