@@ -1,8 +1,20 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.2.3",
+        "version": "2.3.0",
         "news": {
+            "2.3.0": {
+                "en": "Fixed the password input in the configuration\nAllowed to set the IP interface for server\nFixed tests for js-controller 2.0\nFixed the monitoring of the client connection\nChanged \"indicator.connected\" to \"indicator.reachable\" for clients\nSupported {POWERn: \"true\"}\nCorrect processing of {temp: nan}",
+                "de": "Die Passworteingabe in der Konfiguration wurde korrigiert\nDarf die IP-Schnittstelle für den Server einstellen\nBehobene Tests für js-controller 2.0\nDie Überwachung der Client-Verbindung wurde behoben\n\"Indicator.connected\" wurde für Clients in \"indicator.reachable\" geändert\nUnterstützt {POWERn: \"true\"}\nRichtige Verarbeitung von {temp: nan}",
+                "ru": "Исправлен ввод пароля в конфигурации\nРазрешено устанавливать IP интерфейс для сервера\nИсправлены тесты для js-controller 2.0\nИсправлен мониторинг клиентского соединения\nИзменен «индикатор.подключен» на «индикатор.доступен» для клиентов\nПоддерживается {POWERn: \"true\"}\nПравильная обработка {temp: nan}",
+                "pt": "Corrigida a entrada da senha na configuração\nPermitido definir a interface IP para o servidor\nTestes corrigidos para o js-controller 2.0\nCorrigido o monitoramento da conexão do cliente\nAlterado \"indicator.connected\" para \"indicator.reachable\" para clientes\nSuportado {POWERn: \"true\"}\nProcessamento correto de {temp: nan}",
+                "nl": "De wachtwoordinvoer in de configuratie is opgelost\nMag de IP-interface voor de server instellen\nVaste tests voor js-controller 2.0\nDe bewaking van de clientverbinding is opgelost\n\"Indicator.connected\" gewijzigd in \"indicator.reachable\" voor klanten\nOndersteund {POWERn: \"true\"}\nCorrecte verwerking van {temp: nan}",
+                "fr": "Correction du mot de passe saisi dans la configuration\nAutorisé à définir l'interface IP pour le serveur\nTests fixes pour js-controller 2.0\nCorrection de la surveillance de la connexion client\n\"Indicateur.connecté\" remplacé par \"indicateur.accessible\" pour les clients\nPris en charge {POWERn: \"true\"}\nTraitement correct de {temp: nan}",
+                "it": "Risolto il problema con l'inserimento della password nella configurazione\nAutorizzato a impostare l'interfaccia IP per il server\nTest fissi per js-controller 2.0\nRisolto il problema con il monitoraggio della connessione client\nModificato \"indicatore.connesso\" in \"indicatore.realizzabile\" per i client\nSupportato {POWERn: \"true\"}\nElaborazione corretta di {temp: nan}",
+                "es": "Se corrigió la entrada de contraseña en la configuración\nSe le permite configurar la interfaz IP para el servidor\nPruebas fijas para js-controller 2.0\nSe corrigió el monitoreo de la conexión del cliente.\nSe cambió \"indicator.connected\" a \"indicator.reachable\" para clientes\nCompatible con {POWERn: \"true\"}\nProcesamiento correcto de {temp: nan}",
+                "pl": "Naprawiono wprowadzanie hasła w konfiguracji\nDozwolone ustawienie interfejsu IP dla serwera\nNaprawiono testy js-kontrolera 2.0\nNaprawiono monitorowanie połączenia klienta\nZmieniono „wskaźnik.połączony” na „wskaźnik.rozdostępny” dla klientów\nObsługiwane {POWERn: „true”}\nPrawidłowe przetwarzanie {temp: nan}",
+                "zh-cn": "修复了配置中输入的密码\n允许设置服务器的IP接口\n固定测试js-controller 2.0\n修复了客户端连接的监控\n将客户端的“ indicator.connected”更改为“ indicator.reachable”\n受支持的{POWERn：“ true”}\n正确处理{temp：nan}"
+            },
             "2.2.3": {
                 "en": "Support for compact mode",
                 "de": "Unterstützung für den Kompaktmodus",
