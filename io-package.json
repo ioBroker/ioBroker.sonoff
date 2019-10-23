@@ -1,9 +1,9 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.3.0",
+        "version": "2.3.1",
         "news": {
-            "2.3.0": {
+            "2.3.1": {
                 "en": "Fixed the password input in the configuration\nAllowed to set the IP interface for server\nFixed tests for js-controller 2.0\nFixed the monitoring of the client connection\nChanged \"indicator.connected\" to \"indicator.reachable\" for clients\nSupported {POWERn: \"true\"}\nCorrect processing of {temp: nan}",
                 "de": "Die Passworteingabe in der Konfiguration wurde korrigiert\nDarf die IP-Schnittstelle für den Server einstellen\nBehobene Tests für js-controller 2.0\nDie Überwachung der Client-Verbindung wurde behoben\n\"Indicator.connected\" wurde für Clients in \"indicator.reachable\" geändert\nUnterstützt {POWERn: \"true\"}\nRichtige Verarbeitung von {temp: nan}",
                 "ru": "Исправлен ввод пароля в конфигурации\nРазрешено устанавливать IP интерфейс для сервера\nИсправлены тесты для js-controller 2.0\nИсправлен мониторинг клиентского соединения\nИзменен «индикатор.подключен» на «индикатор.доступен» для клиентов\nПоддерживается {POWERn: \"true\"}\nПравильная обработка {temp: nan}",

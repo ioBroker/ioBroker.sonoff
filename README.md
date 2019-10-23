@@ -96,7 +96,7 @@ States:
 
 ## Changelog
 
-### 2.3.0 (2019-10-21)
+### 2.3.1 (2019-10-23)
 * (bluefox) Fixed the password input in the configuration
 * (bluefox) Allowed to set the IP interface for server
 * (bluefox) Fixed tests for js-controller 2.0
