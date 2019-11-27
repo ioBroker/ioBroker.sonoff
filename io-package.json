@@ -1,8 +1,20 @@
 {
     "common": {
         "name":                     "sonoff",
-        "version": "2.3.2",
+        "version": "2.3.3",
         "news": {
+            "2.3.3": {
+                "en": "Error was caught",
+                "de": "Fehler wurde abgefangen",
+                "ru": "Ошибка была обнаружена",
+                "pt": "Erro detectado",
+                "nl": "Er is een fout opgetreden",
+                "fr": "Une erreur a été interceptée",
+                "it": "Errore rilevato",
+                "es": "Error fue atrapado",
+                "pl": "Błąd został złapany",
+                "zh-cn": "发现错误"
+            },
             "2.3.2": {
                 "en": "Fixed the password input in the configuration\nAllowed to set the IP interface for server\nFixed tests for js-controller 2.0\nFixed the monitoring of the client connection\nChanged \"indicator.connected\" to \"indicator.reachable\" for clients\nSupported {POWERn: \"true\"}\nCorrect processing of {temp: nan}",
                 "de": "Die Passworteingabe in der Konfiguration wurde korrigiert\nDarf die IP-Schnittstelle für den Server einstellen\nBehobene Tests für js-controller 2.0\nDie Überwachung der Client-Verbindung wurde behoben\n\"Indicator.connected\" wurde für Clients in \"indicator.reachable\" geändert\nUnterstützt {POWERn: \"true\"}\nRichtige Verarbeitung von {temp: nan}",
