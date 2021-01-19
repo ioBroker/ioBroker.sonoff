@@ -5,7 +5,7 @@
 
 /**
  *
- *      ioBroker sonoff Adapter
+ *      ioBroker Tasmota Adapter
  *
  *      (c) 2017-2019 bluefox
  *

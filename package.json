@@ -1,12 +1,12 @@
 {
-  "name": "iobroker.sonoff",
+  "name": "iobroker.tasmota",
   "description": "The adapter allows to send and receive MQTT messages from ioBroker and to be a broker.",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "author": "bluefox <dogafox@gmail.com>",
-  "homepage": "https://github.com/ioBroker/ioBroker.sonoff",
+  "homepage": "https://github.com/anwa/ioBroker.tasmota",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.sonoff"
+    "url": "https://github.com/anwa/ioBroker.tasmota"
   },
   "keywords": [
     "iobroker",
@@ -26,7 +26,7 @@
     "chai": "^4.2.0"
   },
   "bugs": {
-    "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
+    "url": "https://github.com/anwa/ioBroker.tasmota/issues"
   },
   "main": "main.js",
   "scripts": {
