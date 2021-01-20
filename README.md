@@ -9,7 +9,7 @@
 
 ## Usage
 
-This adapter communicates with Sonoff devices with Tasmota firmware or ESP devices via MQTT.
+This adapter communicates with ESP8266 based devices with Tasmota firmware via MQTT.
 
 Following topics are expected:
 - `tele/DeviceNAME/STATE`
