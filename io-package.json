@@ -1,8 +1,20 @@
 {
     "common": {
-        "name":                     "sonoff",
-        "version": "2.3.3",
+        "name":                     "tasmota",
+        "version": "2.3.4",
         "news": {
+            "2.3.4": {
+                "en": "Renamed project",
+                "de": "Projekt umbenannt",
+                "ru": "Ошибка была обнаружена",
+                "pt": "Erro detectado",
+                "nl": "Er is een fout opgetreden",
+                "fr": "Une erreur a été interceptée",
+                "it": "Errore rilevato",
+                "es": "Error fue atrapado",
+                "pl": "Błąd został złapany",
+                "zh-cn": "发现错误"
+            },
             "2.3.3": {
                 "en": "Error was caught",
                 "de": "Fehler wurde abgefangen",
@@ -140,8 +152,8 @@
         },
         "title": "Sonoff",
         "desc":                     {
-            "en": "This adapter allows to connect sonoff components via MQTT",
-            "de": "Dieser Adapter ermöglicht den Anschluss von Sonoff-Komponenten über MQTT",
+            "en": "This adapter allows to connect tasmota components via MQTT",
+            "de": "Dieser Adapter ermöglicht den Anschluss von Tasmota-Komponenten über MQTT",
             "ru": "Этот адаптер позволяет подключать компоненты Sonoff через MQTT",
             "pt": "Este adaptador permite conectar os componentes do sonoff via MQTT",
             "nl": "Met deze adapter kunnen sonoff-componenten via MQTT worden aangesloten",
