@@ -1,8 +1,20 @@
 {
     "common": {
         "name":                     "tasmota",
-        "version": "2.3.4",
+        "version": "2.3.5",
         "news": {
+            "2.3.5": {
+                "en": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "de": "Fehler behoben #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFehler behoben #130 Unterordner bei Zigbee2Tasmota Devices\nFehler behoben #110 Add Counter1-4\nFehler behoben #111 Wrong unit on humidity",
+                "ru": "Ошибка была обнаружена",
+                "pt": "Erro detectado",
+                "nl": "Er is een fout opgetreden",
+                "fr": "Une erreur a été interceptée",
+                "it": "Errore rilevato",
+                "es": "Error fue atrapado",
+                "pl": "Błąd został złapany",
+                "zh-cn": "发现错误"
+            },
             "2.3.4": {
                 "en": "Renamed project",
                 "de": "Projekt umbenannt",
