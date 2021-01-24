@@ -97,6 +97,12 @@ States:
 ## Changelog
 
 ### 2.3.3 (2019-11-27)
+* (anwa) Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)
+* (anwa) Fixed #130 Unterordner bei Zigbee2Tasmota Devices
+* (anwa) Fixed #110 Add Counter1-4
+* (anwa) Fixed #111 Wrong unit on humidity"
+* (anwa) Extend datapoints.js
+### 2.3.3 (2019-11-27)
 * (bluefox) Error with empty packet was caught
 
 ### 2.3.2 (2019-10-23)
