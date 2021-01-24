@@ -96,7 +96,7 @@ States:
 
 ## Changelog
 
-### 2.3.3 (2019-11-27)
+### 2.3.5 (2021-01-24)
 * (anwa) Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)
 * (anwa) Fixed #130 Unterordner bei Zigbee2Tasmota Devices
 * (anwa) Fixed #110 Add Counter1-4
