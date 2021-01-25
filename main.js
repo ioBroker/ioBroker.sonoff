@@ -71,6 +71,7 @@ function main() {
     adapter.config.TELE_SENSOR = adapter.config.TELE_SENSOR === true || adapter.config.TELE_SENSOR === 'true';
     adapter.config.TELE_STATE  = adapter.config.TELE_STATE  === true || adapter.config.TELE_STATE  === 'true';
     adapter.config.STAT_RESULT = adapter.config.STAT_RESULT === true || adapter.config.STAT_RESULT === 'true';
+    adapter.config.OBJ_TREE    = adapter.config.OBJ_TREE    === true || adapter.config.OBJ_TREE    === 'true';
 
     // subscribe for all own variables
     adapter.subscribeStates('*');
