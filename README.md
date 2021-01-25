@@ -96,6 +96,10 @@ States:
 
 ## Changelog
 
+### 2.4.0 (2021-01-25)
+* (anwa) Make object tree optional
+* (anwa) Fixed translations
+
 ### 2.3.5 (2021-01-24)
 * (anwa) Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)
 * (anwa) Fixed #130 Unterordner bei Zigbee2Tasmota Devices

@@ -1,31 +1,43 @@
 {
     "common": {
         "name":                     "tasmota",
-        "version": "2.3.5",
+        "version": "2.4.0",
         "news": {
+            "2.4.0": {
+                "en": "Make object tree optional\nFixed translations",
+                "de": "Objektbaum ist jetzt optional\nÜbersetzung korrigiert",
+                "ru": "Make object tree optional\nFixed translatios",
+                "pt": "Make object tree optional\nFixed translatios",
+                "nl": "Make object tree optional\nFixed translatios",
+                "fr": "Make object tree optional\nFixed translatios",
+                "it": "Make object tree optional\nFixed translatios",
+                "es": "Make object tree optional\nFixed translatios",
+                "pl": "Make object tree optional\nFixed translatios",
+                "zh-cn": "Make object tree optional\nFixed translatios"
+            },
             "2.3.5": {
                 "en": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
                 "de": "Fehler behoben #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFehler behoben #130 Unterordner bei Zigbee2Tasmota Devices\nFehler behoben #110 Add Counter1-4\nFehler behoben #111 Wrong unit on humidity",
-                "ru": "Ошибка была обнаружена",
-                "pt": "Erro detectado",
-                "nl": "Er is een fout opgetreden",
-                "fr": "Une erreur a été interceptée",
-                "it": "Errore rilevato",
-                "es": "Error fue atrapado",
-                "pl": "Błąd został złapany",
-                "zh-cn": "发现错误"
+                "ru": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "pt": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "nl": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "fr": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "it": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "es": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "pl": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity",
+                "zh-cn": "Fixed #141 Sonoff Zigbee Bridge Objektbaum (SetOption89 0)\nFixed #130 Unterordner bei Zigbee2Tasmota Devices\nFixed #110 Add Counter1-4\nFixed #111 Wrong unit on humidity"
             },
             "2.3.4": {
                 "en": "Renamed project",
                 "de": "Projekt umbenannt",
-                "ru": "Ошибка была обнаружена",
-                "pt": "Erro detectado",
-                "nl": "Er is een fout opgetreden",
-                "fr": "Une erreur a été interceptée",
-                "it": "Errore rilevato",
-                "es": "Error fue atrapado",
-                "pl": "Błąd został złapany",
-                "zh-cn": "发现错误"
+                "ru": "Переименованный проект",
+                "pt": "Projeto renomeado",
+                "nl": "Hernoemd project",
+                "fr": "Projet renommé",
+                "it": "Progetto rinominato",
+                "es": "Proyecto renombrado",
+                "pl": "Zmieniona nazwa projektu",
+                "zh-cn": "重命名项目"
             },
             "2.3.3": {
                 "en": "Error was caught",
