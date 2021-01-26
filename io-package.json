@@ -1,6 +1,6 @@
 {
     "common": {
-        "name":                     "tasmota",
+        "name": "tasmota",
         "version": "2.4.0",
         "news": {
             "2.4.0": {
