@@ -128,7 +128,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                                 if (!--count) _done();
                             });
                         } else {
-                            expect(obj).to.be.undefined;
+                            expect(obj).to.be.null;
 
                             states.getState('sonoff.0.Emitter_1.' + _id, (err, state) => {
                                 expect(state).to.be.null;
