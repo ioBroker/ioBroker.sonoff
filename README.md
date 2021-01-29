@@ -96,6 +96,14 @@ States:
 
 ## Changelog
 
+### __WORK IN PRGRESS__
+* (anwa) add several datapoints
+* (anwa) Fix tranlation for 'ignorePings'
+* (anwa) Fix wrong unit for humidity
+* (anwa) Config option to create a complete object tree instead of a flat structure
+* (anwa) Change Action type to string
+* (Apollon77) js-controller 2.0 is required at least
+
 ### 2.3.3 (2019-11-27)
 * (bluefox) Error with empty packet was caught
 

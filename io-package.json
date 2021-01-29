@@ -165,7 +165,12 @@
         "materialize":              true,
         "keywords":                 ["ITEAD", "MQTT", "Sonoff", "Tasmota"],
         "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
-		"type":                     "lighting"
+		"type":                     "lighting",
+        "dependencies": [
+            {
+                "js-controller": ">=2.0.0"
+            }
+        ]
     },
     "native": {
         "port":                 1883,
