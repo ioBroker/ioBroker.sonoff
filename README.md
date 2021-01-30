@@ -84,6 +84,12 @@ In the web config you can determine which MQTT telegrams create the new objects 
 
 Usually TELE_SENSOR should be sufficient for most users.
 
+* `Create object tree` creates objects as tree structure
+
+**Warning!** This option will mess up your sonoff object tree! You have to redo all the settings for storage...
+Store the object structure as JSON file, so you can recreate your old structure.
+Best is to stop the adapter, delete all objects under sonoff and start the adapter again.
+
 ## Flags for LED controllers
 The mode states will be created only if device has one of the states:
 
