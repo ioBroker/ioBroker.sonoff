@@ -1,8 +1,20 @@
 {
     "common": {
-        "name":                     "sonoff",
-        "version": "2.3.3",
+        "name": "sonoff",
+        "version": "2.4.0",
         "news": {
+            "2.4.0": {
+                "en": "add several datapoints\nFix tranlation for 'ignorePings'\nFix wrong unit for humidity\nConfig option to create a complete object tree instead of a flat structure\nChange Action type to string\njs-controller 2.0 is required at least",
+                "de": "Fügen Sie mehrere Datenpunkte hinzu\nKorrektur der Übersetzung für 'ignorePings'\nKorrigieren Sie das falsche Gerät für die Luftfeuchtigkeit\nKonfigurationsoption zum Erstellen eines vollständigen Objektbaums anstelle einer flachen Struktur\nÄndern Sie den Aktionstyp in Zeichenfolge\nmindestens js-controller 2.0 ist erforderlich",
+                "ru": "добавить несколько точек данных\nИсправить перевод для ignorePings\nИсправьте неправильную единицу измерения влажности\nВозможность конфигурации для создания полного дерева объектов вместо плоской структуры\nИзмените тип действия на строку\njs-controller 2.0 требуется как минимум",
+                "pt": "adicionar vários pontos de dados\nCorrigir tradução para 'ignorePings'\nConsertar unidade errada para umidade\nOpção de configuração para criar uma árvore de objetos completa em vez de uma estrutura plana\nAlterar o tipo de ação para string\njs-controller 2.0 é necessário pelo menos",
+                "nl": "voeg meerdere datapunten toe\nHerstel vertaling voor 'ignorePings'\nBevestig verkeerde eenheid voor vochtigheid\nConfiguratie-optie om een complete objectenboom te maken in plaats van een platte structuur\nWijzig het actietype in string\njs-controller 2.0 is minimaal vereist",
+                "fr": "ajouter plusieurs points de données\nCorrection de la traduction pour 'ignorePings'\nCorrection d'une mauvaise unité pour l'humidité\nOption de configuration pour créer une arborescence d'objets complète au lieu d'une structure plate\nChanger le type d'action en chaîne\njs-controller 2.0 est requis au moins",
+                "it": "aggiungere diversi datapoint\nCorrezione della traduzione per \"ignorePings\"\nCorreggi l'unità sbagliata per l'umidità\nOpzione di configurazione per creare un albero di oggetti completo invece di una struttura piatta\nCambia il tipo di azione in stringa\nÈ richiesto almeno js-controller 2.0",
+                "es": "agregar varios puntos de datos\nCorregir traducción para 'ignorePings'\nArregle la unidad incorrecta para la humedad\nOpción de configuración para crear un árbol de objetos completo en lugar de una estructura plana\nCambiar el tipo de acción a cadena\njs-controller 2.0 se requiere al menos",
+                "pl": "dodaj kilka punktów danych\nNapraw tłumaczenie dla „ignorePings”\nNapraw niewłaściwą jednostkę ze względu na wilgotność\nOpcja konfiguracji, aby utworzyć pełne drzewo obiektów zamiast płaskiej struktury\nZmień typ akcji na ciąg\njs-controller 2.0 jest wymagany przynajmniej",
+                "zh-cn": "添加几个数据点\n修复“ ignorePings”的翻译\n固定错误的湿度单元\nConfig选项创建完整的对象树而不是平面结构\n将动作类型更改为字符串\n至少需要js-controller 2.0"
+            },
             "2.3.3": {
                 "en": "Error was caught",
                 "de": "Fehler wurde abgefangen",
@@ -139,7 +151,7 @@
             }
         },
         "title": "Sonoff",
-        "desc":                     {
+        "desc": {
             "en": "This adapter allows to connect sonoff components via MQTT",
             "de": "Dieser Adapter ermöglicht den Anschluss von Sonoff-Komponenten über MQTT",
             "ru": "Этот адаптер позволяет подключать компоненты Sonoff через MQTT",
@@ -154,18 +166,23 @@
         "authors": [
             "bluefox <dogafox@gmail.com>"
         ],
-        "license":                  "MIT",
-        "platform":                 "Javascript/Node.js",
-        "mode":                     "daemon",
-        "compact":                  true,
-        "enabled":                  true,
-        "readme":                   "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
-        "loglevel":                 "info",
-        "icon":                     "sonoff.png",
-        "materialize":              true,
-        "keywords":                 ["ITEAD", "MQTT", "Sonoff", "Tasmota"],
-        "extIcon":                  "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
-		"type":                     "lighting",
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "compact": true,
+        "enabled": true,
+        "readme": "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
+        "loglevel": "info",
+        "icon": "sonoff.png",
+        "materialize": true,
+        "keywords": [
+            "ITEAD",
+            "MQTT",
+            "Sonoff",
+            "Tasmota"
+        ],
+        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
+        "type": "lighting",
         "dependencies": [
             {
                 "js-controller": ">=2.0.0"
@@ -173,27 +190,25 @@
         ]
     },
     "native": {
-        "port":                 1883,
-        "bind":                 "0.0.0.0",
-        "user":                 "",
-        "pass":                 "",
-        "timeout":              300,
-        "TELE_SENSOR":          true,
-        "TELE_STATE":           false,
-        "STAT_RESULT":          false,
-        "OBJ_TREE":             false,
-        "storeClientsTime":     1440,
-        "defaultQoS":           0,
-        "retransmitInterval":   2000,
-        "retransmitCount":      10,
-        "ignorePings":          false
+        "port": 1883,
+        "bind": "0.0.0.0",
+        "user": "",
+        "pass": "",
+        "timeout": 300,
+        "TELE_SENSOR": true,
+        "TELE_STATE": false,
+        "STAT_RESULT": false,
+        "OBJ_TREE": false,
+        "storeClientsTime": 1440,
+        "defaultQoS": 0,
+        "retransmitInterval": 2000,
+        "retransmitCount": 10,
+        "ignorePings": false
     },
-    "objects": [
-
-    ],
+    "objects": [],
     "instanceObjects": [
         {
-            "_id":  "info",
+            "_id": "info",
             "type": "channel",
             "common": {
                 "name": "Information"
@@ -201,13 +216,13 @@
             "native": {}
         },
         {
-            "_id":  "info.connection",
+            "_id": "info.connection",
             "type": "state",
             "common": {
-                "role":  "info.clients",
-                "name":  "List of connected clients",
-                "type":  "string",
-                "read":  true,
+                "role": "info.clients",
+                "name": "List of connected clients",
+                "type": "string",
+                "read": true,
                 "write": false
             },
             "native": {}
