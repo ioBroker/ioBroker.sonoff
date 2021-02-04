@@ -102,7 +102,7 @@ States:
 
 ## Changelog
 
-### __WORK IN PRGRESS__
+### __WORK IN PROGRESS__
 * (anwa) add several datapoints
 * (anwa) Fix tranlation for 'ignorePings'
 * (anwa) Fix wrong unit for humidity
