@@ -24,7 +24,7 @@
     "mqtt": "^4.2.6",
     "gulp": "^4.0.2",
     "mocha": "^8.2.1",
-    "chai": "^4.2.0"
+    "chai": "^4.3.0"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
