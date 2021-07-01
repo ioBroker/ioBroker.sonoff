@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@alcalzone/release-script": "^1.10.0",
-    "mqtt": "^4.2.6",
+    "mqtt": "^4.2.8",
     "gulp": "^4.0.2",
     "mocha": "^8.4.0",
     "chai": "^4.3.4"
