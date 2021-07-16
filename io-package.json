@@ -48,7 +48,8 @@
                 "fr": "Prise en charge du mode compact",
                 "it": "Supporto per la modalità compatta",
                 "es": "Soporte para modo compacto",
-                "pl": "Obsługa trybu kompaktowego"
+                "pl": "Obsługa trybu kompaktowego",
+                "zh-cn": "支持紧凑模式"
             },
             "2.2.2": {
                 "en": "Configuration was fixed",
@@ -59,7 +60,8 @@
                 "fr": "La configuration a été corrigée",
                 "it": "La configurazione è stata riparata",
                 "es": "La configuración fue arreglada",
-                "pl": "Konfiguracja została naprawiona"
+                "pl": "Konfiguracja została naprawiona",
+                "zh-cn": "配置已修复"
             },
             "2.2.1": {
                 "en": "- in names was allowed again",
@@ -70,7 +72,8 @@
                 "fr": "- dans les noms a été autorisé à nouveau",
                 "it": "- nei nomi è stato permesso di nuovo",
                 "es": "- en los nombres se permitió de nuevo",
-                "pl": "- w nazwach było ponownie dozwolone"
+                "pl": "- w nazwach było ponownie dozwolone",
+                "zh-cn": "- 名字再次被允许"
             },
             "2.2.0": {
                 "en": "Auto generate of objects was implemented",
@@ -81,7 +84,8 @@
                 "fr": "La génération automatique d'objets a été implémentée",
                 "it": "È stata implementata la generazione automatica di oggetti",
                 "es": "Generación automática de objetos fue implementado",
-                "pl": "Automatycznie generowano obiekty"
+                "pl": "Automatycznie generowano obiekty",
+                "zh-cn": "实现了对象的自动生成"
             },
             "2.1.3": {
                 "en": "Added HC-SR04 Ultrasonic Sensor",
@@ -92,7 +96,8 @@
                 "fr": "Capteur à ultrasons HC-SR04 ajouté",
                 "it": "Aggiunto il sensore a ultrasuoni HC-SR04",
                 "es": "Sensor ultrasónico HC-SR04 agregado",
-                "pl": "Dodano czujnik ultradźwiękowy HC-SR04"
+                "pl": "Dodano czujnik ultradźwiękowy HC-SR04",
+                "zh-cn": "添加了 HC-SR04 超声波传感器"
             },
             "2.1.2": {
                 "en": "Added support of UvLight, Longitude and Latitude",
@@ -103,7 +108,8 @@
                 "fr": "Ajout du support de UvLight, Longitude et Latitude",
                 "it": "Aggiunto il supporto di UvLight, Longitude e Latitude",
                 "es": "Se agregó soporte de UvLight, Longitude y Latitude",
-                "pl": "Dodano obsługę UvLight, długości i szerokości geograficznej"
+                "pl": "Dodano obsługę UvLight, długości i szerokości geograficznej",
+                "zh-cn": "添加了对紫外线、经度和纬度的支持"
             },
             "2.1.1": {
                 "en": "Support of the particle concentration sensor",
@@ -114,7 +120,8 @@
                 "fr": "Support du capteur de concentration de particules",
                 "it": "Supporto del sensore di concentrazione di particelle",
                 "es": "Soporte del sensor de concentración de partículas",
-                "pl": "Wsparcie czujnika stężenia cząstek"
+                "pl": "Wsparcie czujnika stężenia cząstek",
+                "zh-cn": "支持粒子浓度传感器"
             },
             "2.1.0": {
                 "en": "Support of the devices control",
@@ -125,7 +132,8 @@
                 "fr": "Prise en charge du contrôle des appareils",
                 "it": "Supporto del controllo dei dispositivi",
                 "es": "Soporte del control de dispositivos",
-                "pl": "Obsługa sterowania urządzeniami"
+                "pl": "Obsługa sterowania urządzeniami",
+                "zh-cn": "支持设备控制"
             },
             "2.0.2": {
                 "en": "Fixing re-connection of clients\nSeaPressure was added",
@@ -136,7 +144,8 @@
                 "fr": "Correction de la reconnexion des clients\nSeaPressure a été ajouté",
                 "it": "Risolvere la riconnessione dei client\nSeaPressure è stato aggiunto",
                 "es": "Reparar la reconexión de los clientes\nSeaPressure fue agregado",
-                "pl": "Naprawianie ponownego połączenia klientów\nSeaPressure zostało dodane"
+                "pl": "Naprawianie ponownego połączenia klientów\nSeaPressure zostało dodane",
+                "zh-cn": "修复客户端的重新连接\n"
             },
             "2.0.1": {
                 "en": "Add Light/Noise/AirQuality\nDo not send pingresp for invalid clients",
@@ -147,12 +156,22 @@
                 "fr": "Ajouter un capteur Light/Noise/AirQuality",
                 "it": "Aggiungi il Light/Noise/AirQuality",
                 "es": "Agregar Light/Noise/AirQuality",
-                "pl": "Dodaj Light/Noise/AirQuality"
+                "pl": "Dodaj Light/Noise/AirQuality",
+                "zh-cn": "添加光/噪音/空气质量\n"
             }
         },
         "title": "Sonoff",
         "titleLang": {
-            "en": "Sonoff"
+            "en": "Sonoff",
+            "de": "Sonoff",
+            "ru": "Sonoff",
+            "pt": "Sonoff",
+            "nl": "Sonoff",
+            "fr": "Sonoff",
+            "it": "Sonoff",
+            "es": "Sonoff",
+            "pl": "Sonoff",
+            "zh-cn": "索诺夫"
         },
         "desc": {
             "en": "This adapter allows to connect sonoff components via MQTT",
@@ -186,13 +205,19 @@
         ],
         "connectionType": "local",
         "dataSource": "push",
+        "tier": 2,
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
         "type": "lighting",
         "dependencies": [
             {
                 "js-controller": ">=2.0.0"
             }
-        ]
+        ],
+        "plugins": {
+            "sentry": {
+                "dsn": "https://e4dc98bf02b64d96b632a5c9a84829a4@sentry.iobroker.net/141"
+            }
+        }
     },
     "native": {
         "port": 1883,

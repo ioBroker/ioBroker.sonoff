@@ -1,11 +1,15 @@
 ![Logo](admin/sonoff.png)
 # ioBroker Sonoff
 
-![Number of Installations](http://iobroker.live/badges/sonoff-installed.svg) ![Number of Installations](http://iobroker.live/badges/sonoff-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
-[![Tests](https://travis-ci.org/ioBroker/ioBroker.sonoff.svg?branch=master)](https://travis-ci.org/ioBroker/ioBroker.sonoff)
+![Number of Installations](http://iobroker.live/badges/sonoff-installed.svg)
+![Number of Installations](http://iobroker.live/badges/sonoff-stable.svg)
+[![NPM version](http://img.shields.io/npm/v/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
 
-[![NPM](https://nodei.co/npm/iobroker.sonoff.png?downloads=true)](https://nodei.co/npm/iobroker.sonoff/)
+![Test and Release](https://github.com/ioBroker/ioBroker.sonoff/workflows/Test%20and%20Release/badge.svg)
+[![Translation status](https://weblate.iobroker.net/widgets/adapters/-/sonoff/svg-badge.svg)](https://weblate.iobroker.net/engage/adapters/?utm_source=widget)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.sonoff.svg)](https://www.npmjs.com/package/iobroker.sonoff)
+
+**This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0.
 
 ## Usage
 
@@ -101,6 +105,10 @@ States:
 * `modeReadColors` - allow for color read from MQTT (default false)
 
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77/bluefox) Optimize for js-controller 3.3
+* (Apollon77) Add Sentry for error reporting with js-controller 3.x+
 
 ### 2.4.0 (2021-02-04)
 * (anwa) add several data points
