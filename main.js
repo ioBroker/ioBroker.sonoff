@@ -7,7 +7,7 @@
  *
  *      ioBroker sonoff Adapter
  *
- *      (c) 2017-2019 bluefox
+ *      (c) 2017-2021 bluefox
  *
  *      MIT License
  *
@@ -60,7 +60,7 @@ function startAdapter(options) {
 
     // is called if a subscribed state changes
     adapter.on('stateChange', (id, state) => {
-        adapter.log.debug('stateChange ' + id + ': ' + JSON.stringify(state));
+        adapter.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
         // you can use the ack flag to detect if state is desired or acknowledged
         state && !state.ack && server && server.onStateChange(id, state);
     });

@@ -124,7 +124,7 @@ function States(cb, stateChange) {
 
         if (!objName.match(/^system\.adapter\./)) objName = 'system.adapter.' + objName;
 
-        that.log.info('sendTo "' + command + '" to ' + objName + ' from system.adapter.' + that.namespace + ': ' + JSON.stringify(message));
+        that.log.info(`sendTo "${command}" to ${objName} from system.adapter.${that.namespace}: ${JSON.stringify(message)}`);
 
         // If not specific instance
         if (!objName.match(/\.[0-9]+$/)) {
@@ -368,7 +368,7 @@ function States(cb, stateChange) {
                 }
                 if (iProblemCount) that.log.warn('got null states ' + iProblemCount + ' times for ' + id);
 
-                that.log.debug('got ' + res.length + ' datapoints for ' + id);
+                that.log.debug(`got ${res.length} datapoints for ${id}`);
             } else {
                 if (err !== 'Not exists') {
                     that.log.error(err);

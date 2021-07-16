@@ -232,7 +232,7 @@ function languagesFlat2words(src) {
     for (let l = 0; l < dirs.length; l++) {
         if (dirs[l] === 'flat.txt') continue;
         const lang = dirs[l];
-        const values = fs.readFileSync(src + 'i18n/' + lang + '/flat.txt').toString().split('\n');
+        const values = fs.readFileSync(`${src}i18n/${lang}/flat.txt`).toString().split('\n');
         langs[lang] = {};
         keys.forEach((word, i) =>
             langs[lang][word] = values[i].replace(/<\/ i>/g, '</i>').replace(/<\/ b>/g, '</b>').replace(/<\/ span>/g, '</span>').replace(/% s/g, ' %s'));

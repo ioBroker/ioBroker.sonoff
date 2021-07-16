@@ -151,6 +151,9 @@
             }
         },
         "title": "Sonoff",
+        "titleLang": {
+            "en": "Sonoff"
+        },
         "desc": {
             "en": "This adapter allows to connect sonoff components via MQTT",
             "de": "Dieser Adapter ermöglicht den Anschluss von Sonoff-Komponenten über MQTT",
@@ -181,6 +184,8 @@
             "Sonoff",
             "Tasmota"
         ],
+        "connectionType": "local",
+        "dataSource": "push",
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
         "type": "lighting",
         "dependencies": [

@@ -43,7 +43,8 @@ const rules = {
     'cmnd/sonoff/POWER':               {send: '',           expect: {}},
     'stat/sonoff/RESULT':              {send: '{"POWER": "ON"}', expect: {'RESULT': null}},
     'stat/sonoff/LWT':                 {send: 'someTopic',  expect: {'LWT': null}},
-    'stat/sonoff/ABC':                 {send: 'text',       expect: {'ABC': null}}
+    'stat/sonoff/ABC':                 {send: 'text',       expect: {'ABC': null}},
+    'tele/tasmota_0912A7/STATE':       {send: '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}', expect: {'Wifi_Downtime': '0T00:00:07'}},
 };
 
 function decrypt(key, value) {
@@ -111,12 +112,14 @@ function checkMqtt2Adapter(id, task, _it, _done) {
         setTimeout(() => {
             let count = 0;
             for (let e in task.expect) {
-                if (! task.expect.hasOwnProperty(e)) continue;
+                if (! task.expect.hasOwnProperty(e)) {
+                    continue;
+                }
                 count++;
                 (function (_id, _val) {
                     objects.getObject('sonoff.0.Emitter_1.' + _id, (err, obj) => {
                         if (_val !== null) {
-                            if (!obj) console.error('Object sonoff.0.Emitter_1.' + _id + ' not found');
+                            !obj && console.error(`Object sonoff.0.Emitter_1.${_id} not found`);
                             expect(obj).to.be.not.null.and.not.undefined;
                             expect(obj._id).to.be.equal('sonoff.0.Emitter_1.' + _id);
                             expect(obj.type).to.be.equal('state');
@@ -144,7 +147,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
 }
 
 function checkAdapter2Mqtt(id, mqttid, value, _done) {
-    console.log(new Date().toISOString() + ' Send ' + id + ' with value '+ value);
+    console.log(`${new Date().toISOString()} Send ${id} with value ${value}`);
 
     lastReceivedTopic1   = null;
     lastReceivedMessage1 = null;
@@ -167,7 +170,7 @@ function checkAdapter2Mqtt(id, mqttid, value, _done) {
                 expect(lastReceivedMessage1).to.be.equal(value ? 'ON' : 'OFF');
                 _done();
             }
-        }, 400);
+        }, 1000);
     });
 }
 

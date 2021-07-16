@@ -6,7 +6,7 @@ function Client(cbConnected, cbChanged, config) {
     if (typeof config === 'string') config = {name: config};
     config = config || {};
     config.url = config.url || 'localhost';
-    this.client = mqtt.connect('mqtt://' + (config.user ? (config.user + ':' + config.pass + '@') : '') + config.url  + (config.name ? '?clientId=' + config.name : ''), config);
+    this.client = mqtt.connect(`mqtt://${config.user ? (config.user + ':' + config.pass + '@') : ''}${config.url}${config.name ? '?clientId=' + config.name : ''}`, config);
 
     this.client.on('connect', () => {
         console.log((new Date()) + ' test client connected to localhost');
@@ -25,7 +25,7 @@ function Client(cbConnected, cbChanged, config) {
          client.subscribe('arduino/kitchen/in/#');*/
         //client.subscribe('arduino/kitchen/in/updateInterval');
         that.client.subscribe('#');
-        if (cbConnected) cbConnected(true);
+        cbConnected && cbConnected(true);
     });
 
     this.client.on('message', (topic, message, packet) => {
@@ -33,7 +33,7 @@ function Client(cbConnected, cbChanged, config) {
         if (cbChanged) {
             cbChanged(topic, message, packet);
         } else {
-            console.log('Test MQTT Client received "' + topic + '": ' + message.toString());
+            console.log(`Test MQTT Client received "${topic}": ${message.toString()}`);
         }
     });
     this.client.on('close', err => {

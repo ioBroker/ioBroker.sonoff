@@ -108,8 +108,7 @@
 
     function save(callback) {
         if ($('#pass').val() !== $('#pass_confirm').val()) {
-            showMessage(_('Password confirmation is not equal with password'));
-            return;
+            return showMessage(_('Password confirmation is not equal with password'));
         }
 
         callback(getSettings());
@@ -122,7 +121,7 @@
     .page {
         height: calc(100% - 50px) !important;
     }
-    .marg{
+    .marg {
         margin-top: 5em;
     }
 </style>
@@ -134,7 +133,7 @@
         <div class="col s12">
             <div class="row">
                 <div class="col s6">
-                    <img src="sonoff.png" class="logo">
+                    <img src="sonoff.png" class="logo" alt="logo"/>
                 </div>
             </div>
             <div class="row">
