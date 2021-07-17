@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "sonoff",
-        "version": "2.4.0",
+        "version": "2.4.1",
         "news": {
+            "2.4.1": {
+                "en": "(Apollon77/bluefox) Optimize for js-controller 3.3\nAdd Sentry for error reporting with js-controller 3.x+",
+                "de": "(Apollon77/bluefox) Optimieren für js-Controller 3.3\nSentry für Fehlerberichte mit js-controller 3.x+ hinzufügen Add",
+                "ru": "(Apollon77 / bluefox) Оптимизация под js-controller 3.3\nДобавить Sentry для отчетов об ошибках с js-controller 3.x +",
+                "pt": "(Apollon77 / bluefox) Otimize para js-controller 3.3\nAdicionar Sentry para relatório de erros com js-controller 3.x +",
+                "nl": "(Apollon77/bluefox) Optimaliseren voor js-controller 3.3\nAdd Sentry voor foutrapportage met js-controller 3.x+",
+                "fr": "(Apollon77/bluefox) Optimiser pour js-controller 3.3\nAjouter Sentry pour le rapport d'erreurs avec js-controller 3.x+",
+                "it": "(Apollon77/bluefox) Ottimizza per js-controller 3.3\nAggiungi Sentry per la segnalazione degli errori con js-controller 3.x+",
+                "es": "(Apollon77 / bluefox) Optimizar para js-controller 3.3\nAgregue Sentry para informes de errores con js-controller 3.x +",
+                "pl": "(Apollon77/bluefox) Optymalizacja dla kontrolera js 3.3\nDodaj Sentry do raportowania błędów z js-controller 3.x+",
+                "zh-cn": "(Apollon77/bluefox) 针对 js-controller 3.3 优化\n使用 js-controller 3.x+ 添加 Sentry 用于错误报告"
+            },
             "2.4.0": {
                 "en": "add several datapoints\nFix tranlation for 'ignorePings'\nFix wrong unit for humidity\nConfig option to create a complete object tree instead of a flat structure\nChange Action type to string\njs-controller 2.0 is required at least",
                 "de": "Fügen Sie mehrere Datenpunkte hinzu\nKorrektur der Übersetzung für 'ignorePings'\nKorrigieren Sie das falsche Gerät für die Luftfeuchtigkeit\nKonfigurationsoption zum Erstellen eines vollständigen Objektbaums anstelle einer flachen Struktur\nÄndern Sie den Aktionstyp in Zeichenfolge\nmindestens js-controller 2.0 ist erforderlich",
