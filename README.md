@@ -104,7 +104,14 @@ States:
 * `modeLedExor` - exor for white LEDs and color LEDs => if the white LEDs are switched on, color LEDs are switched off and vice versa (default true)
 * `modeReadColors` - allow for color read from MQTT (default false)
 
+<!--
+	Placeholder for the next version (at the beginning of the line):
+	### __WORK IN PROGRESS__
+-->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) Optimize for js-controller 3.3
+
 ### 2.4.1 (2021-07-17)
 * (Apollon77/bluefox) Optimize for js-controller 3.3
 * (Apollon77) Add Sentry for error reporting with js-controller 3.x+
