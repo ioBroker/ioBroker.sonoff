@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "sonoff",
-        "version": "2.4.2",
+        "version": "2.4.3",
         "news": {
+            "2.4.3": {
+                "en": "Better type detection for non-described states",
+                "de": "Bessere Typerkennung für nicht beschriebene Zustände",
+                "ru": "Лучшее определение типа для неописанных состояний",
+                "pt": "Melhor detecção de tipo para estados não descritos",
+                "nl": "Betere typedetectie voor niet-beschreven toestanden",
+                "fr": "Meilleure détection de type pour les états non décrits",
+                "it": "Migliore rilevamento del tipo per gli stati non descritti",
+                "es": "Mejor detección de tipos para estados no descritos",
+                "pl": "Lepsze wykrywanie typów dla stanów nieopisanych",
+                "zh-cn": "更好的未描述状态的类型检测"
+            },
             "2.4.2": {
                 "en": "Optimize for js-controller 3.3",
                 "de": "Optimieren Sie für js-Controller 3.3",
