@@ -109,6 +109,9 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) Better type detection for non-described states
+
 ### 2.4.2 (2021-07-17)
 * (bluefox) Optimize for js-controller 3.3
 
