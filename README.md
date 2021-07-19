@@ -109,7 +109,7 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 2.4.4 (2021-07-19)
 * (bluefox) Added UvaIntensity and UvbIntensity
 
 ### 2.4.3 (2021-07-18)

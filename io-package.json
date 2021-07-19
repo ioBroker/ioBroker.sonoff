@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "sonoff",
-        "version": "2.4.3",
+        "version": "2.4.4",
         "news": {
+            "2.4.4": {
+                "en": "Added UvaIntensity and UvbIntensity",
+                "de": "UvaIntensity und UvbIntensity hinzugefügt",
+                "ru": "Добавлены UvaIntensity и UvbIntensity.",
+                "pt": "Adicionados UvaIntensity e UvbIntensity",
+                "nl": "UvaIntensity en UvbIntensity toegevoegd",
+                "fr": "Ajout d'UvaIntensity et UvbIntensity",
+                "it": "Aggiunti UvaIntensity e UvbIntensity",
+                "es": "Se agregaron UvaIntensity y UvbIntensity",
+                "pl": "Dodano UvaIntensity i UvbIntensity",
+                "zh-cn": "添加了 UvaIntensity 和 UvbIntensity"
+            },
             "2.4.3": {
                 "en": "Better type detection for non-described states",
                 "de": "Bessere Typerkennung für nicht beschriebene Zustände",
