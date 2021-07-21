@@ -109,6 +109,10 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+
+### __WORK IN PROGRESS__
+* (Apollon77) Fix some crash cases reported by Sentry
+
 ### 2.4.4 (2021-07-19)
 * (bluefox) Added UvaIntensity and UvbIntensity
 
