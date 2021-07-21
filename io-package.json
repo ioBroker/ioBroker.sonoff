@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "sonoff",
-        "version": "2.4.4",
+        "version": "2.4.5",
         "news": {
+            "2.4.5": {
+                "en": "Fix some crash cases reported by Sentry",
+                "de": "Beheben Sie einige von Sentry gemeldete Absturzfälle",
+                "ru": "Исправить некоторые случаи сбоев, о которых сообщает Sentry",
+                "pt": "Corrija alguns casos de falha relatados pelo Sentry",
+                "nl": "Enkele crashgevallen gemeld door Sentry oplossen",
+                "fr": "Correction de certains cas de plantage signalés par Sentry",
+                "it": "Risolti alcuni casi di crash segnalati da Sentry",
+                "es": "Arregle algunos casos de fallas reportados por Sentry",
+                "pl": "Napraw niektóre przypadki awarii zgłoszone przez Sentry",
+                "zh-cn": "修复 Sentry 报告的一些崩溃案例"
+            },
             "2.4.4": {
                 "en": "Added UvaIntensity and UvbIntensity",
                 "de": "UvaIntensity und UvbIntensity hinzugefügt",

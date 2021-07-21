@@ -110,7 +110,7 @@ States:
 -->
 ## Changelog
 
-### __WORK IN PROGRESS__
+### 2.4.5 (2021-07-21)
 * (Apollon77) Fix some crash cases reported by Sentry
 
 ### 2.4.4 (2021-07-19)
