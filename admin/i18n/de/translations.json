@@ -20,7 +20,7 @@
     "Mask to publish": "z.B 'mqtt.0.*,javascript.*'",
     "Mask to publish own states:": "Maske für Bekanntgeben von eigenen States",
     "Max topic length:": "Maximale Topicnamelänge",
-    "Password confirmation:": "Kennwort-Wiederholung",
+    "Password confirmation:": "Passwort-Wiederholung",
     "Password:": "Kennwort",
     "Patterns:": "Subscribe patterns",
     "Port:": "Port",
