@@ -110,6 +110,10 @@ States:
 -->
 ## Changelog
 
+### __WORK IN PROGRESS__
+* (Apollon77) Fix some crash cases reported by Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)
+* (Apollon77) Adjust Uptime to mixed because it seems that it can be number or string
+
 ### 2.4.5 (2021-07-21)
 * (Apollon77) Fix some crash cases reported by Sentry
 
