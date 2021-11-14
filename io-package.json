@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.4.6",
+    "version": "2.4.7",
     "news": {
+      "2.4.7": {
+        "en": "Fix crash case (Sentry IOBROKER-SONOFF-1S)",
+        "de": "Crashfall beheben (Sentry IOBROKER-SONOFF-1S)",
+        "ru": "Исправить сбой (Sentry IOBROKER-SONOFF-1S)",
+        "pt": "Corrigir caso de falha (Sentry IOBROKER-SONOFF-1S)",
+        "nl": "Crashgeval repareren (Sentry IOBROKER-SONOFF-1S)",
+        "fr": "Correction du crash (Sentry IOBROKER-SONOFF-1S)",
+        "it": "Risolto il crash case (Sentry IOBROKER-SONOFF-1S)",
+        "es": "Reparar caso de bloqueo (Sentry IOBROKER-SONOFF-1S)",
+        "pl": "Napraw przypadek awarii (Sentry IOBROKER-SONOFF-1S)",
+        "zh-cn": "修复崩溃案例（Sentry IOBROKER-SONOFF-1S）"
+      },
       "2.4.6": {
         "en": "Fix some crash cases reported by Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nAdjust Uptime to mixed because it seems that it can be number or string",
         "de": "Behebung einiger von Sentry gemeldeter Absturzfälle (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nStellen Sie die Betriebszeit auf gemischt ein, da es sich anscheinend um eine Zahl oder eine Zeichenfolge handeln kann",
@@ -74,18 +86,6 @@
         "es": "(Apollon77 / bluefox) Optimizar para js-controller 3.3\nAgregue Sentry para informes de errores con js-controller 3.x +",
         "pl": "(Apollon77/bluefox) Optymalizacja dla kontrolera js 3.3\nDodaj Sentry do raportowania błędów z js-controller 3.x+",
         "zh-cn": "(Apollon77/bluefox) 针对 js-controller 3.3 优化\n使用 js-controller 3.x+ 添加 Sentry 用于错误报告"
-      },
-      "2.4.0": {
-        "en": "add several datapoints\nFix tranlation for 'ignorePings'\nFix wrong unit for humidity\nConfig option to create a complete object tree instead of a flat structure\nChange Action type to string\njs-controller 2.0 is required at least",
-        "de": "Fügen Sie mehrere Datenpunkte hinzu\nKorrektur der Übersetzung für 'ignorePings'\nKorrigieren Sie das falsche Gerät für die Luftfeuchtigkeit\nKonfigurationsoption zum Erstellen eines vollständigen Objektbaums anstelle einer flachen Struktur\nÄndern Sie den Aktionstyp in Zeichenfolge\nmindestens js-controller 2.0 ist erforderlich",
-        "ru": "добавить несколько точек данных\nИсправить перевод для ignorePings\nИсправьте неправильную единицу измерения влажности\nВозможность конфигурации для создания полного дерева объектов вместо плоской структуры\nИзмените тип действия на строку\njs-controller 2.0 требуется как минимум",
-        "pt": "adicionar vários pontos de dados\nCorrigir tradução para 'ignorePings'\nConsertar unidade errada para umidade\nOpção de configuração para criar uma árvore de objetos completa em vez de uma estrutura plana\nAlterar o tipo de ação para string\njs-controller 2.0 é necessário pelo menos",
-        "nl": "voeg meerdere datapunten toe\nHerstel vertaling voor 'ignorePings'\nBevestig verkeerde eenheid voor vochtigheid\nConfiguratie-optie om een complete objectenboom te maken in plaats van een platte structuur\nWijzig het actietype in string\njs-controller 2.0 is minimaal vereist",
-        "fr": "ajouter plusieurs points de données\nCorrection de la traduction pour 'ignorePings'\nCorrection d'une mauvaise unité pour l'humidité\nOption de configuration pour créer une arborescence d'objets complète au lieu d'une structure plate\nChanger le type d'action en chaîne\njs-controller 2.0 est requis au moins",
-        "it": "aggiungere diversi datapoint\nCorrezione della traduzione per \"ignorePings\"\nCorreggi l'unità sbagliata per l'umidità\nOpzione di configurazione per creare un albero di oggetti completo invece di una struttura piatta\nCambia il tipo di azione in stringa\nÈ richiesto almeno js-controller 2.0",
-        "es": "agregar varios puntos de datos\nCorregir traducción para 'ignorePings'\nArregle la unidad incorrecta para la humedad\nOpción de configuración para crear un árbol de objetos completo en lugar de una estructura plana\nCambiar el tipo de acción a cadena\njs-controller 2.0 se requiere al menos",
-        "pl": "dodaj kilka punktów danych\nNapraw tłumaczenie dla „ignorePings”\nNapraw niewłaściwą jednostkę ze względu na wilgotność\nOpcja konfiguracji, aby utworzyć pełne drzewo obiektów zamiast płaskiej struktury\nZmień typ akcji na ciąg\njs-controller 2.0 jest wymagany przynajmniej",
-        "zh-cn": "添加几个数据点\n修复“ ignorePings”的翻译\n固定错误的湿度单元\nConfig选项创建完整的对象树而不是平面结构\n将动作类型更改为字符串\n至少需要js-controller 2.0"
       }
     },
     "title": "Sonoff",

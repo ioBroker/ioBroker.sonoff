@@ -109,8 +109,7 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 2.4.7 (2021-11-14)
 * (Apollon77) Fix crash case (Sentry IOBROKER-SONOFF-1S)
 
 ### 2.4.6 (2021-11-13)
