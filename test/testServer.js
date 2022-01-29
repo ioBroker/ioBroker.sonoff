@@ -212,7 +212,7 @@ describe('Sonoff server: Test mqtt server', () => {
             config.native.user     = 'user';
             config.native.pass     = decrypt(systemConfig.native.secret, 'pass1');
 
-            setup.setAdapterConfig(config.common, config.native);
+            await setup.setAdapterConfig(config.common, config.native);
 
             setup.startController((_objects, _states) => {
                 objects = _objects;
