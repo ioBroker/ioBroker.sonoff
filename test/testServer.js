@@ -204,8 +204,8 @@ describe('Sonoff server: Test mqtt server', () => {
         this.timeout(600000); // because of first install from npm
         setup.adapterStarted = false;
 
-        setup.setupController(systemConfig => {
-            let config = setup.getAdapterConfig();
+        setup.setupController(async systemConfig => {
+            let config = await setup.getAdapterConfig();
             // enable adapter
             config.common.enabled  = true;
             config.common.loglevel = 'debug';
