@@ -120,8 +120,7 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-
-### __WORK IN PROGRESS__
+### 2.5.0 (2022-03-21)
 * (GreatSUN) Implement writing of NSPanel Widget changes
 * (Apollon77) Fix crash case reported by Sentry
 
