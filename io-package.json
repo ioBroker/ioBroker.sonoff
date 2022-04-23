@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.5.0",
+    "version": "2.5.1",
     "news": {
+      "2.5.1": {
+        "en": "Fix crash case reported by Sentry",
+        "de": "Absturzfall behoben, der von Sentry gemeldet wurde",
+        "ru": "Исправить случай сбоя, о котором сообщил Sentry",
+        "pt": "Corrigir caso de falha relatado pelo Sentinela",
+        "nl": "Herstel crashgeval gemeld door Sentry",
+        "fr": "Correction d'un cas de crash signalé par Sentry",
+        "it": "Risolto il caso di crash segnalato da Sentry",
+        "es": "Solucionar caso de bloqueo informado por Sentry",
+        "pl": "Napraw przypadek awarii zgłoszony przez Sentry",
+        "zh-cn": "修复 Sentry 报告的崩溃案例"
+      },
       "2.5.0": {
         "en": "Implement writing of NSPanel Widget changes\nFix crash case reported by Sentry",
         "de": "Implementieren Sie das Schreiben von NSPanel-Widget-Änderungen\nAbsturzfall behoben, der von Sentry gemeldet wurde",
@@ -74,18 +86,6 @@
         "es": "Mejor detección de tipos para estados no descritos",
         "pl": "Lepsze wykrywanie typów dla stanów nieopisanych",
         "zh-cn": "更好的未描述状态的类型检测"
-      },
-      "2.4.2": {
-        "en": "Optimize for js-controller 3.3",
-        "de": "Optimieren Sie für js-Controller 3.3",
-        "ru": "Оптимизировать под js-controller 3.3",
-        "pt": "Otimize para js-controller 3.3",
-        "nl": "Optimaliseren voor js-controller 3.3",
-        "fr": "Optimiser pour js-controller 3.3",
-        "it": "Ottimizza per js-controller 3.3",
-        "es": "Optimizar para js-controller 3.3",
-        "pl": "Optymalizacja dla kontrolera js 3.3",
-        "zh-cn": "针对 js-controller 3.3 优化"
       }
     },
     "title": "Sonoff",
