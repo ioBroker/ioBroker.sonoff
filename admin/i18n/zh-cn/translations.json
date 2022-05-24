@@ -13,8 +13,8 @@
     "For stat/RESULT": "对于统计/结果",
     "For tele/SENSOR": "对于电话/传感器",
     "For tele/STATE": "对于电话/状态",
-    "IP": "知识产权",
-    "Ignore warnings with pingreq": "使用pingreq忽略警告",
+    "IP": "IP",
+    "Ignore warnings with pingreq": "忽略pingreq警告",
     "Interval before send topics by connection:": "通过连接发送主题之前的时间间隔",
     "Main settings": "主要设定",
     "Mask to publish": "例如 'mqtt.0.*,javascript.*'",
@@ -48,5 +48,5 @@
     "User:": "用户",
     "chars": "字符",
     "connected": "连接的",
-    "ms": "女士"
+    "ms": "毫秒"
 }
