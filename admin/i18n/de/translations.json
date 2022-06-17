@@ -25,7 +25,7 @@
     "Patterns:": "Subscribe patterns",
     "Port:": "Port",
     "Prefix for topics:": "Prefix für alle Topics",
-    "Private certificate:": "Privatzertifikat",
+    "Private certificate:": "Privates Zertifikat",
     "Public certificate:": "Publikzertifikat",
     "Publish all states at start:": "Bekanntgeben eigene States beim Verbinden",
     "Publish states on subscribe:": "Bekanntgeben von States bei Subscribe",
