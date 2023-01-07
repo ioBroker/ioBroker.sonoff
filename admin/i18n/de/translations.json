@@ -16,7 +16,7 @@
     "IP": "IP-Adresse",
     "Ignore warnings with pingreq": "Warnungen mit pingreq ignorieren",
     "Interval before send topics by connection:": "Interval vom Senden von allen Topics bei der Verbindung",
-    "Main settings": "Allgemeine Einstellungen",
+    "Main settings": "Haupteinstellungen",
     "Mask to publish": "z.B 'mqtt.0.*,javascript.*'",
     "Mask to publish own states:": "Maske für Bekanntgeben von eigenen States",
     "Max topic length:": "Maximale Topicnamelänge",
