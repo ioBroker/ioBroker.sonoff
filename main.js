@@ -7,7 +7,7 @@
  *
  *      ioBroker sonoff Adapter
  *
- *      (c) 2017-2021 bluefox
+ *      (c) 2017-2023 bluefox
  *
  *      MIT License
  *
