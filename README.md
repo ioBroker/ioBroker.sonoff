@@ -120,6 +120,9 @@ States:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 2.5.2 (2023-01-21)
+* (GreatSUN) Impl./Fixed potential .STATE.POWER only update synced with .POWER switch
+
 ### 2.5.1 (2022-04-23)
 * (Apollon77) Fix crash case reported by Sentry
 
