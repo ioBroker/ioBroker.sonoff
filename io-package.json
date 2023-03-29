@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.5.1",
+    "version": "2.5.2",
     "news": {
+      "2.5.2": {
+        "en": "Implemented potential `.STATE.POWER` update",
+        "de": "Ergänzendes Potenzial STATE. POWER Update",
+        "ru": "Реализованный потенциал ГОСУДАРСТВО. POWER обновление",
+        "pt": "Potencial implementado ESTADO. Atualização do POWER",
+        "nl": "Implementie potentieel Stop. Vertaling:",
+        "fr": "Possibilités mises en œuvre Arrête. Mise à jour du POWER",
+        "it": "Potenziale attuato STATO. Aggiornamento del potere",
+        "es": "Potencial aplicado ESTADO. Actualización de POWER",
+        "pl": "Implementacja potencjału Staw. POWER",
+        "uk": "Реалізований потенціал ДЕРЖАВИ. Оновлення енергії",
+        "zh-cn": "执行潜力 国家。 导 言"
+      },
       "2.5.1": {
         "en": "Fix crash case reported by Sentry",
         "de": "Absturzfall behoben, der von Sentry gemeldet wurde",
@@ -74,18 +87,6 @@
         "es": "Se agregaron UvaIntensity y UvbIntensity",
         "pl": "Dodano UvaIntensity i UvbIntensity",
         "zh-cn": "添加了 UvaIntensity 和 UvbIntensity"
-      },
-      "2.4.3": {
-        "en": "Better type detection for non-described states",
-        "de": "Bessere Typerkennung für nicht beschriebene Zustände",
-        "ru": "Лучшее определение типа для неописанных состояний",
-        "pt": "Melhor detecção de tipo para estados não descritos",
-        "nl": "Betere typedetectie voor niet-beschreven toestanden",
-        "fr": "Meilleure détection de type pour les états non décrits",
-        "it": "Migliore rilevamento del tipo per gli stati non descritti",
-        "es": "Mejor detección de tipos para estados no descritos",
-        "pl": "Lepsze wykrywanie typów dla stanów nieopisanych",
-        "zh-cn": "更好的未描述状态的类型检测"
       }
     },
     "title": "Sonoff",
