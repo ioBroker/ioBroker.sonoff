@@ -1,6 +1,6 @@
 'use strict';
 const path        = require('path');
-const rootDir     = path.normalize(__dirname + '/../../');
+const rootDir     = path.normalize(`${__dirname}/../../`);
 let adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
 adapterName = adapterName[adapterName.length - 2];
 
@@ -22,7 +22,7 @@ const logger = {
 function Objects(cb) {
     if (!(this instanceof Objects)) return new Objects(cb);
 
-    const _Objects = require(rootDir + 'tmp/node_modules/iobroker.js-controller/lib/objects');
+    const _Objects = require(`${rootDir}tmp/node_modules/iobroker.js-controller/lib/objects`);
     this.connected = false;
     const that = this;
 

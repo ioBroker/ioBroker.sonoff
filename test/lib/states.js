@@ -1,6 +1,6 @@
 'use strict';
 const path      = require('path');
-const rootDir   = path.normalize(__dirname + '/../../');
+const rootDir   = path.normalize(`${__dirname}/../../`);
 let adapterName = path.normalize(rootDir).replace(/\\/g, '/').split('/');
 adapterName     = adapterName[adapterName.length - 2];
 
@@ -21,7 +21,7 @@ const logger = {
 
 function States(cb, stateChange) {
     const that    = this;
-    const _States = require(rootDir + 'tmp/node_modules/iobroker.js-controller/lib/states');
+    const _States = require(`${rootDir}tmp/node_modules/iobroker.js-controller/lib/states`);
     let callbackId = 0;
 
     const options = {
@@ -43,7 +43,7 @@ function States(cb, stateChange) {
         logger: logger,
         change: (id, state) => {
             if (!id || typeof id !== 'string') {
-                console.log('Something is wrong! ' + JSON.stringify(id));
+                console.log(`Something is wrong! ${JSON.stringify(id)}`);
                 return;
             }
 
@@ -56,13 +56,13 @@ function States(cb, stateChange) {
             if (that.logList && id.match(/\.logging$/)) {
                 that.logRedirect(state ? state.val : false, id.substring(0, id.length - '.logging'.length));
             } else
-            if (id === 'log.system.adapter.' + that.namespace) {
+            if (id === `log.system.adapter.${that.namespace}`) {
                 that.processLog(state);
             } else
             // If this is messagebox
-            if (id === 'messagebox.system.adapter.' + that.namespace && state) {
+            if (id === `messagebox.system.adapter.${that.namespace}` && state) {
                 // Read it from fifo list
-                that.states.delMessage('system.adapter.' + that.namespace, state._id);
+                that.states.delMessage(`system.adapter.${that.namespace}`, state._id);
                 const obj = state;
                 if (obj) {
                     // If callback stored for this request
@@ -70,11 +70,11 @@ function States(cb, stateChange) {
                         obj.callback.ack &&
                         obj.callback.id  &&
                         that.callbacks   &&
-                        that.callbacks['_' + obj.callback.id]) {
+                        that.callbacks[`_${obj.callback.id}`]) {
                         // Call callback function
-                        if (that.callbacks['_' + obj.callback.id].cb) {
-                            that.callbacks['_' + obj.callback.id].cb(obj.message);
-                            delete that.callbacks['_' + obj.callback.id];
+                        if (that.callbacks[`_${obj.callback.id}`].cb) {
+                            that.callbacks[`_${obj.callback.id}`].cb(obj.message);
+                            delete that.callbacks[`_${obj.callback.id}`];
                         }
                         // delete too old callbacks IDs, like garbage collector
                         const now = Date.now();
@@ -109,7 +109,7 @@ function States(cb, stateChange) {
             }
         },
         connectTimeout: (error) => {
-            if (logger) logger.error(that.namespace + ' no connection to states DB');
+            if (logger) logger.error(`${that.namespace} no connection to states DB`);
             if (cb) cb('Timeout');
         }
     });
