@@ -99,7 +99,7 @@ function States(cb, stateChange) {
                 } else {
                     if (typeof options.stateChange === 'function') options.stateChange(id, state);
                     if (id.substring(0, 4) === 'log.') {
-                        console.log("LOG");
+                        console.log('LOG');
                     }
                     if (that.emit) {
                         // emit 'stateChange' event instantly
@@ -120,16 +120,18 @@ function States(cb, stateChange) {
             message = command;
             command = 'send';
         }
-        const obj = {command: command, message: message, from: 'system.adapter.' + that.namespace};
+        const obj = {command: command, message: message, from: `system.adapter.${that.namespace}`};
 
-        if (!objName.match(/^system\.adapter\./)) objName = 'system.adapter.' + objName;
+        if (!objName.match(/^system\.adapter\./)) {
+            objName = `system.adapter.${objName}`;
+        }
 
         that.log.info(`sendTo "${command}" to ${objName} from system.adapter.${that.namespace}: ${JSON.stringify(message)}`);
 
         // If not specific instance
         if (!objName.match(/\.[0-9]+$/)) {
             // Send to all instances of adapter
-            that.objects.getObjectView('system', 'instance', {startkey: objName + '.', endkey: objName + '.\u9999'}, (err, _obj) => {
+            that.objects.getObjectView('system', 'instance', {startkey: `${objName}.`, endkey: `${objName}.\u9999`}, (err, _obj) => {
                 if (_obj) {
                     for (let i = 0; i < _obj.rows.length; i++) {
                         that.states.pushMessage(_obj.rows[i].id, obj);
@@ -142,7 +144,7 @@ function States(cb, stateChange) {
                     // force subscribe even no messagebox enabled
                     if (!that.common.messagebox && !that.mboxSubscribed) {
                         that.mboxSubscribed = true;
-                        that.states.subscribeMessage('system.adapter.' + that.namespace);
+                        that.states.subscribeMessage(`system.adapter.${that.namespace}`);
                     }
 
                     obj.callback = {
@@ -180,13 +182,15 @@ function States(cb, stateChange) {
             message = command;
             command = 'send';
         }
-        const obj = {command: command, message: message, from: 'system.adapter.' + that.namespace};
+        const obj = {command: command, message: message, from: `system.adapter.${that.namespace}`};
 
-        if (objName && objName.substring(0, 'system.host.'.length) !== 'system.host.') objName = 'system.host.' + objName;
+        if (objName && objName.substring(0, 'system.host.'.length) !== 'system.host.') {
+            objName = `system.host.${objName}`;
+        }
 
         if (!objName) {
             // Send to all hosts
-            that.objects.getObjectList({startkey: 'system.host.', endkey: 'system.host.' + '\u9999'}, null, (err, res) => {
+            that.objects.getObjectList({startkey: 'system.host.', endkey: `system.host.\u9999`}, null, (err, res) => {
                 if (!err && res.rows.length) {
                     for (let i = 0; i < res.rows.length; i++) {
                         const parts = res.rows[i].id.split('.');
@@ -203,7 +207,7 @@ function States(cb, stateChange) {
                     // force subscribe even no messagebox enabled
                     if (!that.common.messagebox && !that.mboxSubscribed) {
                         that.mboxSubscribed = true;
-                        that.states.subscribeMessage('system.adapter.' + that.namespace);
+                        that.states.subscribeMessage(`system.adapter.${that.namespace}`);
                     }
 
                     obj.callback = {
@@ -212,9 +216,11 @@ function States(cb, stateChange) {
                         ack:     false,
                         time:    Date.now()
                     };
-                    if (callbackId >= 0xFFFFFFFF) callbackId = 1;
-                    if (!that.callbacks) that.callbacks = {};
-                    that.callbacks['_' + obj.callback.id] = {cb: callback};
+                    if (callbackId >= 0xFFFFFFFF) {
+                        callbackId = 1;
+                    }
+                    that.callbacks = that.callbacks || {};
+                    that.callbacks[`_${obj.callback.id}`] = {cb: callback};
                 } else {
                     obj.callback     = callback;
                     obj.callback.ack = true;
@@ -248,7 +254,7 @@ function States(cb, stateChange) {
             state.ack = ack;
         }
 
-        state.from = 'system.adapter.' + that.namespace;
+        state.from = `system.adapter.${that.namespace}`;
         if (options && options.user && options.user !== 'system.user.admin') {
             checkStates(id, options, 'setState', err => {
                 if (err) {
@@ -366,14 +372,14 @@ function States(cb, stateChange) {
                     }
                     history.push(res[i]);
                 }
-                if (iProblemCount) that.log.warn('got null states ' + iProblemCount + ' times for ' + id);
+                if (iProblemCount) that.log.warn(`got null states ${iProblemCount} times for ${id}`);
 
                 that.log.debug(`got ${res.length} datapoints for ${id}`);
             } else {
                 if (err !== 'Not exists') {
                     that.log.error(err);
                 } else {
-                    that.log.debug('datapoints for ' + id + ' do not yet exist');
+                    that.log.debug(`datapoints for ${id} do not yet exist`);
                 }
             }
 
@@ -391,7 +397,7 @@ function States(cb, stateChange) {
                             history.push(res.common.data[i]);
                         }
                     } else {
-                        that.log.warn(cid + ' not found');
+                        that.log.warn(`${cid} not found`);
                     }
                     callback(err);
                 });
@@ -403,7 +409,7 @@ function States(cb, stateChange) {
                     callback(null, history);
                     return;
                 }
-                const cid = 'history.' + id + '.' + ts2day(ts);
+                const cid = `history.${id}.${ts2day(ts)}`;
                 if (docs.indexOf(cid) !== -1) {
                     getObjectsLog(cid, err => queue(ts - 86400)); // - 1 day
                 } else {
@@ -412,7 +418,7 @@ function States(cb, stateChange) {
             }
 
             // get list of available history documents
-            that.objects.getObjectList({startkey: 'history.' + id, endkey: 'history.' + id + '\u9999'}, options, (err, res) => {
+            that.objects.getObjectList({startkey: `history.${id}`, endkey: `history.${id}\u9999`}, options, (err, res) => {
                 if (!err && res.rows.length) {
                     for (let i = 0; i < res.rows.length; i++) {
                         docs.push(res.rows[i].id);
@@ -452,7 +458,7 @@ function States(cb, stateChange) {
     that.idToDCS = function idToDCS(id) {
         if (!id) return null;
         const parts = id.split('.');
-        if (parts[0] + '.' + parts[1] !== that.namespace) {
+        if (`${parts[0]}.${parts[1]}` !== that.namespace) {
             that.log.warn("Try to decode id not from this adapter");
             return null;
         }
@@ -537,7 +543,7 @@ function States(cb, stateChange) {
         }
 
         if (typeof callback !== 'function') {
-            logger.error('getForeignStates invalid callback for ' + pattern);
+            logger.error(`getForeignStates invalid callback for ${pattern}`);
             return;
         }
 
@@ -565,7 +571,9 @@ function States(cb, stateChange) {
         }
         that.objects.getObjectView('system', 'state', params, options, (err, res) => {
             if (err) {
-                if (typeof callback === 'function') callback(err);
+                if (typeof callback === 'function') {
+                    callback(err);
+                }
                 return;
             }
 
@@ -588,7 +596,9 @@ function States(cb, stateChange) {
                             if (typeof arr[i] === 'string') arr[i] = JSON.parse(arr[i]);
                             list[keys[i]] = arr[i] || {};
                         }
-                        if (typeof callback === 'function') callback(null, list);
+                        if (typeof callback === 'function') {
+                            callback(null, list);
+                        }
                     });
                 });
             } else {
@@ -620,7 +630,7 @@ function States(cb, stateChange) {
     that.subscribeStates = function subscribeStates(pattern, options) {
         // Exception. Threat the '*' case automatically
         if (!pattern || pattern === '*') {
-            that.states.subscribe(that.namespace + '.*', options);
+            that.states.subscribe(`${that.namespace}.*`, options);
         } else {
             pattern = that._fixId(pattern, 'state');
             that.states.subscribe(pattern, options);
@@ -629,7 +639,7 @@ function States(cb, stateChange) {
 
     that.unsubscribeStates = function unsubscribeStates(pattern, options) {
         if (!pattern || pattern === '*') {
-            that.states.unsubscribe(that.namespace + '.*', options);
+            that.states.unsubscribe(`${that.namespace}.*`, options);
         } else {
             pattern = that._fixId(pattern, 'state');
             that.states.unsubscribe(pattern, options);
@@ -675,10 +685,10 @@ function States(cb, stateChange) {
     };
 
     that.lenMessage = function lenMessage(callback) {
-        that.states.lenMessage('system.adapter.' + that.namespace, callback);
+        that.states.lenMessage(`system.adapter.${that.namespace}`, callback);
     };
 
-    // Write binary block into redis, e.g image
+    // Write binary block into redis, e.g. image
     that.setBinaryState = function setBinaryState(id, binary, options, callback) {
         if (typeof options === 'function') {
             callback = options;
@@ -687,7 +697,7 @@ function States(cb, stateChange) {
         that.states.setBinaryState(id, binary, callback);
     };
 
-    // Read binary block fromredis, e.g. image
+    // Read binary block from redis, e.g. image
     that.getBinaryState = function getBinaryState(id, options, callback) {
         if (typeof options === 'function') {
             callback = options;
@@ -696,7 +706,7 @@ function States(cb, stateChange) {
         that.states.getBinaryState(id, callback);
     };
 
-    logger.debug(that.namespace + ' statesDB connected');
+    logger.debug(`${that.namespace} statesDB connected`);
 
     if (typeof cb === 'function') {
         setImmediate(() => cb(), 0);

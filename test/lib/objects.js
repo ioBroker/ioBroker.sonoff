@@ -30,11 +30,11 @@ function Objects(cb) {
 
     this.objects = new _Objects({
         connection: {
-            type : 'file',
-            host : '127.0.0.1',
-            port : 19001,
-            user : '',
-            pass : '',
+            type: 'file',
+            host: '127.0.0.1',
+            port: 19001,
+            user: '',
+            pass: '',
             noFileCache: false,
             connectTimeout: 2000
         },
@@ -48,39 +48,47 @@ function Objects(cb) {
         },
         change: (id, obj) => {
             if (!id) {
-                logger.error(that.namespace + ' change ID is empty:  ' + JSON.stringify(obj));
+                logger.error(`${that.namespace} change ID is empty:  ${JSON.stringify(obj)}`);
                 return;
             }
 
             if (id.slice(that.namespace.length) === that.namespace) {
-                if (typeof options.objectChange === 'function') options.objectChange(id.slice(that.namespace.length + 1), obj);
+                if (typeof options.objectChange === 'function') {
+                    options.objectChange(id.slice(that.namespace.length + 1), obj);
+                }
 
                 // emit 'objectChange' event instantly
                 setImmediate(() => that.emit('objectChange', id.slice(that.namespace.length + 1), obj));
             } else {
-                if (typeof options.objectChange === 'function') options.objectChange(id, obj);
+                if (typeof options.objectChange === 'function') {
+                    options.objectChange(id, obj);
+                }
 
                 // emit 'objectChange' event instantly
                 setImmediate(() => that.emit('objectChange', id, obj));
             }
         },
         connectTimeout: error => {
-            if (logger) logger.error(that.namespace + ' no connection to objects DB');
-            if (typeof cb === 'function') cb('Connect timeout');
+            if (logger) logger.error(`${that.namespace} no connection to objects DB`);
+            if (typeof cb === 'function') {
+                cb('Connect timeout');
+            }
         }
     });
 
-    that._namespaceRegExp = new RegExp('^' + that.namespace);       // cache the regex object 'adapter.0'
+    that._namespaceRegExp = new RegExp(`^${that.namespace}`);       // cache the regex object 'adapter.0'
 
     that._fixId = function _fixId(id) {
         let result  = '';
         // If id is an object
         if (typeof id === 'object') {
             // Add namespace + device + channel
-            result = that.namespace + '.' + (id.device ? id.device + '.' : '') + (id.channel ? id.channel + '.' : '') + id.state;
+            result = `${that.namespace}.${id.device ? `${id.device}.` : ''}${id.channel ? `${id.channel}.` : ''}${id.state}`;
         } else {
             result = id;
-            if (!that._namespaceRegExp.test(id)) result = that.namespace + '.' + id;
+            if (!that._namespaceRegExp.test(id)) {
+                result = `${that.namespace}.${id}`;
+            }
         }
         return result;
     };
@@ -92,23 +100,23 @@ function Objects(cb) {
         }
 
         if (!id) {
-            logger.error(that.namespace + ' setObject id missing!!');
+            logger.error(`${that.namespace} setObject id missing!!`);
             return;
         }
 
         if (!obj) {
-            logger.error(that.namespace + ' setObject ' + id + ' object missing!');
+            logger.error(`${that.namespace} setObject ${id} object missing!`);
             return;
         }
 
         if (obj.hasOwnProperty('type')) {
             if (!obj.hasOwnProperty('native')) {
-                logger.warn(that.namespace + ' setObject ' + id + ' (type=' + obj.type + ') property native missing!');
+                logger.warn(`${that.namespace} setObject ${id} (type=${obj.type}) property native missing!`);
                 obj.native = {};
             }
             // Check property 'common'
             if (!obj.hasOwnProperty('common')) {
-                logger.warn(that.namespace + ' setObject ' + id + ' (type=' + obj.type + ') property common missing!');
+                logger.warn(`${that.namespace} setObject ${id} (type=${obj.type}) property common missing!`);
                 obj.common = {};
             } else if (obj.type === 'state') {
                 // Try to extend the model for type='state'
@@ -116,27 +124,27 @@ function Objects(cb) {
                 if (obj.common.hasOwnProperty('role') && defaultObjs[obj.common.role]) {
                     obj.common = extend(true, defaultObjs[obj.common.role], obj.common);
                 } else if (!obj.common.hasOwnProperty('role')) {
-                    logger.warn(that.namespace + ' setObject ' + id + ' (type=' + obj.type + ') property common.role missing!');
+                    logger.warn(`${that.namespace} setObject ${id} (type=${obj.type}) property common.role missing!`);
                 }
                 if (!obj.common.hasOwnProperty('type')) {
-                    logger.warn(that.namespace + ' setObject ' + id + ' (type=' + obj.type + ') property common.type missing!');
+                    logger.warn(`${that.namespace} setObject ${id} (type=${obj.type}) property common.type missing!`);
                 }
             }
 
             if (!obj.common.hasOwnProperty('name')) {
                 obj.common.name = id;
-                logger.debug(that.namespace + ' setObject ' + id + ' (type=' + obj.type + ') property common.name missing, using id as name');
+                logger.debug(`${that.namespace} setObject ${id} (type=${obj.type}) property common.name missing, using id as name`);
             }
 
             id = that._fixId(id, obj.type);
 
             if (obj.children || obj.parent) {
-                logger.warn('Do not use parent or children for ' + id);
+                logger.warn(`Do not use parent or children for ${id}`);
             }
             that.objects.setObject(id, obj, options, callback);
 
         } else {
-            logger.error(that.namespace + ' setObject ' + id + ' mandatory property type missing!');
+            logger.error(`${that.namespace} setObject ${id} mandatory property type missing!`);
         }
     };
 
@@ -148,7 +156,7 @@ function Objects(cb) {
         id = that._fixId(id, obj.type);
 
         if (obj.children || obj.parent) {
-            logger.warn('Do not use parent or children for ' + id);
+            logger.warn(`Do not use parent or children for ${id}`);
         }
         // delete arrays if they should be changed
         if (obj && (
@@ -164,7 +172,7 @@ function Objects(cb) {
                     return;
                 }
                 if (!oldObj) {
-                    logger.error('Object ' + id + ' not exist!');
+                    logger.error(`Object ${id} not exist!`);
                     oldObj = {};
                 }
                 if (obj.native && obj.native.repositories && oldObj.native && oldObj.native.repositories) {
@@ -211,7 +219,7 @@ function Objects(cb) {
                     return;
                 }
                 if (!oldObj) {
-                    logger.error('Object ' + id + ' not exist!');
+                    logger.error(`Object ${id} not exist!`);
                     oldObj = {};
                 }
                 if (obj.native && obj.native.repositories && oldObj.native && oldObj.native.repositories) {
@@ -249,10 +257,12 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        if (!_enum.match('^enum.')) _enum = 'enum.' + _enum;
+        if (!_enum.match('^enum.')) {
+            _enum = `enum.${_enum}`;
+        }
         const result = {};
 
-        that.objects.getObjectView('system', 'enum', {startkey: _enum + '.', endkey: _enum + '.\u9999'}, options, (err, res) => {
+        that.objects.getObjectView('system', 'enum', {startkey: `${_enum}.`, endkey: `${_enum}.\u9999`}, options, (err, res) => {
             if (err) {
                 if (typeof callback === 'function') callback(err);
                 return;
@@ -304,9 +314,13 @@ function Objects(cb) {
                 const result = {};
                 for (let i = 0; i < res.rows.length; i++) {
                     const parts = res.rows[i].id.split('.', 3);
-                    if (!parts[2]) continue;
-                    if (!result[parts[0] + '.' + parts[1]]) result[parts[0] + '.' + parts[1]] = {};
-                    result[parts[0] + '.' + parts[1]][res.rows[i].id] = res.rows[i].value;
+                    if (!parts[2]) {
+                        continue;
+                    }
+                    if (!result[`${parts[0]}.${parts[1]}`]) {
+                        result[`${parts[0]}.${parts[1]}`] = {};
+                    }
+                    result[`${parts[0]}.${parts[1]}`][res.rows[i].id] = res.rows[i].value;
                 }
 
                 if (callback) callback(err, result);
@@ -427,7 +441,7 @@ function Objects(cb) {
 
     that.unsubscribeObjects = function unsubscribeObjects(pattern, options) {
         if (pattern === '*') {
-            that.objects.unsubscribe(that.namespace + '.*', options);
+            that.objects.unsubscribe(`${that.namespace}.*`, options);
         } else {
             pattern = that._fixId(pattern);
             that.objects.unsubscribe(pattern);
@@ -583,7 +597,7 @@ function Objects(cb) {
         common.write = (common.write === undefined) ? false : common.write;
 
         if (!common.role) {
-            logger.error('Try to create state ' + (parentDevice ? (parentDevice + '.') : '') + parentChannel + '.' + stateName + ' without role');
+            logger.error(`Try to create state ${parentDevice ? (parentDevice + '.') : ''}${parentChannel}.${stateName} without role`);
             return;
         }
 
@@ -611,7 +625,9 @@ function Objects(cb) {
             options = null;
         }
         deviceName = deviceName.replace(/[.\s]+/g, '_');
-        if (!that._namespaceRegExp.test(deviceName)) deviceName = that.namespace + '.' + deviceName;
+        if (!that._namespaceRegExp.test(deviceName)) {
+            deviceName = `${that.namespace}.${deviceName}`;
+        }
 
         that.objects.getObjectView('system', 'device', {startkey: deviceName, endkey: deviceName}, options, (err, res) => {
             if (err || !res || !res.rows) {
@@ -620,7 +636,7 @@ function Objects(cb) {
                 return;
             }
             let cnt = 0;
-            if (res.rows.length > 1) that.log.warn('Found more than one device ' + deviceName);
+            if (res.rows.length > 1) that.log.warn(`Found more than one device ${deviceName}`);
 
             for (let t = 0; t < res.rows.length; t++) {
                 cnt++;
@@ -633,9 +649,11 @@ function Objects(cb) {
 
                     if (!--cnt) {
                         cnt = 0; // just to better understand
-                        that.objects.getObjectView('system', 'channel', {startkey: deviceName + '.', endkey: deviceName + '.\u9999'}, options, (err, res) => {
+                        that.objects.getObjectView('system', 'channel', {startkey: `${deviceName}.`, endkey: `${deviceName}.\u9999`}, options, (err, res) => {
                             if (err) {
-                                if (typeof callback === 'function') callback(err);
+                                if (typeof callback === 'function') {
+                                    callback(err);
+                                }
                                 return;
                             }
                             for (let k = 0; k < res.rows.length; k++) {
@@ -645,7 +663,9 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback === 'function') callback(err);
+                                            if (typeof callback === 'function') {
+                                                callback(err);
+                                            }
                                             callback = null;
                                         }
                                     }
@@ -680,7 +700,7 @@ function Objects(cb) {
         }
         channelName = channelName.replace(/[.\s]+/g, '_');
 
-        const objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
+        const objId = `${that.namespace}.${that._DCS2ID(parentDevice, channelName)}`;
 
         if (addTo.match(/^enum\./)) {
             that.objects.getObject(addTo, options, (err, obj) => {
@@ -701,9 +721,11 @@ function Objects(cb) {
         } else {
             if (enumName.match(/^enum\./)) enumName = enumName.substring(5);
 
-            that.objects.getObject('enum.' + enumName + '.' + addTo, options, (err, obj) => {
+            that.objects.getObject(`enum.${enumName}.${addTo}`, options, (err, obj) => {
                 if (err) {
-                    if (typeof callback === 'function') callback(err);
+                    if (typeof callback === 'function') {
+                        callback(err);
+                    }
                     return;
                 }
 
@@ -713,11 +735,13 @@ function Objects(cb) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, callback);
                     } else {
-                        if (callback) callback();
+                        if (callback) {
+                            callback();
+                        }
                     }
                 } else {
                     // Create enum
-                    that.objects.setObject('enum.' + enumName + '.' + addTo, {
+                    that.objects.setObject(`enum.${enumName}.${addTo}`, {
                         common: {
                             name: addTo,
                             members: [objId]
@@ -750,15 +774,15 @@ function Objects(cb) {
         channelName = channelName || '';
         channelName = channelName.replace(/[.\s]+/g, '_');
 
-        const objId = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
+        const objId = `${that.namespace}.${that._DCS2ID(parentDevice, channelName)}`;
 
         if (enumName) {
-            enumName = 'enum.' + enumName + '.';
+            enumName = `enum.${enumName}.`;
         } else {
             enumName = 'enum.';
         }
 
-        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options, (err, res) => {
+        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: `${enumName}\u9999`}, options, (err, res) => {
             if (err) {
                 if (typeof callback === 'function') callback(err);
                 return;
@@ -783,7 +807,9 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback === 'function') callback(err);
+                                            if (typeof callback === 'function') {
+                                                callback(err);
+                                            }
                                             callback = null;
                                         }
                                     }
@@ -839,9 +865,9 @@ function Objects(cb) {
         channelName = channelName || '';
         channelName = channelName.replace(/[.\s]+/g, '_');
 
-        channelName  = that.namespace + '.' + that._DCS2ID(parentDevice, channelName);
+        channelName  = `${that.namespace}.${that._DCS2ID(parentDevice, channelName)}`;
 
-        logger.info('Delete channel ' + channelName);
+        logger.info(`Delete channel ${channelName}`);
 
         that.objects.getObjectView('system', 'channel', {startkey: channelName, endkey: channelName}, options, (err, res) => {
             if (err || !res || !res.rows) {
@@ -851,7 +877,7 @@ function Objects(cb) {
             }
             let cnt = 0;
             if (res.rows.length > 1) {
-                that.log.warn('Found more than one channel ' + channelName);
+                that.log.warn(`Found more than one channel ${channelName}`);
             }
 
             for (let t = 0; t < res.rows.length; t++) {
@@ -864,9 +890,11 @@ function Objects(cb) {
                     }
                     cnt--;
                     if (!cnt) {
-                        that.objects.getObjectView('system', 'state', {startkey: channelName + '.', endkey: channelName + '.\u9999'}, options, (err, res) => {
+                        that.objects.getObjectView('system', 'state', {startkey: `${channelName}.`, endkey: `${channelName}.\u9999`}, options, (err, res) => {
                             if (err || !res || !res.rows) {
-                                if (typeof callback === 'function') callback(err);
+                                if (typeof callback === 'function') {
+                                    callback(err);
+                                }
                                 callback = null;
                                 return;
                             }
@@ -876,18 +904,24 @@ function Objects(cb) {
                                         callback(err);
                                     } else {
                                         if (err) {
-                                            if (typeof callback === 'function') callback(err);
+                                            if (typeof callback === 'function') {
+                                                callback(err);
+                                            }
                                             callback = null;
                                         }
                                     }
                                 });
                             }
-                            if (!cnt && callback) callback();
+                            if (!cnt && callback) {
+                                callback();
+                            }
                         });
                     }
                 });
             }
-            if (!cnt && callback) callback();
+            if (!cnt && callback) {
+                callback();
+            }
         });
     };
 
@@ -971,7 +1005,7 @@ function Objects(cb) {
             callback = options;
             options = null;
         }
-        that.objects.getObjectView('system', 'device', {startkey: that.namespace + '.', endkey: that.namespace + '.\u9999'}, options, (err, obj) => {
+        that.objects.getObjectView('system', 'device', {startkey: `${that.namespace}.`, endkey: `${that.namespace}.\u9999`}, options, (err, obj) => {
             if (callback) {
                 if (obj.rows.length) {
                     const res = [];
@@ -1003,7 +1037,7 @@ function Objects(cb) {
 
         parentDevice  = parentDevice.replace(/[.\s]+/g, '_');
         parentDevice = that.namespace + (parentDevice ? ('.' + parentDevice) : '');
-        that.objects.getObjectView('system', 'channel', {startkey: parentDevice + '.', endkey: parentDevice + '.\u9999'}, options, (err, obj) => {
+        that.objects.getObjectView('system', 'channel', {startkey: `${parentDevice}.`, endkey: `${parentDevice}.\u9999`}, options, (err, obj) => {
             if (callback) {
                 if (obj.rows.length) {
                     const res = [];
@@ -1057,9 +1091,9 @@ function Objects(cb) {
 
         parentChannel = parentChannel.replace(/[.\s]+/g, '_');
 
-        const id = that.namespace + '.' + that._DCS2ID(parentDevice, parentChannel, true);
+        const id = `${that.namespace}.${that._DCS2ID(parentDevice, parentChannel, true)}`;
 
-        that.objects.getObjectView('system', 'state', {startkey: id, endkey: id + '\u9999'}, options, (err, obj) => {
+        that.objects.getObjectView('system', 'state', {startkey: id, endkey: `${id}\u9999`}, options, (err, obj) => {
             if (callback) {
                 const res = [];
                 if (obj.rows.length) {
@@ -1123,7 +1157,9 @@ function Objects(cb) {
                     if (pos === -1) {
                         obj.common.members.push(objId);
                         that.objects.setObject(obj._id, obj, options, err => {
-                            if (callback) callback(err);
+                            if (callback) {
+                                callback(err);
+                            }
                         });
                     }
                 }
@@ -1131,7 +1167,7 @@ function Objects(cb) {
         } else {
             if (enumName.match(/^enum\./)) enumName = enumName.substring(5);
 
-            that.objects.getObject('enum.' + enumName + '.' + addTo, options, (err, obj) => {
+            that.objects.getObject(`enum.${enumName}.${addTo}`, options, (err, obj) => {
                 if (!err && obj) {
                     const pos = obj.common.members.indexOf(objId);
                     if (pos === -1) {
@@ -1142,12 +1178,14 @@ function Objects(cb) {
                     }
                 } else {
                     if (err) {
-                        if (typeof callback === 'function') callback(err);
+                        if (typeof callback === 'function') {
+                            callback(err);
+                        }
                         return;
                     }
 
                     // Create enum
-                    that.objects.setObject('enum.' + enumName + '.' + addTo, {
+                    that.objects.setObject(`enum.${enumName}.${addTo}`, {
                         common: {
                             name: addTo,
                             members: [objId]
@@ -1197,12 +1235,12 @@ function Objects(cb) {
         const objId = that._fixId({device: parentDevice, channel: parentChannel, state: stateName}, 'state');
 
         if (enumName) {
-            enumName = 'enum.' + enumName + '.';
+            enumName = `enum.${enumName}.`;
         } else {
             enumName = 'enum.';
         }
 
-        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: enumName + '\u9999'}, options,  (err, res) => {
+        that.objects.getObjectView('system', 'enum', {startkey: enumName, endkey: `${enumName}\u9999`}, options,  (err, res) => {
             if (!err && res) {
                 let count = 0;
                 for (let i = 0; i < res.rows.length; i++) {
@@ -1220,11 +1258,15 @@ function Objects(cb) {
                                 obj.common.members.splice(pos, 1);
                                 count++;
                                 that.objects.setObject(obj._id, obj, err => {
-                                    if (!--count && callback) callback(err);
+                                    if (!--count && callback) {
+                                        callback(err);
+                                    }
                                 });
                             }
                         }
-                        if (!--count && callback) callback(err);
+                        if (!--count && callback) {
+                            callback(err);
+                        }
                     });
                 }
             } else if (callback) {
@@ -1245,7 +1287,9 @@ function Objects(cb) {
     };
 
     that.readDir = function readDir(adapter, path, options, callback) {
-        if (adapter === null) adapter = that.name;
+        if (adapter === null) {
+            adapter = that.name;
+        }
 
         if (typeof options === 'function') {
             callback = options;
@@ -1267,7 +1311,9 @@ function Objects(cb) {
     };
 
     that.rename = function rename(adapter, oldName, newName, options, callback) {
-        if (adapter === null) adapter = that.name;
+        if (adapter === null) {
+            adapter = that.name;
+        }
         if (typeof options === 'function') {
             callback = options;
             options = null;
@@ -1286,7 +1332,9 @@ function Objects(cb) {
     };
 
     that.readFile = function readFile(adapter, filename, options, callback) {
-        if (adapter === null) adapter = that.name;
+        if (adapter === null) {
+            adapter = that.name;
+        }
 
         if (typeof options === 'function') {
             callback = options;
@@ -1297,7 +1345,9 @@ function Objects(cb) {
     };
 
     that.writeFile = function writeFile(adapter, filename, data, options, callback) {
-        if (adapter === null) adapter = that.name;
+        if (adapter === null) {
+            adapter = that.name;
+        }
 
         if (typeof options === 'function') {
             callback = options;
@@ -1315,14 +1365,20 @@ function Objects(cb) {
 
         let format = _format || that.dateFormat || 'DD.MM.YYYY';
 
-        if (!dateObj) return '';
+        if (!dateObj) {
+            return '';
+        }
         const text = typeof dateObj;
         if (text === 'string') {
             const pos = dateObj.indexOf('.');
-            if (pos !== -1) dateObj = dateObj.substring(0, pos);
+            if (pos !== -1) {
+                dateObj = dateObj.substring(0, pos);
+            }
             return dateObj;
         }
-        if (text !== 'object') dateObj = isSeconds ? new Date(dateObj * 1000) : new Date(dateObj);
+        if (text !== 'object') {
+            dateObj = isSeconds ? new Date(dateObj * 1000) : new Date(dateObj);
+        }
 
         let v;
 
@@ -1341,7 +1397,9 @@ function Objects(cb) {
         // Month
         if (format.indexOf('MM') !== -1 || format.indexOf('ММ') !== -1) {
             v =  dateObj.getMonth() + 1;
-            if (v < 10) v = '0' + v;
+            if (v < 10) {
+                v = '0' + v;
+            }
             format = format.replace('MM', v);
             format = format.replace('ММ', v);
         } else if (format.indexOf('M') !== -1 || format.indexOf('М') !== -1) {
@@ -1353,7 +1411,9 @@ function Objects(cb) {
         // Day
         if (format.indexOf('DD') !== -1 || format.indexOf('TT') !== -1 || format.indexOf('ДД') !== -1) {
             v =  dateObj.getDate();
-            if (v < 10) v = '0' + v;
+            if (v < 10) {
+                v = '0' + v;
+            }
             format = format.replace('DD', v);
             format = format.replace('TT', v);
             format = format.replace('ДД', v);
@@ -1367,7 +1427,9 @@ function Objects(cb) {
         // hours
         if (format.indexOf('hh') !== -1 || format.indexOf('SS') !== -1 || format.indexOf('чч') !== -1) {
             v =  dateObj.getHours();
-            if (v < 10) v = '0' + v;
+            if (v < 10) {
+                v = '0' + v;
+            }
             format = format.replace('hh', v);
             format = format.replace('SS', v);
             format = format.replace('чч', v);
@@ -1381,7 +1443,9 @@ function Objects(cb) {
         // minutes
         if (format.indexOf('mm') !== -1 || format.indexOf('мм') !== -1) {
             v =  dateObj.getMinutes();
-            if (v < 10) v = '0' + v;
+            if (v < 10) {
+                v = '0' + v;
+            }
             format = format.replace('mm', v);
             format = format.replace('мм', v);
         } else if (format.indexOf('m') !== -1 ||  format.indexOf('м') !== -1) {
@@ -1393,7 +1457,9 @@ function Objects(cb) {
         // seconds
         if (format.indexOf('ss') !== -1 || format.indexOf('сс') !== -1) {
             v =  dateObj.getSeconds();
-            if (v < 10) v = '0' + v;
+            if (v < 10) {
+                v = '0' + v;
+            }
             v = v.toString();
             format = format.replace('ss', v);
             format = format.replace('cc', v);

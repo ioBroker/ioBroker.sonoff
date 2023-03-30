@@ -76,7 +76,7 @@ function startClients(_done) {
             }
         }
     }, (topic, message) => {
-        console.log(Date.now() + ' emitter received ' + topic + ': ' + message.toString());
+        console.log(`${Date.now()} emitter received ${topic}: ${message.toString()}`);
         // on receive
         lastReceivedTopic1   = topic;
         lastReceivedMessage1 = message ? message.toString() : null;
@@ -94,7 +94,7 @@ function startClients(_done) {
             }
         }
     }, (topic, message) => {
-        console.log(Date.now() + ' detector received ' + topic + ': ' + message.toString());
+        console.log(`${Date.now()} detector received ${topic}: ${message.toString()}`);
         // on receive
         lastReceivedTopic2   = topic;
         lastReceivedMessage2 = message ? message.toString() : null;
@@ -122,11 +122,11 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                 }
                 count++;
                 (function (_id, _val) {
-                    objects.getObject('sonoff.0.Emitter_1.' + _id, (err, obj) => {
+                    objects.getObject(`sonoff.0.Emitter_1.${_id}`, (err, obj) => {
                         if (_val !== null) {
                             !obj && console.error(`Object sonoff.0.Emitter_1.${_id} not found`);
                             expect(obj).to.be.not.null.and.not.undefined;
-                            expect(obj._id).to.be.equal('sonoff.0.Emitter_1.' + _id);
+                            expect(obj._id).to.be.equal(`sonoff.0.Emitter_1.${_id}`);
                             expect(obj.type).to.be.equal('state');
 
                             states.getState(obj._id, function (err, state) {
@@ -138,7 +138,7 @@ function checkMqtt2Adapter(id, task, _it, _done) {
                         } else {
                             expect(obj).to.be.null;
 
-                            states.getState('sonoff.0.Emitter_1.' + _id, (err, state) => {
+                            states.getState(`sonoff.0.Emitter_1.${_id}`, (err, state) => {
                                 expect(state).to.be.null;
                                 if (!--count) _done();
                             });
@@ -182,7 +182,7 @@ function checkAdapter2Mqtt(id, mqttid, value, _done) {
 function checkConnection(value, done, counter) {
     counter = counter || 0;
     if (counter > 20) {
-        done && done('Cannot check ' + value);
+        done && done(`Cannot check ${value}`);
         return;
     }
 

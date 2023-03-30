@@ -5,11 +5,11 @@ function Client(cbConnected, cbChanged, config) {
     let that = this;
     if (typeof config === 'string') config = {name: config};
     config = config || {};
-    config.url = config.url || 'localhost';
-    this.client = mqtt.connect(`mqtt://${config.user ? (config.user + ':' + config.pass + '@') : ''}${config.url}${config.name ? '?clientId=' + config.name : ''}`, config);
+    config.url = config.url || '127.0.0.1';
+    this.client = mqtt.connect(`mqtt://${config.user ? (`${config.user}:${config.pass}@`) : ''}${config.url}${config.name ? `?clientId=${config.name}` : ''}`, config);
 
     this.client.on('connect', () => {
-        console.log((new Date()) + ' test client connected to localhost');
+        console.log(`${new Date()} test client connected to 127.0.0.1`);
 
         /*that.client.publish('mqtt/0/test', 'Roger1');
         client.publish('test/out/testMessage1', 'Roger1');
