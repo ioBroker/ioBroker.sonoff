@@ -121,7 +121,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 2.5.2 (2023-03-29)
+### **WORK IN PROGRESS**
 * (GreatSUN) Implemented potential `.STATE.POWER` update
 
 ### 2.5.1 (2022-04-23)
