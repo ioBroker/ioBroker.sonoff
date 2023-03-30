@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.5.2",
+    "version": "2.5.3",
     "news": {
+      "2.5.3": {
+        "en": "Implemented potential `.STATE.POWER` update",
+        "de": "Ergänzendes Potenzial STATE. POWER Update",
+        "ru": "Реализованный потенциал ГОСУДАРСТВО. POWER обновление",
+        "pt": "Potencial implementado ESTADO. Atualização do POWER",
+        "nl": "Implementie potentieel Stop. Vertaling:",
+        "fr": "Possibilités mises en œuvre Arrête. Mise à jour du POWER",
+        "it": "Potenziale attuato STATO. Aggiornamento del potere",
+        "es": "Potencial aplicado ESTADO. Actualización de POWER",
+        "pl": "Implementacja potencjału Staw. POWER",
+        "uk": "Реалізований потенціал ДЕРЖАВИ. Оновлення енергії",
+        "zh-cn": "执行潜力 国家。 导 言"
+      },
       "2.5.1": {
         "en": "Fix crash case reported by Sentry",
         "de": "Absturzfall behoben, der von Sentry gemeldet wurde",
