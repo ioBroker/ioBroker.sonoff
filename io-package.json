@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.5.3",
+    "version": "2.5.4",
     "news": {
+      "2.5.4": {
+        "en": "Disabled the logging of username and password during connection errors\nadded json config",
+        "de": "Deaktiviert die Protokollierung von Benutzername und Passwort während der Verbindungsfehler\nadd json config",
+        "ru": "Отключение логина имени пользователя и пароля во время ошибок соединения\nдобавлено json config",
+        "pt": "Desativado o registro de nome de usuário e senha durante erros de conexão\nadicionado json config",
+        "nl": "De logeerkamer van gebruikers en wachtwoord tijdens de verbindingsfouten\nvoegde json config",
+        "fr": "Handicapés l'enregistrement du nom d'utilisateur et du mot de passe lors des erreurs de connexion\najouté json config",
+        "it": "Disattivare la registrazione di nome utente e password durante gli errori di connessione\naggiunto json config",
+        "es": "Desactivar el registro de nombre de usuario y contraseña durante errores de conexión\njson config",
+        "pl": "Dysponował logowaniem nazwy użytkownika i hasła podczas błędów połączenia\ndodał json configig",
+        "uk": "Вимкнено логування імені користувача та пароля під час помилок підключення\nдодано json config",
+        "zh-cn": "残疾人在联系错误期间的用户名称和密码\nj的额外活动"
+      },
       "2.5.3": {
         "en": "Implemented potential `.STATE.POWER` update",
         "de": "Ergänzendes Potenzial STATE. POWER Update",
@@ -75,18 +88,6 @@
         "es": "Arregle algunos casos de fallas reportados por Sentry",
         "pl": "Napraw niektóre przypadki awarii zgłoszone przez Sentry",
         "zh-cn": "修复 Sentry 报告的一些崩溃案例"
-      },
-      "2.4.4": {
-        "en": "Added UvaIntensity and UvbIntensity",
-        "de": "UvaIntensity und UvbIntensity hinzugefügt",
-        "ru": "Добавлены UvaIntensity и UvbIntensity.",
-        "pt": "Adicionados UvaIntensity e UvbIntensity",
-        "nl": "UvaIntensity en UvbIntensity toegevoegd",
-        "fr": "Ajout d'UvaIntensity et UvbIntensity",
-        "it": "Aggiunti UvaIntensity e UvbIntensity",
-        "es": "Se agregaron UvaIntensity y UvbIntensity",
-        "pl": "Dodano UvaIntensity i UvbIntensity",
-        "zh-cn": "添加了 UvaIntensity 和 UvbIntensity"
       }
     },
     "title": "Sonoff",
