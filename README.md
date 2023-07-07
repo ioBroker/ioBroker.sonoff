@@ -122,7 +122,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 2.5.5 (2023-07-07)
+### **WORK IN PROGRESS**
 * (mcm1957) Disabled the logging of username and password during connection errors
 * (bluefox) added json config
 
