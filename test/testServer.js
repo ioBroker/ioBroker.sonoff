@@ -206,6 +206,12 @@ describe('Sonoff server: Test mqtt server', () => {
 
         setup.setupController(async () => {
             let systemConfig = await setup.getObject('system.config');
+            if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
+                systemConfig = systemConfig || {common: {}, native: { secret: '12345' }};
+                systemConfig.native = systemConfig.native || { secret: '12345' };
+                systemConfig.native.secret = systemConfig.native.secret || '12345';
+                await setup.setObject('system.config', systemConfig);
+            }
             let config = await setup.getAdapterConfig();
             // enable adapter
             config.common.enabled  = true;
