@@ -126,6 +126,9 @@
     "loglevel": "info",
     "icon": "sonoff.png",
     "materialize": true,
+    "adminUI": {
+      "config": "json"
+    },
     "keywords": [
       "ITEAD",
       "MQTT",

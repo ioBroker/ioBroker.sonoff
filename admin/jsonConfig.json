@@ -1,0 +1,112 @@
+{
+  "type": "panel",
+  "i18n": true,
+  "items": {
+    "_header1": {
+      "type": "header",
+      "text": "Connection settings",
+      "size": 3,
+      "sm": 12
+    },
+    "bind": {
+      "newLine": true,
+      "type": "ip",
+      "label": "IP",
+      "listenOnAllPorts": true,
+      "sm": 10,
+      "md": 8,
+      "lg": 3
+    },
+    "port": {
+      "label": "Port",
+      "type": "number",
+      "min": 1,
+      "max": 65535,
+      "sm": 2,
+      "md": 2,
+      "lg": 1
+    },
+    "timeout": {
+      "label": "Client timeout",
+      "help": "in seconds",
+      "type": "number",
+      "min": 1,
+      "max": 99999,
+      "md": 2,
+      "lg": 1
+    },
+    "_header2": {
+      "newLine": true,
+      "type": "header",
+      "text": "Authentication settings",
+      "size": 3,
+      "sm": 12
+    },
+    "user": {
+      "newLine": true,
+      "type": "text",
+      "label": "User",
+      "sm": 12,
+      "md": 4,
+      "lg": 2
+    },
+    "pass": {
+      "sm": 12,
+      "md": 8,
+      "lg": 4,
+      "type": "password",
+      "label": "Password",
+      "repeat": true
+    },
+    "_header3": {
+      "newLine": true,
+      "type": "header",
+      "text": "Auto creation of states",
+      "size": 3,
+      "sm": 12
+    },
+    "TELE_SENSOR": {
+      "newLine": true,
+      "type": "checkbox",
+      "label": "For tele/SENSOR",
+      "sm": 6,
+      "md": 3,
+      "lg": 2
+    },
+    "TELE_STATE": {
+      "type": "checkbox",
+      "label": "For tele/STATE",
+      "sm": 6,
+      "md": 3,
+      "lg": 2
+    },
+    "STAT_RESULT": {
+      "type": "checkbox",
+      "label": "For stat/RESULT",
+      "sm": 6,
+      "md": 3,
+      "lg": 2
+    },
+    "OBJ_TREE": {
+      "type": "checkbox",
+      "label": "Create object tree",
+      "help": "WARNING! Check README.md!",
+      "sm": 6,
+      "md": 3,
+      "lg": 2
+    },
+    "_header4": {
+      "newLine": true,
+      "type": "header",
+      "text": "Other settings",
+      "size": 3,
+      "sm": 12
+    },
+    "ignorePings": {
+      "newLine": true,
+      "type": "checkbox",
+      "label": "Ignore warnings with pingreq",
+      "sm": 12
+    }
+  }
+}
