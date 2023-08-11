@@ -122,6 +122,9 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added migration of password on JSON Config
+
 ### 2.5.7 (2023-07-07)
 * (mcm1957) Disabled the logging of username and password during connection errors
 * (bluefox) added json config
