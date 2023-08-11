@@ -122,7 +122,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 3.0.0 (2023-08-11)
+### **WORK IN PROGRESS**
 * (bluefox) Added migration of password on JSON Config
 
 ### 2.5.7 (2023-07-07)
