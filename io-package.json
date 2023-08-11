@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "2.5.7",
+    "version": "3.0.0",
     "news": {
+      "3.0.0": {
+        "en": "Added migration of password on JSON Config",
+        "de": "Migration von Passwort auf JSON Config hinzugefügt",
+        "ru": "Добавлена миграция пароля на JSON Config",
+        "pt": "Adicionado migração de senha em JSON Config",
+        "nl": "Vermelding van wachtwoord op JSON Config",
+        "fr": "Ajout de la migration de mot de passe sur JSON Config",
+        "it": "Aggiunta migrazione di password su JSON Config",
+        "es": "Migración agregada de contraseña en JSON Config",
+        "pl": "Dostęp do migracji haseł JSON Config",
+        "uk": "Додано міграції пароля на JSON Config",
+        "zh-cn": "A. 增加联索行动密码的移徙"
+      },
       "2.5.7": {
         "en": "Disabled the logging of username and password during connection errors\nadded json config",
         "de": "Deaktiviert die Protokollierung von Benutzername und Passwort während der Verbindungsfehler\nadd json config",
@@ -76,18 +89,6 @@
         "es": "Solucione algunos casos de bloqueo informados por Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nAjuste el tiempo de actividad a mixto porque parece que puede ser un número o una cadena",
         "pl": "Napraw niektóre przypadki awarii zgłaszane przez Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nDostosuj Uptime do mieszanego, ponieważ wydaje się, że może to być liczba lub ciąg",
         "zh-cn": "修复 Sentry 报告的一些崩溃案例（IOBROKER-SONOFF-B、IOBROKER-SONOFF-R、IOBROKER-SONOFF-4、IOBROKER-SONOFF-1、IOBROKER-SONOFF-13、IOBROKER-SONOFF-1J、IOBROKER-SONOFF-16、 IOBROKER-SONOFF-3、IOBROKER-SONOFF-H)\n将 Uptime 调整为混合，因为它似乎可以是数字或字符串"
-      },
-      "2.4.5": {
-        "en": "Fix some crash cases reported by Sentry",
-        "de": "Beheben Sie einige von Sentry gemeldete Absturzfälle",
-        "ru": "Исправить некоторые случаи сбоев, о которых сообщает Sentry",
-        "pt": "Corrija alguns casos de falha relatados pelo Sentry",
-        "nl": "Enkele crashgevallen gemeld door Sentry oplossen",
-        "fr": "Correction de certains cas de plantage signalés par Sentry",
-        "it": "Risolti alcuni casi di crash segnalati da Sentry",
-        "es": "Arregle algunos casos de fallas reportados por Sentry",
-        "pl": "Napraw niektóre przypadki awarii zgłoszone przez Sentry",
-        "zh-cn": "修复 Sentry 报告的一些崩溃案例"
       }
     },
     "title": "Sonoff",
