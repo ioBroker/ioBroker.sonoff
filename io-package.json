@@ -152,6 +152,12 @@
       }
     }
   },
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
   "native": {
     "port": 1883,
     "bind": "0.0.0.0",

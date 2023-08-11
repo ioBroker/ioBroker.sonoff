@@ -25,23 +25,36 @@ function decrypt(key, value) {
 
 function startAdapter(options) {
     options = options || {};
-    Object.assign(options, {name: adapterName});
+    Object.assign(options, { name: adapterName });
 
     adapter = new utils.Adapter(options);
 
     adapter.on('ready', () => {
-        // it must be like this
-
-        adapter.getForeignObject('system.config', (err, obj) => {
-            if (obj && obj.native && obj.native.secret) {
-                //noinspection JSUnresolvedVariable
-                adapter.config.pass = decrypt(obj.native.secret, adapter.config.pass);
-            } else {
-                //noinspection JSUnresolvedVariable
-                adapter.config.pass = decrypt('Zgfr56gFe87jJOM', adapter.config.pass);
-            }
+        // delete pass if a password set
+        if (adapter.config.password && adapter.config.pass) {
+            // delete adapter.config.pass
+            adapter.getForeignObject(`system.adapter.${adapter.namespace}`, (err, config) => {
+                delete config.native.pass;
+                adapter.setForeignObject(config._id, config);
+            });
+        } else if (!adapter.config.password && adapter.config.pass) {
+            // migrate
+            adapter.getForeignObject('system.config', (err, systemConfig) => {
+                adapter.getForeignObject(`system.adapter.${adapter.namespace}`, (err, config) => {
+                    if (systemConfig && systemConfig.native && systemConfig.native.secret) {
+                        // noinspection JSUnresolvedVariable
+                        config.native.password = decrypt(systemConfig.native.secret, adapter.config.pass);
+                    } else {
+                        // noinspection JSUnresolvedVariable
+                        config.native.password = decrypt('Zgfr56gFe87jJOM', adapter.config.pass);
+                    }
+                    delete config.native.pass;
+                    adapter.setForeignObject(config._id, config);
+                });
+            });
+        } else {
             main();
-        });
+        }
     });
 
     adapter.on('unload', cb => {
@@ -53,7 +66,7 @@ function startAdapter(options) {
         }
     });
 
-    // is called if a subscribed state changes
+    // called if the subscribed state changes itself
     adapter.on('stateChange', (id, state) => {
         adapter.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
         // you can use the ack flag to detect if state is desired or acknowledged
