@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "news": {
+      "3.0.1": {
+        "en": "Added migration of password on JSON Config",
+        "de": "Migration von Passwort auf JSON Config hinzugefügt",
+        "ru": "Добавлена миграция пароля на JSON Config",
+        "pt": "Adicionado migração de senha em JSON Config",
+        "nl": "Vermelding van wachtwoord op JSON Config",
+        "fr": "Ajout de la migration de mot de passe sur JSON Config",
+        "it": "Aggiunta migrazione di password su JSON Config",
+        "es": "Migración agregada de contraseña en JSON Config",
+        "pl": "Dostęp do migracji haseł JSON Config",
+        "uk": "Додано міграції пароля на JSON Config",
+        "zh-cn": "A. 增加联索行动密码的移徙"
+      },
       "2.5.7": {
         "en": "Disabled the logging of username and password during connection errors\nadded json config",
         "de": "Deaktiviert die Protokollierung von Benutzername und Passwort während der Verbindungsfehler\nadd json config",
