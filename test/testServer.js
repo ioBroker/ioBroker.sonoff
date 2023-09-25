@@ -64,7 +64,7 @@ function startClients(_done) {
     // start mqtt client
     const MqttClient = require('./lib/mqttClient.js');
 
-    // Start client to emit topics
+    // Start a client to emit topics
     mqttClientEmitter = new MqttClient(connected => {
         // on connected
         if (connected) {
@@ -82,7 +82,7 @@ function startClients(_done) {
         lastReceivedMessage1 = message ? message.toString() : null;
     }, {name: 'Emitter*1', user: 'user', pass: 'pass1'});
 
-    // Start client to receive topics
+    // Start another client to receive topics
     mqttClientDetector = new MqttClient(connected => {
         // on connected
         if (connected) {
@@ -201,7 +201,7 @@ function checkConnection(value, done, counter) {
 
 describe('Sonoff server: Test mqtt server', () => {
     before('Sonoff server: Start js-controller', function (_done) { //
-        this.timeout(600000); // because of first install from npm
+        this.timeout(600000); // because of the first installation from npm
         setup.adapterStarted = false;
 
         setup.setupController(async () => {
