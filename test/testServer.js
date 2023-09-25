@@ -52,9 +52,9 @@ const rules = {
         },
 };
 
-function decrypt(key, value) {
+function encryptLegacy(key, value) {
     let result = '';
-    for (let i = 0; i < value.length; ++i) {
+    for (let i = 0; i < value.length; i++) {
         result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
     }
     return result;
@@ -217,7 +217,7 @@ describe('Sonoff server: Test mqtt server', () => {
             config.common.enabled  = true;
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
-            config.native.pass     = decrypt(systemConfig.native.secret, 'pass1');
+            config.native.password = encryptLegacy(systemConfig.native.secret, 'pass1');
 
             await setup.setAdapterConfig(config.common, config.native);
 
@@ -245,7 +245,7 @@ describe('Sonoff server: Test mqtt server', () => {
 
     for (let r in rules) {
         (function(id, task) {
-            it('Sonoff Server: Check receive ' + id, function (done) { // let FUNCTION here
+            it(`Sonoff Server: Check receive ${id}`, function (done) { // let FUNCTION here
                 checkMqtt2Adapter(id, task, this, done);
             });
         })(r, rules[r]);

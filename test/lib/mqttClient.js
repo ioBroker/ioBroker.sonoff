@@ -14,13 +14,13 @@ function Client(cbConnected, cbChanged, config) {
         /*that.client.publish('mqtt/0/test', 'Roger1');
         client.publish('test/out/testMessage1', 'Roger1');
          client.publish('test/out/testMessage2', 'Roger2');
-         client.publish('test/in/testMessage3',  'Roger3');
+         client.publish('test/in/testMessage3', 'Roger3');
          client.publish('test/in/testMessage4',  'Roger4');*/
 
-        /*client.publish('arduino/kitchen/out/temperature',  '10.1');
+        /*client.publish('arduino/kitchen/out/temperature', '10.1');
          client.publish('arduino/kitchen/out/humidity',  '56');
          // Current light state
-         client.publish('arduino/kitchen/in/lightActor',  'false');
+         client.publish('arduino/kitchen/in/lightActor', 'false');
 
          client.subscribe('arduino/kitchen/in/#');*/
         //client.subscribe('arduino/kitchen/in/updateInterval');
@@ -37,7 +37,7 @@ function Client(cbConnected, cbChanged, config) {
         }
     });
     this.client.on('close', err => {
-        if (err) console.error('Connection closed: ' + err);
+        if (err) console.error(`Connection closed: ${err}`);
         // message is Buffer
         if (cbConnected) {
             cbConnected(false);
@@ -47,7 +47,7 @@ function Client(cbConnected, cbChanged, config) {
     });
 
     this.client.on('error', error => {
-        console.error('Test MQTT Client error: ' + error);
+        console.error(`Test MQTT Client error: ${error}`);
     });
 
     this.publish = (topic, message, qos, retain, cb) => {
