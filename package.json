@@ -25,7 +25,7 @@
     "@alcalzone/release-script-plugin-license": "^3.5.9",
     "@iobroker/legacy-testing": "^1.0.0",
     "axios": "^1.5.0",
-    "mqtt": "^4.3.7",
+    "mqtt": "^5.0.5",
     "gulp": "^4.0.2",
     "mocha": "^10.2.0",
     "chai": "^4.3.8"
