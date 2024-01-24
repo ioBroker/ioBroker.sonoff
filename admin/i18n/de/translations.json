@@ -35,7 +35,7 @@
     "Set certificates or load it first in the system settings (right top).": "Setze Zertificate oder lade die erst unter System/Einstellungen (oben rechts).",
     "Sonoff Settings": "Sonoff Einstellungen",
     "Sonoff adapter settings": "Sonoff Adapter-Einstellungen",
-    "Store only on change:": "Publish nur bei Änderung",
+    "Store only on change:": "Publizieren/Aktualisieren nur im Falle einer Änderung",
     "Test connection": "Teste Verbindung zum Server",
     "Trace output for every message:": "Trace Ausgabe für jede Meldung",
     "Type:": "Typ",
