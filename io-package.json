@@ -125,7 +125,10 @@
     "authors": [
       "bluefox <dogafox@gmail.com>"
     ],
-    "license": "MIT",
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "compact": true,
@@ -150,7 +153,7 @@
     "type": "lighting",
     "dependencies": [
       {
-        "js-controller": ">=2.0.0"
+        "js-controller": ">=5.0.19"
       }
     ],
     "plugins": {

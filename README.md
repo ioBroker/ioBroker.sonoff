@@ -124,6 +124,7 @@ States:
 ## Changelog
 
 ### __WORK IN PROGRESS__
+* Important: Node.js 18.x  and js-controller 5.0.19+ is needed at minimum
 * (mattreim) upgraded states for Tasmota 13.4.0.3 20240402
 * (mattreim) enhanced some log messages
 * (mattreim) Added PWM Items
