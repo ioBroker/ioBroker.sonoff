@@ -5,8 +5,10 @@
     "Chained certificate:": "Verkettetes Zertifikat",
     "Client": "Client/subscriber",
     "Client ID:": "Client ID",
+    "Client timeout": "Client-Timeout",
     "Connection": "Verbindung",
     "Connection settings": "Verbindungseinstellungen",
+    "Create object tree": "Objektbaum erstellen",
     "Divided by comma": "Mit Komma getrennt, z.B 'mqtt/0/#,javascript/#'",
     "For stat/RESULT": "Für stat/RESULT",
     "For tele/SENSOR": "Für tele/SENSOR",
@@ -18,6 +20,7 @@
     "Mask to publish": "z.B 'mqtt.0.*,javascript.*'",
     "Mask to publish own states:": "Maske für Bekanntgeben von eigenen States",
     "Max topic length:": "Maximale Topicnamelänge",
+    "Other settings": "Andere Einstellungen",
     "Password confirmation:": "Passwort-Wiederholung",
     "Password:": "Passwort",
     "Patterns:": "Subscribe patterns",
@@ -44,11 +47,8 @@
     "Use chunk patch:": "Benutze Patch für Chunking",
     "Use different topic names for set and get:": "Unterschiedliche Namen für setzten und lesen",
     "User:": "Benutzer",
+    "WARNING! Check README.md!": "WARNUNG! Überprüfen Sie README.md!",
     "chars": "Symbolen",
     "connected": "verbunden",
-    "ms": "ms",
-    "Client timeout": "Client-Timeout",
-    "Create object tree": "Objektbaum erstellen",
-    "WARNING! Check README.md!": "WARNUNG! Überprüfen Sie README.md!",
-    "Other settings": "Andere Einstellungen"
+    "ms": "ms"
 }
