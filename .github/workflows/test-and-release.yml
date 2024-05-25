@@ -28,11 +28,11 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 18.x
 
 
       - name: Install Dependencies
-        run: npm i
+        run: npm ci
 
 #      - name: Perform a type check
 #        run: npm run check:ts
@@ -52,7 +52,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x, 22.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
@@ -63,7 +63,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Dependencies
-        run: npm i
+        run: npm ci
 
       - name: Run local tests
         run: npm test
@@ -94,7 +94,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - name: Extract the version and commit body from the tag
         id: extract_release
@@ -111,7 +111,7 @@ jobs:
           echo "::set-output name=BODY::$BODY"
 
       - name: Install Dependencies
-        run: npm i
+        run: npm ci
 
 #      - name: Create a clean build
 #        run: npm run build

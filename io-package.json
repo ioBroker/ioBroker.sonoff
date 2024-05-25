@@ -52,7 +52,8 @@
         "it": "Risolto il caso di crash segnalato da Sentry",
         "es": "Solucionar caso de bloqueo informado por Sentry",
         "pl": "Napraw przypadek awarii zgłoszony przez Sentry",
-        "zh-cn": "修复 Sentry 报告的崩溃案例"
+        "zh-cn": "修复 Sentry 报告的崩溃案例",
+        "uk": "Виправте випадок збою, про який повідомляє Sentry"
       },
       "2.5.0": {
         "en": "Implement writing of NSPanel Widget changes\nFix crash case reported by Sentry",
@@ -64,7 +65,8 @@
         "it": "Implementare la scrittura delle modifiche al Widget NSPanel\nRisolto il caso di crash segnalato da Sentry",
         "es": "Implementar la escritura de cambios de NSPanel Widget\nSolucionar caso de bloqueo informado por Sentry",
         "pl": "Zaimplementuj pisanie zmian NSPanel Widget\nNapraw przypadek awarii zgłoszony przez Sentry",
-        "zh-cn": "实现编写 NSPanel Widget 更改\n修复 Sentry 报告的崩溃案例"
+        "zh-cn": "实现编写 NSPanel Widget 更改\n修复 Sentry 报告的崩溃案例",
+        "uk": "Реалізувати написання змін NSPanel Widget\nВиправте випадок збою, про який повідомляє Sentry"
       },
       "2.4.7": {
         "en": "Fix crash case (Sentry IOBROKER-SONOFF-1S)",
@@ -76,7 +78,8 @@
         "it": "Risolto il crash case (Sentry IOBROKER-SONOFF-1S)",
         "es": "Reparar caso de bloqueo (Sentry IOBROKER-SONOFF-1S)",
         "pl": "Napraw przypadek awarii (Sentry IOBROKER-SONOFF-1S)",
-        "zh-cn": "修复崩溃案例（Sentry IOBROKER-SONOFF-1S）"
+        "zh-cn": "修复崩溃案例（Sentry IOBROKER-SONOFF-1S）",
+        "uk": "Виправити випадок збою (Sentry IOBROKER-SONOFF-1S)"
       },
       "2.4.6": {
         "en": "Fix some crash cases reported by Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nAdjust Uptime to mixed because it seems that it can be number or string",
@@ -88,7 +91,8 @@
         "it": "Risolti alcuni casi di crash segnalati da Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nRegola Uptime su misto perché sembra che possa essere un numero o una stringa",
         "es": "Solucione algunos casos de bloqueo informados por Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nAjuste el tiempo de actividad a mixto porque parece que puede ser un número o una cadena",
         "pl": "Napraw niektóre przypadki awarii zgłaszane przez Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nDostosuj Uptime do mieszanego, ponieważ wydaje się, że może to być liczba lub ciąg",
-        "zh-cn": "修复 Sentry 报告的一些崩溃案例（IOBROKER-SONOFF-B、IOBROKER-SONOFF-R、IOBROKER-SONOFF-4、IOBROKER-SONOFF-1、IOBROKER-SONOFF-13、IOBROKER-SONOFF-1J、IOBROKER-SONOFF-16、 IOBROKER-SONOFF-3、IOBROKER-SONOFF-H)\n将 Uptime 调整为混合，因为它似乎可以是数字或字符串"
+        "zh-cn": "修复 Sentry 报告的一些崩溃案例（IOBROKER-SONOFF-B、IOBROKER-SONOFF-R、IOBROKER-SONOFF-4、IOBROKER-SONOFF-1、IOBROKER-SONOFF-13、IOBROKER-SONOFF-1J、IOBROKER-SONOFF-16、 IOBROKER-SONOFF-3、IOBROKER-SONOFF-H)\n将 Uptime 调整为混合，因为它似乎可以是数字或字符串",
+        "uk": "Виправлення деяких випадків збоїв, про які повідомляє Sentry (IOBROKER-SONOFF-B, IOBROKER-SONOFF-R, IOBROKER-SONOFF-4, IOBROKER-SONOFF-1, IOBROKER-SONOFF-13, IOBROKER-SONOFF-1J, IOBROKER-SONOFF-16, IOBROKER-SONOFF-3, IOBROKER-SONOFF-H)\nНалаштуйте час безвідмовної роботи на змішаний, оскільки здається, що це може бути число або рядок"
       }
     },
     "title": "Sonoff",
@@ -102,7 +106,8 @@
       "it": "Sonoff",
       "es": "Sonoff",
       "pl": "Sonoff",
-      "zh-cn": "索诺夫"
+      "zh-cn": "索诺夫",
+      "uk": "Сонофф"
     },
     "desc": {
       "en": "This adapter allows to connect sonoff components via MQTT",
@@ -114,7 +119,8 @@
       "it": "Questo adattatore consente di collegare i componenti Sonoff via MQTT",
       "es": "Este adaptador permite conectar componentes de sonof a través de MQTT",
       "pl": "Ten adapter umożliwia łączenie komponentów sonoff za pośrednictwem MQTT",
-      "zh-cn": "该适配器允许通过MQTT连接Sonoff组件"
+      "zh-cn": "该适配器允许通过MQTT连接Sonoff组件",
+      "uk": "Цей адаптер дозволяє підключати компоненти sonoff через MQTT"
     },
     "authors": [
       "bluefox <dogafox@gmail.com>"
