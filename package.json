@@ -27,7 +27,7 @@
     "@iobroker/legacy-testing": "^1.0.12",
     "mqtt": "^4.3.8",
     "mocha": "^10.4.0",
-    "chai": "^4.4.1"
+    "chai": "^5.1.1"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
