@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "news": {
+      "3.1.1": {
+        "en": "updated packages",
+        "de": "aktualisierte pakete",
+        "ru": "обновления пакетов",
+        "pt": "pacotes atualizados",
+        "nl": "bijgewerkte pakketten",
+        "fr": "paquets mis à jour",
+        "it": "pacchetti aggiornati",
+        "es": "paquetes actualizados",
+        "pl": "zaktualizowane pakiety",
+        "uk": "оновлені пакети",
+        "zh-cn": "更新软件包"
+      },
       "3.1.0": {
         "en": "Important: Node.js 18.x  and js-controller 5.0.19+ is needed at minimum\nupgraded states for Tasmota 13.4.0.3 20240402\nenhanced some log messages\nAdded PWM Items\nFixed QoS handling to prevent invalid resubmissions\nPrevent creation of storeMap property in common and cleanup",
         "de": "Wichtig: Node.js 18.x und js-controller 5.0.19+ ist mindestens erforderlich\naktualisierte Zustände für Tasmota 13.4.0.3 20240402\neinige log-nachrichten erweitert\nPWM Waren\nBehobene QoS-Behandlung, um ungültige Wiedereinsetzungen zu verhindern\nVerhindern Sie die Erstellung von Geschäft Karte Immobilien gemeinsam und sauber",
@@ -80,19 +93,6 @@
         "pl": "Zaimplementuj pisanie zmian NSPanel Widget\nNapraw przypadek awarii zgłoszony przez Sentry",
         "zh-cn": "实现编写 NSPanel Widget 更改\n修复 Sentry 报告的崩溃案例",
         "uk": "Реалізувати написання змін NSPanel Widget\nВиправте випадок збою, про який повідомляє Sentry"
-      },
-      "2.4.7": {
-        "en": "Fix crash case (Sentry IOBROKER-SONOFF-1S)",
-        "de": "Crashfall beheben (Sentry IOBROKER-SONOFF-1S)",
-        "ru": "Исправить сбой (Sentry IOBROKER-SONOFF-1S)",
-        "pt": "Corrigir caso de falha (Sentry IOBROKER-SONOFF-1S)",
-        "nl": "Crashgeval repareren (Sentry IOBROKER-SONOFF-1S)",
-        "fr": "Correction du crash (Sentry IOBROKER-SONOFF-1S)",
-        "it": "Risolto il crash case (Sentry IOBROKER-SONOFF-1S)",
-        "es": "Reparar caso de bloqueo (Sentry IOBROKER-SONOFF-1S)",
-        "pl": "Napraw przypadek awarii (Sentry IOBROKER-SONOFF-1S)",
-        "zh-cn": "修复崩溃案例（Sentry IOBROKER-SONOFF-1S）",
-        "uk": "Виправити випадок збою (Sentry IOBROKER-SONOFF-1S)"
       }
     },
     "title": "Sonoff",

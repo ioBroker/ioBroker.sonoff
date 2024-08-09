@@ -122,7 +122,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 3.1.1 (2024-08-09)
 * (mattreim) updated packages
 
 ### 3.1.0 (2024-05-25)
