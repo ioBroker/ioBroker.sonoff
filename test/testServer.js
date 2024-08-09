@@ -251,7 +251,7 @@ describe('Sonoff server: Test mqtt server', () => {
         })(r, rules[r]);
     }
 
-    // give time to client to receive all messages
+    // give time to a client to receive all messages
     it('wait', done => {
         setTimeout(() => done(), 1000);
     }).timeout(3000);

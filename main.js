@@ -2,18 +2,18 @@
  *
  *      ioBroker sonoff Adapter
  *
- *      (c) 2017-2023 bluefox
+ *      (c) 2017-2024 bluefox
  *
  *      MIT License
  *
  */
 'use strict';
 
-const utils       = require('@iobroker/adapter-core'); // Get common adapter utils
+const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 const adapterName = require('./package.json').name.split('.').pop();
-const Server      = require('./lib/server');
-let   server      = null;
-let   adapter;
+const Server = require('./lib/server');
+let server = null;
+let adapter;
 
 function decrypt(key, value) {
     let result = '';
