@@ -95,7 +95,6 @@
         "uk": "Реалізувати написання змін NSPanel Widget\nВиправте випадок збою, про який повідомляє Sentry"
       }
     },
-    "title": "Sonoff",
     "titleLang": {
       "en": "Sonoff",
       "de": "Sonoff",
@@ -136,7 +135,6 @@
     "readme": "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
     "loglevel": "info",
     "icon": "sonoff.png",
-    "materialize": true,
     "adminUI": {
       "config": "json"
     },
