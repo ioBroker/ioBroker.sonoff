@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "news": {
+      "3.1.2": {
+        "en": "updated packages",
+        "de": "aktualisierte pakete",
+        "ru": "обновления пакетов",
+        "pt": "pacotes atualizados",
+        "nl": "bijgewerkte pakketten",
+        "fr": "paquets mis à jour",
+        "it": "pacchetti aggiornati",
+        "es": "paquetes actualizados",
+        "pl": "zaktualizowane pakiety",
+        "uk": "оновлені пакети",
+        "zh-cn": "更新软件包"
+      },
       "3.1.1": {
         "en": "updated packages",
         "de": "aktualisierte pakete",
@@ -80,19 +93,6 @@
         "pl": "Napraw przypadek awarii zgłoszony przez Sentry",
         "zh-cn": "修复 Sentry 报告的崩溃案例",
         "uk": "Виправте випадок збою, про який повідомляє Sentry"
-      },
-      "2.5.0": {
-        "en": "Implement writing of NSPanel Widget changes\nFix crash case reported by Sentry",
-        "de": "Implementieren Sie das Schreiben von NSPanel-Widget-Änderungen\nAbsturzfall behoben, der von Sentry gemeldet wurde",
-        "ru": "Реализовать запись изменений виджета NSPanel\nИсправить случай сбоя, о котором сообщил Sentry",
-        "pt": "Implemente a gravação de alterações do Widget NSPanel\nCorrigir caso de falha relatado pelo Sentinela",
-        "nl": "Implementeren van het schrijven van NSPanel Widget-wijzigingen\nHerstel crashgeval gemeld door Sentry",
-        "fr": "Mettre en œuvre l'écriture des modifications du Widget NSPanel\nCorrection d'un cas de crash signalé par Sentry",
-        "it": "Implementare la scrittura delle modifiche al Widget NSPanel\nRisolto il caso di crash segnalato da Sentry",
-        "es": "Implementar la escritura de cambios de NSPanel Widget\nSolucionar caso de bloqueo informado por Sentry",
-        "pl": "Zaimplementuj pisanie zmian NSPanel Widget\nNapraw przypadek awarii zgłoszony przez Sentry",
-        "zh-cn": "实现编写 NSPanel Widget 更改\n修复 Sentry 报告的崩溃案例",
-        "uk": "Реалізувати написання змін NSPanel Widget\nВиправте випадок збою, про який повідомляє Sentry"
       }
     },
     "titleLang": {
