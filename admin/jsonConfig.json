@@ -6,6 +6,7 @@
       "type": "header",
       "text": "Connection settings",
       "size": 3,
+      "xs": 12,
       "sm": 12
     },
     "bind": {
@@ -13,6 +14,7 @@
       "type": "ip",
       "label": "IP",
       "listenOnAllPorts": true,
+      "xs": 12,
       "sm": 10,
       "md": 8,
       "lg": 3
@@ -22,6 +24,7 @@
       "type": "number",
       "min": 1,
       "max": 65535,
+      "xs": 12,
       "sm": 2,
       "md": 2,
       "lg": 1
@@ -32,6 +35,8 @@
       "type": "number",
       "min": 1,
       "max": 99999,
+      "xs": 12,
+      "sm": 10,
       "md": 2,
       "lg": 1
     },
@@ -40,17 +45,20 @@
       "type": "header",
       "text": "Authentication settings",
       "size": 3,
+      "xs": 12,
       "sm": 12
     },
     "user": {
       "newLine": true,
       "type": "text",
       "label": "User",
+      "xs": 12,
       "sm": 12,
       "md": 4,
       "lg": 2
     },
     "password": {
+      "xs": 12,
       "sm": 12,
       "md": 8,
       "lg": 4,
@@ -63,12 +71,14 @@
       "type": "header",
       "text": "Auto creation of states",
       "size": 3,
+      "xs": 12,
       "sm": 12
     },
     "TELE_SENSOR": {
       "newLine": true,
       "type": "checkbox",
       "label": "For tele/SENSOR",
+      "xs": 12,
       "sm": 6,
       "md": 3,
       "lg": 2
@@ -76,6 +86,7 @@
     "TELE_STATE": {
       "type": "checkbox",
       "label": "For tele/STATE",
+      "xs": 12,
       "sm": 6,
       "md": 3,
       "lg": 2
@@ -83,6 +94,7 @@
     "STAT_RESULT": {
       "type": "checkbox",
       "label": "For stat/RESULT",
+      "xs": 12,
       "sm": 6,
       "md": 3,
       "lg": 2
@@ -91,6 +103,7 @@
       "type": "checkbox",
       "label": "Create object tree",
       "help": "WARNING! Check README.md!",
+      "xs": 12,
       "sm": 6,
       "md": 3,
       "lg": 2
@@ -100,12 +113,14 @@
       "type": "header",
       "text": "Other settings",
       "size": 3,
+      "xs": 12,
       "sm": 12
     },
     "ignorePings": {
       "newLine": true,
       "type": "checkbox",
       "label": "Ignore warnings with pingreq",
+      "xs": 12,
       "sm": 12
     }
   }
