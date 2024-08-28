@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.1.2",
+    "version": "3.2.0",
     "news": {
+      "3.2.0": {
+        "en": "Added information about connected clients in the server mode",
+        "de": "Weitere Informationen zu verbundenen Clients im Servermodus",
+        "ru": "Добавлена информация о подключенных клиентах в серверном режиме",
+        "pt": "InformaÃ§Ãμes adicionais sobre clientes conectados no modo servidor",
+        "nl": "Informatie over verbonden clients toegevoegd in de servermodus",
+        "fr": "Ajout d'informations sur les clients connectés en mode serveur",
+        "it": "Aggiunte informazioni sui client connessi nella modalità server",
+        "es": "Información adicional sobre clientes conectados en el modo servidor",
+        "pl": "Dodano informacje o podłączonych klientach w trybie serwera",
+        "uk": "Додано інформацію про підключені клієнти в режимі сервера",
+        "zh-cn": "在服务器模式中添加了连接客户端的信息"
+      },
       "3.1.2": {
         "en": "updated packages",
         "de": "aktualisierte pakete",
@@ -80,19 +93,6 @@
         "pl": "Implementacja potencjału Staw. POWER",
         "uk": "Реалізований потенціал ДЕРЖАВИ. Оновлення енергії",
         "zh-cn": "执行潜力 国家。 导 言"
-      },
-      "2.5.1": {
-        "en": "Fix crash case reported by Sentry",
-        "de": "Absturzfall behoben, der von Sentry gemeldet wurde",
-        "ru": "Исправить случай сбоя, о котором сообщил Sentry",
-        "pt": "Corrigir caso de falha relatado pelo Sentinela",
-        "nl": "Herstel crashgeval gemeld door Sentry",
-        "fr": "Correction d'un cas de crash signalé par Sentry",
-        "it": "Risolto il caso di crash segnalato da Sentry",
-        "es": "Solucionar caso de bloqueo informado por Sentry",
-        "pl": "Napraw przypadek awarii zgłoszony przez Sentry",
-        "zh-cn": "修复 Sentry 报告的崩溃案例",
-        "uk": "Виправте випадок збою, про який повідомляє Sentry"
       }
     },
     "titleLang": {
