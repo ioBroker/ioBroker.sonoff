@@ -16,7 +16,7 @@
     "esp"
   ],
   "dependencies": {
-    "@iobroker/adapter-core": "^3.1.6",
+    "@iobroker/adapter-core": "^3.2.1",
     "mqtt-connection": "^4.1.0"
   },
   "devDependencies": {
