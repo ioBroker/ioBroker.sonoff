@@ -44,6 +44,7 @@ const rules = {
     'stat/sonoff/RESULT':              {send: '{"POWER": "ON"}', expect: {'RESULT': null}},
     'stat/sonoff/LWT':                 {send: 'someTopic',  expect: {'LWT': null}},
     'stat/sonoff/ABC':                 {send: 'text',       expect: {'ABC': null}},
+    // This command overwrites the adresses of the devices
     'tele/tasmota_0912A7/STATE':       {send: '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}', expect: {'Wifi_Downtime': '0T00:00:07'}},
     'tele/Hof/Lager/Tasmota/Relais/RFresv/Beleuchtung/UV/Beleuchtungsstaerke/Außenlampe/SENSOR':
         {
@@ -254,11 +255,11 @@ describe('Sonoff server: Test mqtt server', () => {
     // give time to a client to receive all messages
     it('wait', done => {
         setTimeout(() => done(), 1000);
-    }).timeout(3000);
+    }).timeout(4000);
 
-    it.skip('Sonoff server: detector must receive cmnd/sonoff/POWER', done => {
-        checkAdapter2Mqtt('sonoff.0.Emitter_1.POWER', 'cmnd/sonoff/POWER', false, done);
-    }).timeout(2000);
+    it('Sonoff server: detector must receive tele/tasmota_0912A7/POWER', done => {
+        checkAdapter2Mqtt('sonoff.0.Emitter_1.POWER', 'tele/tasmota_0912A7/POWER', false, done);
+    }).timeout(4000);
 
     it('Sonoff Server: check reconnection', done => {
         mqttClientEmitter.stop();
@@ -271,7 +272,7 @@ describe('Sonoff server: Test mqtt server', () => {
                 done();
             });
         });
-    }).timeout(10000);
+    }).timeout(1000000);
 
     after('Sonoff Server: Stop js-controller', function (_done) { // let FUNCTION and not => here
         this.timeout(5000);

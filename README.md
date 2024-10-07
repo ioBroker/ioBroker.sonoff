@@ -122,6 +122,10 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+
+* (bluefox) Sanitize the IDs of the clients
+
 ### 3.2.0 (2024-08-28)
 * (bluefox) Added information about connected clients in the server mode
 

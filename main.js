@@ -1,11 +1,9 @@
 /**
- *
  *      ioBroker sonoff Adapter
  *
  *      (c) 2017-2024 bluefox
  *
  *      MIT License
- *
  */
 'use strict';
 
