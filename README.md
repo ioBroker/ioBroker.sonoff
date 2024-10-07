@@ -122,7 +122,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 3.2.1 (2024-10-07)
 
 * (bluefox) Sanitize the IDs of the clients
 

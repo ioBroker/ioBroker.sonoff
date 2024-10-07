@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "news": {
+      "3.2.1": {
+        "en": "Sanitize the IDs of the clients",
+        "de": "Sanitize die IDs der Kunden",
+        "ru": "Санитизируйте идентификаторы клиентов",
+        "pt": "Sanitize os IDs dos clientes",
+        "nl": "De identificaties van de cliënten reinigen",
+        "fr": "Sanitiser les ID des clients",
+        "it": "Smaltire gli ID dei clienti",
+        "es": "Sanitize the IDs of the clients",
+        "pl": "Sanitize identyfikatory klientów",
+        "uk": "Сатизувати ідентифікатори клієнтів",
+        "zh-cn": "对客户身份进行保密"
+      },
       "3.2.0": {
         "en": "Added information about connected clients in the server mode",
         "de": "Weitere Informationen zu verbundenen Clients im Servermodus",
@@ -80,19 +93,6 @@
         "pl": "Dysponował logowaniem nazwy użytkownika i hasła podczas błędów połączenia\ndodał json configig",
         "uk": "Вимкнено логування імені користувача та пароля під час помилок підключення\nдодано json config",
         "zh-cn": "残疾人在联系错误期间的用户名称和密码\nj的额外活动"
-      },
-      "2.5.3": {
-        "en": "Implemented potential `.STATE.POWER` update",
-        "de": "Ergänzendes Potenzial STATE. POWER Update",
-        "ru": "Реализованный потенциал ГОСУДАРСТВО. POWER обновление",
-        "pt": "Potencial implementado ESTADO. Atualização do POWER",
-        "nl": "Implementie potentieel Stop. Vertaling:",
-        "fr": "Possibilités mises en œuvre Arrête. Mise à jour du POWER",
-        "it": "Potenziale attuato STATO. Aggiornamento del potere",
-        "es": "Potencial aplicado ESTADO. Actualización de POWER",
-        "pl": "Implementacja potencjału Staw. POWER",
-        "uk": "Реалізований потенціал ДЕРЖАВИ. Оновлення енергії",
-        "zh-cn": "执行潜力 国家。 导 言"
       }
     },
     "titleLang": {
