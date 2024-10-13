@@ -30,7 +30,7 @@
     "Public certificate:": "Publikzertifikat",
     "Publish all states at start:": "Bekanntgeben eigene States beim Verbinden",
     "Publish states on subscribe:": "Bekanntgeben von States bei Subscribe",
-    "Result: ": "Ergebnis ",
+    "Result: ": "Ergebnis",
     "Secure:": "SSL",
     "Send interval:": "Sendeintervall",
     "Send states (ack=true) too:": "Sende auch Zustände (ack=true)",
