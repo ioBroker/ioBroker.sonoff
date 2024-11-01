@@ -29,7 +29,7 @@
     "@iobroker/testing": "^5.0.0",
     "mqtt": "^5.10.1",
     "mocha": "^10.8.2",
-    "chai": "^4.5.0"
+    "chai": "^5.1.2"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
