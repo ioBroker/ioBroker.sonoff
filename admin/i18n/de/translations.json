@@ -13,7 +13,7 @@
     "For stat/RESULT": "Für stat/RESULT",
     "For tele/SENSOR": "Für tele/SENSOR",
     "For tele/STATE": "Für tele/STATE",
-    "IP": "IP-Adresse",
+    "IP": "IP",
     "Ignore warnings with pingreq": "Warnungen mit pingreq ignorieren",
     "Interval before send topics by connection:": "Interval vom Senden von allen Topics bei der Verbindung",
     "Main settings": "Haupteinstellungen",
