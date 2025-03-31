@@ -45,7 +45,7 @@
     "URL:": "URL",
     "Use WebSockets:": "Benutze auch WebSockets",
     "Use chunk patch:": "Benutze Patch für Chunking",
-    "Use different topic names for set and get:": "Unterschiedliche Namen für setzten und lesen",
+    "Use different topic names for set and get:": "Unterschiedliche Topic-Namen für setzen und lesen nutzen",
     "User:": "Benutzer",
     "WARNING! Check README.md!": "WARNUNG! Überprüfen Sie README.md!",
     "chars": "Symbolen",
