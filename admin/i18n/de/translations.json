@@ -35,7 +35,7 @@
     "Send interval:": "Sendeintervall",
     "Send states (ack=true) too:": "Sende auch Zustände (ack=true)",
     "Server": "Server/Broker",
-    "Set certificates or load it first in the system settings (right top).": "Setze Zertificate oder lade sie zuerst unter System/Einstellungen (oben rechts).",
+    "Set certificates or load it first in the system settings (right top).": "Setze Zertifikate oder lade sie zuerst unter System/Einstellungen (oben rechts).",
     "Sonoff Settings": "Sonoff Einstellungen",
     "Sonoff adapter settings": "Sonoff-Adapter-Einstellungen",
     "Store only on change:": "Publizieren/Aktualisieren nur im Falle einer Änderung",
