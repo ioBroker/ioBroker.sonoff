@@ -3,6 +3,19 @@
     "name": "sonoff",
     "version": "3.2.1",
     "news": {
+      "3.2.2": {
+        "en": "Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices",
+        "de": "Unterstützung für SHUTTER5-SHUTTER16 Datenpunkte für ESP32 shutter32 Geräte hinzugefügt",
+        "ru": "Добавлена поддержка точек данных SHUTTER5-SHUTTER16 для устройств ESP32 shutter32",
+        "pt": "Adicionar suporte para pontos de dados SHUTTER5-SHUTTER16 para dispositivos ESP32 shutter32",
+        "nl": "Ondersteuning toegevoegd voor SHUTTER5-SHUTTER16 datapunten voor ESP32 shutter32 apparaten",
+        "fr": "Ajout du support des points de données SHUTTER5-SHUTTER16 pour les appareils ESP32 shutter32",
+        "it": "Aggiunto supporto per i punti dati SHUTTER5-SHUTTER16 per i dispositivi ESP32 shutter32",
+        "es": "Agregar soporte para puntos de datos SHUTTER5-SHUTTER16 para dispositivos ESP32 shutter32",
+        "pl": "Dodano obsługę punktów danych SHUTTER5-SHUTTER16 dla urządzeń ESP32 shutter32",
+        "uk": "Додано підтримку точок даних SHUTTER5-SHUTTER16 для пристроїв ESP32 shutter32",
+        "zh-cn": "为ESP32 shutter32设备添加SHUTTER5-SHUTTER16数据点支持"
+      },
       "3.2.1": {
         "en": "Sanitize the IDs of the clients",
         "de": "Sanitize die IDs der Kunden",

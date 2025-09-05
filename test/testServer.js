@@ -51,6 +51,7 @@ const rules = {
             send: '{"Time":"2021-05-28T14:30:44","BH1750":{"Illuminance":27550},"VEML6075":{"UvaIntensity":1710,"UvbIntensity":890,"UvIndex":2.4}}',
             expect: {'VEML6075_UvIndex': 2.4}
         },
+    'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
 };
 
 function encryptLegacy(key, value) {
