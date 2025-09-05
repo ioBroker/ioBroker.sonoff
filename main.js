@@ -75,17 +75,22 @@ function startAdapter(options) {
 
 function main() {
     adapter.config.TELE_SENSOR = adapter.config.TELE_SENSOR === true || adapter.config.TELE_SENSOR === 'true';
-    adapter.config.TELE_STATE  = adapter.config.TELE_STATE  === true || adapter.config.TELE_STATE  === 'true';
+    adapter.config.TELE_STATE = adapter.config.TELE_STATE === true || adapter.config.TELE_STATE === 'true';
     adapter.config.STAT_RESULT = adapter.config.STAT_RESULT === true || adapter.config.STAT_RESULT === 'true';
-    adapter.config.OBJ_TREE    = adapter.config.OBJ_TREE    === true || adapter.config.OBJ_TREE    === 'true';
+    adapter.config.OBJ_TREE = adapter.config.OBJ_TREE === true || adapter.config.OBJ_TREE === 'true';
 
     // subscribe for all own variables
     adapter.subscribeStates('*');
 
     // read all states and set alive to false
-    adapter.getStatesOf('', '', (err, states) =>
-        states && states.length && states.forEach(state =>
-                state._id.match(/\.alive$/) && adapter.setForeignState(state._id, false, true)));
+    adapter.getStatesOf(
+        '',
+        '',
+        (err, states) =>
+            states &&
+            states.length &&
+            states.forEach(state => state._id.match(/\.alive$/) && adapter.setForeignState(state._id, false, true)),
+    );
 
     server = new Server(adapter);
 }
