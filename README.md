@@ -122,8 +122,10 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+
 ### **WORK IN PROGRESS**
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
+
 ### 3.2.1 (2024-10-07)
 
 * (bluefox) Sanitize the IDs of the clients
