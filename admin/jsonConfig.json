@@ -7,7 +7,10 @@
       "text": "Connection settings",
       "size": 3,
       "xs": 12,
-      "sm": 12
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
     },
     "bind": {
       "newLine": true,
@@ -17,7 +20,8 @@
       "xs": 12,
       "sm": 10,
       "md": 8,
-      "lg": 3
+      "lg": 3,
+      "xl": 3
     },
     "port": {
       "label": "Port",
@@ -27,7 +31,8 @@
       "xs": 12,
       "sm": 2,
       "md": 2,
-      "lg": 1
+      "lg": 1,
+      "xl": 1
     },
     "timeout": {
       "label": "Client timeout",
@@ -38,7 +43,8 @@
       "xs": 12,
       "sm": 10,
       "md": 2,
-      "lg": 1
+      "lg": 1,
+      "xl": 1
     },
     "_header2": {
       "newLine": true,
@@ -46,7 +52,10 @@
       "text": "Authentication settings",
       "size": 3,
       "xs": 12,
-      "sm": 12
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
     },
     "user": {
       "newLine": true,
@@ -55,13 +64,15 @@
       "xs": 12,
       "sm": 12,
       "md": 4,
-      "lg": 2
+      "lg": 2,
+      "xl": 2
     },
     "password": {
       "xs": 12,
       "sm": 12,
       "md": 8,
       "lg": 4,
+      "xl": 4,
       "type": "password",
       "label": "Password",
       "repeat": true
@@ -72,7 +83,10 @@
       "text": "Auto creation of states",
       "size": 3,
       "xs": 12,
-      "sm": 12
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
     },
     "TELE_SENSOR": {
       "newLine": true,
@@ -81,7 +95,8 @@
       "xs": 12,
       "sm": 6,
       "md": 3,
-      "lg": 2
+      "lg": 2,
+      "xl": 2
     },
     "TELE_STATE": {
       "type": "checkbox",
@@ -89,7 +104,8 @@
       "xs": 12,
       "sm": 6,
       "md": 3,
-      "lg": 2
+      "lg": 2,
+      "xl": 2
     },
     "STAT_RESULT": {
       "type": "checkbox",
@@ -97,7 +113,8 @@
       "xs": 12,
       "sm": 6,
       "md": 3,
-      "lg": 2
+      "lg": 2,
+      "xl": 2
     },
     "OBJ_TREE": {
       "type": "checkbox",
@@ -106,7 +123,8 @@
       "xs": 12,
       "sm": 6,
       "md": 3,
-      "lg": 2
+      "lg": 2,
+      "xl": 2
     },
     "_header4": {
       "newLine": true,
@@ -114,14 +132,20 @@
       "text": "Other settings",
       "size": 3,
       "xs": 12,
-      "sm": 12
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
     },
     "ignorePings": {
       "newLine": true,
       "type": "checkbox",
       "label": "Ignore warnings with pingreq",
       "xs": 12,
-      "sm": 12
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     }
   }
 }
