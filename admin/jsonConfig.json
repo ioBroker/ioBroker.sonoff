@@ -18,10 +18,10 @@
       "label": "IP",
       "listenOnAllPorts": true,
       "xs": 12,
-      "sm": 10,
-      "md": 8,
-      "lg": 3,
-      "xl": 3
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "port": {
       "label": "Port",
@@ -29,10 +29,10 @@
       "min": 1,
       "max": 65535,
       "xs": 12,
-      "sm": 2,
-      "md": 2,
-      "lg": 1,
-      "xl": 1
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "timeout": {
       "label": "Client timeout",
@@ -41,10 +41,10 @@
       "min": 1,
       "max": 99999,
       "xs": 12,
-      "sm": 10,
-      "md": 2,
-      "lg": 1,
-      "xl": 1
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "_header2": {
       "newLine": true,
@@ -63,14 +63,14 @@
       "label": "User",
       "xs": 12,
       "sm": 12,
-      "md": 4,
-      "lg": 2,
-      "xl": 2
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "password": {
       "xs": 12,
       "sm": 12,
-      "md": 8,
+      "md": 6,
       "lg": 4,
       "xl": 4,
       "type": "password",
@@ -93,38 +93,38 @@
       "type": "checkbox",
       "label": "For tele/SENSOR",
       "xs": 12,
-      "sm": 6,
-      "md": 3,
-      "lg": 2,
-      "xl": 2
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "TELE_STATE": {
       "type": "checkbox",
       "label": "For tele/STATE",
       "xs": 12,
-      "sm": 6,
-      "md": 3,
-      "lg": 2,
-      "xl": 2
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "STAT_RESULT": {
       "type": "checkbox",
       "label": "For stat/RESULT",
       "xs": 12,
-      "sm": 6,
-      "md": 3,
-      "lg": 2,
-      "xl": 2
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "OBJ_TREE": {
       "type": "checkbox",
       "label": "Create object tree",
       "help": "WARNING! Check README.md!",
       "xs": 12,
-      "sm": 6,
-      "md": 3,
-      "lg": 2,
-      "xl": 2
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     },
     "_header4": {
       "newLine": true,
