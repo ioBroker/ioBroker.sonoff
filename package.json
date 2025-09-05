@@ -28,7 +28,7 @@
     "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.1.1",
     "mqtt": "^5.14.0",
-    "mocha": "^10.8.2",
+    "mocha": "^11.7.2",
     "chai": "^4.5.0"
   },
   "bugs": {
