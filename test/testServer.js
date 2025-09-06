@@ -286,6 +286,86 @@ describe('Sonoff server: Test mqtt server', () => {
         });
     }).timeout(1000000);
 
+    it('Sonoff Server: Test Zigbee device control', function (done) { // let FUNCTION and not => here
+        this.timeout(5000);
+        
+        // First send a Zigbee SENSOR message to create the device states using the correct client name
+        mqttClientEmitter.publish('tele/Emitter_1/SENSOR', 
+            '{"Time":"2022-05-05T20:49:08","ZbReceived":{"0x0856":{"Device":"0x0856","Name":"E14 Bulb","Power":0,"Dimmer":50,"Endpoint":1,"LinkQuality":65}}}');
+        
+        setTimeout(() => {
+            // Simulate user changing the Power state using the correct client name
+            const zigbeePowerStateId = 'sonoff.0.Emitter_1.ZbReceived_0x0856_Power';
+            
+            // Clear any previous received messages
+            lastReceivedTopic2 = null;
+            lastReceivedMessage2 = null;
+            
+            // Trigger state change
+            states.setState(zigbeePowerStateId, {val: true, ack: false}, (err) => {
+                expect(err).to.be.not.ok;
+                
+                setTimeout(() => {
+                    // Check if ZbSend command was published (check both emitter and detector received messages)
+                    const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
+                    const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
+                    
+                    expect(receivedTopic).to.be.ok;
+                    expect(receivedTopic).to.contain('ZbSend');
+                    expect(receivedMessage).to.be.ok;
+                    
+                    // Parse the ZbSend command
+                    const zbCommand = JSON.parse(receivedMessage);
+                    expect(zbCommand.device).to.equal('0x0856');
+                    expect(zbCommand.send.Power).to.equal('1');
+                    
+                    done();
+                }, 100);
+            });
+        }, 500);
+    }).timeout(10000);
+
+    it('Sonoff Server: Test Zigbee dimmer control', function (done) { // let FUNCTION and not => here
+        this.timeout(5000);
+        
+        // First send a Zigbee SENSOR message to create the device states using the correct client name
+        mqttClientEmitter.publish('tele/Emitter_1/SENSOR', 
+            '{"Time":"2022-05-05T20:49:08","ZbReceived":{"0x1234":{"Device":"0x1234","Name":"Test Dimmer","Power":1,"Dimmer":50,"Endpoint":1,"LinkQuality":70}}}');
+        
+        setTimeout(() => {
+            // Simulate user changing the Dimmer state using the correct client name
+            const zigbeeDimmerStateId = 'sonoff.0.Emitter_1.ZbReceived_0x1234_Dimmer';
+            
+            // Clear any previous received messages
+            lastReceivedTopic1 = null;
+            lastReceivedMessage1 = null;
+            lastReceivedTopic2 = null;
+            lastReceivedMessage2 = null;
+            
+            // Trigger state change
+            states.setState(zigbeeDimmerStateId, {val: 75, ack: false}, (err) => {
+                expect(err).to.be.not.ok;
+                
+                setTimeout(() => {
+                    // Check if ZbSend command was published (check both emitter and detector received messages)
+                    const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
+                    const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
+                    
+                    expect(receivedTopic).to.be.ok;
+                    expect(receivedTopic).to.contain('ZbSend');
+                    expect(receivedMessage).to.be.ok;
+                    
+                    // Parse the ZbSend command
+                    const zbCommand = JSON.parse(receivedMessage);
+                    expect(zbCommand.device).to.equal('0x1234');
+                    expect(zbCommand.send.Dimmer).to.equal(75);
+                    
+                    done();
+                }, 100);
+            });
+        }, 500);
+    }).timeout(10000);
+
     after('Sonoff Server: Stop js-controller', function (_done) { // let FUNCTION and not => here
         this.timeout(5000);
         mqttClientEmitter.stop();
