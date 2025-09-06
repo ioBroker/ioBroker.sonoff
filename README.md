@@ -127,6 +127,8 @@ States:
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
+* (copilot) Add support for Sonoff B1 (RGB LED) and Sonoff SC (Environmental Sensor) devices with proper value ranges
+* (copilot) Add meaningful state labels for Scheme datapoint (color animation schemes)
 
 ### 3.2.1 (2024-10-07)
 
