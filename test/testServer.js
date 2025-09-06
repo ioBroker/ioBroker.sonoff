@@ -37,6 +37,7 @@ const rules = {
     'tele/true/SENSOR':                {send: '{"Time":"2017-10-02T19:26:06", "Uptime":0, "Vcc":3.226, "POWER1":"true"}', expect: {POWER1: true}},
     '/ESP_BOX/BM280/Pressure':         {send: '1010.09',    expect: {'Pressure': 1010.09}},
     'tele/tasmota_BMP280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BMP280":{"Temperature":28.520,"Pressure":753.3},"PressureUnit":"mmHg"}', expect: {'BMP280_Temperature': 28.520, 'BMP280_Pressure': 753.3}},
+    'tele/tasmota_BME280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BME280":{"Temperature":25.1,"Pressure":1013.2,"Humidity":65.5},"TempUnit":"F","PressureUnit":"mmHg"}', expect: {'BME280_Temperature': 25.1, 'BME280_Pressure': 1013.2, 'BME280_Humidity': 65.5}},
     '/ESP_BOX/BM280/Humidity':         {send: '42.39',      expect: {'Humidity': 42.39}},
     '/ESP_BOX/BM280/Temperature':      {send: '25.86',      expect: {'Temperature': 25.86}},
     '/ESP_BOX/BM280/Approx. Altitude': {send: '24',         expect: {'Approx_Altitude': 24}},
