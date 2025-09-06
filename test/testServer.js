@@ -52,6 +52,9 @@ const rules = {
             expect: {'VEML6075_UvIndex': 2.4}
         },
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
+    'tele/button_test/SENSOR':           {send: '{"Time":"2025-01-07T10:00:00","Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'tele/klingel/RESULT':               {send: '{"Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'stat/sonoff/RESULT2':               {send: '{"Button2":{"Action":"DOUBLE"}}', expect: {'Button2_Action': 'DOUBLE'}},
 };
 
 function encryptLegacy(key, value) {
@@ -220,6 +223,8 @@ describe('Sonoff server: Test mqtt server', () => {
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
             config.native.password = encryptLegacy(systemConfig.native.secret, 'pass1');
+            // Enable RESULT processing for button testing
+            config.native.STAT_RESULT = true;
 
             await setup.setAdapterConfig(config.common, config.native);
 
