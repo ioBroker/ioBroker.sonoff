@@ -15,6 +15,7 @@
     "For tele/STATE": "For tele/STATE",
     "IP": "IP",
     "Ignore warnings with pingreq": "Ignore warnings with pingreq",
+    "Ignore 'not connected' warnings": "Ignore 'not connected' warnings",
     "Interval before send topics by connection:": "Interval before send topics by connection",
     "Main settings": "Main settings",
     "Mask to publish": "e.g. 'mqtt.0.*,javascript.*'",
