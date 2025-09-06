@@ -52,6 +52,7 @@ const rules = {
             expect: {'VEML6075_UvIndex': 2.4}
         },
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
+    'tele/tasmota/RESULT':                {send: '{"IrReceived":{"Protocol":"FUJITSU_AC","Bits":128,"Data":"0x1463001010FE0930210000000000208F","Repeat":0,"IRHVAC":{"Vendor":"FUJITSU_AC","Model":1,"Mode":"Auto","Power":"On","Celsius":"On","Temp":18,"FanSpeed":"Auto","SwingV":"Off","SwingH":"Off","Quiet":"Off","Turbo":"Off","Econo":"Off","Light":"Off","Filter":"Off","Clean":"Off","Beep":"Off","Sleep":-1}}}', expect: {'IrReceived_IRHVAC_Power': 'On', 'IrReceived_IRHVAC_Light': 'Off', 'IrReceived_IRHVAC_Mode': 'Auto', 'IrReceived_IRHVAC_Vendor': 'FUJITSU_AC', 'IrReceived_IRHVAC_Temp': 18}},
 };
 
 function encryptLegacy(key, value) {
