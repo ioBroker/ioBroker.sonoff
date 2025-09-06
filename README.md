@@ -126,6 +126,7 @@ States:
 ### **WORK IN PROGRESS**
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
+* (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
 
 ### 3.2.1 (2024-10-07)
 
