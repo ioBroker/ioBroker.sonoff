@@ -26,7 +26,7 @@
     "@alcalzone/release-script-plugin-manual-review": "^3.7.0",
     "@iobroker/adapter-dev": "^1.4.0",
     "@iobroker/eslint-config": "^2.1.0",
-    "@iobroker/legacy-testing": "^1.0.13",
+    "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.1.1",
     "chai": "^4.5.0",
     "mocha": "^10.8.2",
