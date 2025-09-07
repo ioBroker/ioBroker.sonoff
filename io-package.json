@@ -4,30 +4,17 @@
     "version": "3.2.1",
     "news": {
       "3.2.1": {
-        "en": "Sanitize the IDs of the clients",
-        "de": "Sanitize die IDs der Kunden",
-        "ru": "Санитизируйте идентификаторы клиентов",
-        "pt": "Sanitize os IDs dos clientes",
-        "nl": "De identificaties van de cliënten reinigen",
-        "fr": "Sanitiser les ID des clients",
-        "it": "Smaltire gli ID dei clienti",
-        "es": "Sanitize the IDs of the clients",
-        "pl": "Sanitize identyfikatory klientów",
-        "uk": "Сатизувати ідентифікатори клієнтів",
-        "zh-cn": "对客户身份进行保密"
-      },
-      "3.2.0": {
-        "en": "Added information about connected clients in the server mode",
-        "de": "Weitere Informationen zu verbundenen Clients im Servermodus",
-        "ru": "Добавлена информация о подключенных клиентах в серверном режиме",
-        "pt": "InformaÃ§Ãμes adicionais sobre clientes conectados no modo servidor",
-        "nl": "Informatie over verbonden clients toegevoegd in de servermodus",
-        "fr": "Ajout d'informations sur les clients connectés en mode serveur",
-        "it": "Aggiunte informazioni sui client connessi nella modalità server",
-        "es": "Información adicional sobre clientes conectados en el modo servidor",
-        "pl": "Dodano informacje o podłączonych klientach w trybie serwera",
-        "uk": "Додано інформацію про підключені клієнти в режимі сервера",
-        "zh-cn": "在服务器模式中添加了连接客户端的信息"
+        "en": "Sanitize the IDs of the clients\nAdded information about connected clients in the server mode",
+        "de": "Sanitize die IDs der Kunden\nWeitere Informationen zu verbundenen Clients im Servermodus",
+        "ru": "Санитизируйте идентификаторы клиентов\nДобавлена информация о подключенных клиентах в серверном режиме",
+        "pt": "Sanitize os IDs dos clientes\nInformaÃ§Ãμes adicionais sobre clientes conectados no modo servidor",
+        "nl": "De identificaties van de cliënten reinigen\nInformatie over verbonden clients toegevoegd in de servermodus",
+        "fr": "Sanitiser les ID des clients\nAjout d'informations sur les clients connectés en mode serveur",
+        "it": "Smaltire gli ID dei clienti\nAggiunte informazioni sui client connessi nella modalità server",
+        "es": "Sanitize the IDs of the clients\nInformación adicional sobre clientes conectados en el modo servidor",
+        "pl": "Sanitize identyfikatory klientów\nDodano informacje o podłączonych klientach w trybie serwera",
+        "uk": "Сатизувати ідентифікатори клієнтів\nДодано інформацію про підключені клієнти в режимі сервера",
+        "zh-cn": "对客户身份进行保密\n在服务器模式中添加了连接客户端的信息"
       },
       "3.1.2": {
         "en": "updated packages",
@@ -152,6 +139,11 @@
     "dependencies": [
       {
         "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.17"
       }
     ],
     "plugins": {
