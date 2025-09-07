@@ -51,5 +51,16 @@
     "WARNING! Check README.md!": "WARNING! Check README.md!",
     "chars": "chars",
     "connected": "connected",
-    "ms": "ms"
+    "ms": "ms",
+    "For tele/MARGINS": "For tele/MARGINS",
+    "Advanced MQTT settings": "Advanced MQTT settings",
+    "Store clients time": "Store clients time",
+    "Time in minutes to store client information": "Time in minutes to store client information",
+    "Default QoS": "Default QoS",
+    "Default Quality of Service level (0, 1, or 2)": "Default Quality of Service level (0, 1, or 2)",
+    "Retransmit interval": "Retransmit interval",
+    "Interval in milliseconds for message retransmission": "Interval in milliseconds for message retransmission",
+    "Retransmit count": "Retransmit count",
+    "Maximum number of retransmission attempts": "Maximum number of retransmission attempts",
+    "Suppress warnings when commands are sent to offline devices": "Suppress warnings when commands are sent to offline devices"
 }

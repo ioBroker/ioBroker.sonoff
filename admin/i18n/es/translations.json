@@ -51,5 +51,16 @@
     "chars": "caracteres",
     "connected": "conectado",
     "ms": "Sra",
-    "Ignore 'not connected' warnings": "Ignorar advertencias 'no conectadas'"
+    "Ignore 'not connected' warnings": "Ignorar advertencias 'no conectadas'",
+    "For tele/MARGINS": "Para tele/MARGINS",
+    "Advanced MQTT settings": "Configuración avanzada de MQTT",
+    "Store clients time": "Tiempo de los clientes de almacenamiento",
+    "Time in minutes to store client information": "Tiempo en minutos para almacenar la información del cliente",
+    "Default QoS": "QoS predeterminado",
+    "Default Quality of Service level (0, 1, or 2)": "Calidad predeterminada del nivel de servicio (0, 1 o 2)",
+    "Retransmit interval": "Intervalo de retransmisión",
+    "Interval in milliseconds for message retransmission": "Intervalo en milisegundos para la retransmisión de mensajes",
+    "Retransmit count": "Recuento de retransmit",
+    "Maximum number of retransmission attempts": "Número máximo de intentos de retransmisión",
+    "Suppress warnings when commands are sent to offline devices": "Suprima las advertencias cuando los comandos se envían a dispositivos fuera de línea"
 }

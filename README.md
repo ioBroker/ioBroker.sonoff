@@ -125,6 +125,8 @@ States:
 
 ### **WORK IN PROGRESS**
 * (copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix - Fix regex bug causing MQTT commands to use "tele" instead of "cmnd" topics
+* (copilot) Added configuration for advanced MQTT settings
+* (copilot) Add support for Tasmota tele/MARGINS messages enabling integration of PowerLow, PowerHigh, and PowerDelta limits
 * (copilot) Fix POW R2 energy datapoints not being created by enabling TELE_STATE by default
 * (copilot) Fix pressure and temperature unit display to respect PressureUnit and TempUnit from Tasmota MQTT messages
 * (copilot) Add support for decoupled button actions in Tasmota devices - creates Button1-Button8 datapoints for button events

@@ -51,5 +51,16 @@
     "WARNING! Check README.md!": "ПРЕДУПРЕЖДЕНИЕ! Проверьте README.md!",
     "chars": "символов",
     "connected": "успешно",
-    "ms": "мс"
+    "ms": "мс",
+    "For tele/MARGINS": "Для tele/MARGINS",
+    "Advanced MQTT settings": "Усовершенствованные настройки MQTT",
+    "Store clients time": "Хранить клиентов время",
+    "Time in minutes to store client information": "Время за считанные минуты для хранения информации о клиенте",
+    "Default QoS": "По умолчанию QoS",
+    "Default Quality of Service level (0, 1, or 2)": "Качество обслуживания по умолчанию (0, 1 или 2)",
+    "Retransmit interval": "Интервал повторного поступления",
+    "Interval in milliseconds for message retransmission": "Интервал в миллисекундах для повторной передачи сообщений",
+    "Retransmit count": "Ретрансляционное подсчет",
+    "Maximum number of retransmission attempts": "Максимальное количество попыток повторной передачи",
+    "Suppress warnings when commands are sent to offline devices": "Подавить предупреждения, когда команды отправляются на автономные устройства"
 }

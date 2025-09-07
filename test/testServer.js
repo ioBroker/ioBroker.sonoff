@@ -28,6 +28,7 @@ const rules = {
     'tele/SonoffPOW/INFO2':            {send: '{"WebServerMode":"Admin", "Hostname":"Sonoffpow", "IPAddress":"192.168.2.182"}',  expect: {'INFO.Hostname': 'Sonoffpow', 'INFO.IPAddress': '192.168.2.182'}},
     'tele/SonoffPOW/INFO3':            {send: '{"RestartReason":"Software/System restart"}',  expect: {'INFO.RestartReason': 'Software/System restart'}},
     'tele/sonoff_4ch/ENERGY':          {send: '{"Time":"2017-10-02T19:24:32", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":0, "Power":3, "Factor":0.12, "Voltage":221, "Current":0.097}',  expect: {'ENERGY.Total': 1.753, 'ENERGY.Current': 0.097, 'ENERGY.Power': 3}},
+    'tele/sonoffPOW/MARGINS':          {send: '{"Time":"2020-04-23T10:15:00","PowerLow":100,"PowerHigh":2000,"PowerDelta":50}',  expect: {'MARGINS.PowerLow': 100, 'MARGINS.PowerHigh': 2000, 'MARGINS.PowerDelta': 50}},
     'tele/powR2/ENERGY':               {send: '{"Time":"2022-09-06T11:17:35", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":5, "Power":42, "ApparentPower":44, "ReactivePower":12, "Factor":0.95, "Voltage":230, "Current":0.183}',  expect: {'ENERGY.Total': 1.753, 'ENERGY.Yesterday': 0.308, 'ENERGY.Today': 0.205, 'ENERGY.Period': 5, 'ENERGY.Power': 42, 'ENERGY.ApparentPower': 44, 'ENERGY.ReactivePower': 12, 'ENERGY.Factor': 0.95, 'ENERGY.Voltage': 230, 'ENERGY.Current': 0.183}},
     'tele/powR2/STATE':                {send: '{"Time":"2022-09-06T11:17:35", "Uptime":"0T02:23:45", "UptimeSec":8625, "POWER":"ON", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Power":42, "Factor":0.95, "Voltage":230, "Current":0.183, "Wifi":{"AP":1, "SSId":"MyWiFi", "RSSI":58}}',  expect: {'Total': 1.753, 'Yesterday': 0.308, 'Today': 0.205, 'Power': 42, 'Factor': 0.95, 'Voltage': 230, 'Current': 0.183, 'POWER': true}},
     'tele/sonoff_4ch/ENERGY1':         {send: '"Time":"2017-10-02T19:24:32", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":0, "Power":3, "Factor":0.12, "Voltage":221, "Current":0.097}',  expect: {}},
@@ -247,6 +248,7 @@ describe('Sonoff server: Test mqtt server', () => {
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
             config.native.password = encryptLegacy(systemConfig.native.secret, 'pass1');
+            config.native.TELE_MARGINS = true;
             // Enable RESULT processing for button testing
             config.native.STAT_RESULT = true;
 

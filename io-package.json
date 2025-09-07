@@ -173,6 +173,7 @@
     "password": "",
     "timeout": 300,
     "TELE_SENSOR": true,
+    "TELE_MARGINS": false,
     "TELE_STATE": true,
     "STAT_RESULT": false,
     "OBJ_TREE": false,
