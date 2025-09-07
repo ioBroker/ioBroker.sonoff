@@ -47,13 +47,24 @@ const rules = {
     'stat/sonoff/LWT':                 {send: 'someTopic',  expect: {'LWT': null}},
     'stat/sonoff/ABC':                 {send: 'text',       expect: {'ABC': null}},
     // This command overwrites the adresses of the devices
-    'tele/tasmota_0912A7/STATE':       {send: '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}', expect: {'Wifi_Downtime': '0T00:00:07'}},
     'tele/Hof/Lager/Tasmota/Relais/RFresv/Beleuchtung/UV/Beleuchtungsstaerke/Außenlampe/SENSOR':
         {
             send: '{"Time":"2021-05-28T14:30:44","BH1750":{"Illuminance":27550},"VEML6075":{"UvaIntensity":1710,"UvbIntensity":890,"UvIndex":2.4}}',
             expect: {'VEML6075_UvIndex': 2.4}
         },
+    // Sonoff B1 (RGB LED controller) test cases based on actual device logs
+    'tele/LED1/STATE':                    {send: '{"Time":"2018-01-19T19:45:22","Uptime":0,"Vcc":3.289,"POWER":"ON","Wifi":{"AP":1,"SSId":"SmartHOME","RSSI":96,"APMac":"60:31:97:3E:74:B4"}}', expect: {Vcc: 3.289, POWER: true, Wifi_RSSI: 96}},
+    'tele/LED1/INFO1':                    {send: '{"Module":"Sonoff B1","Version":"5.9.1f","FallbackTopic":"LED1","GroupTopic":"sonoffs"}', expect: {'INFO.Module': 'Sonoff B1', 'INFO.Version': '5.9.1f'}},
+    'stat/LED1/RESULT1':                  {send: '{"POWER":"ON","Dimmer":100,"Color":"FFFFFF0000"}', expect: {'RESULT': null}},
+    'stat/LED1/RESULT2':                  {send: '{"Dimmer":100}', expect: {'RESULT': null}},
+    'stat/LED1/RESULT3':                  {send: '{"CT":499}', expect: {'RESULT': null}},
+    // Sonoff SC (Environmental Sensor) test cases based on actual device logs  
+    'tele/HomeMonitor/INFO1':             {send: '{"Module":"Sonoff SC","Version":"5.9.1f","FallbackTopic":"HomeMonitor","GroupTopic":"sonoffs"}', expect: {'INFO.Module': 'Sonoff SC', 'INFO.Version': '5.9.1f'}},
+    'tele/HomeMonitor/STATE':             {send: '{"Time":"2018-01-19T20:15:16","Uptime":0,"Vcc":3.170,"Wifi":{"AP":1,"SSId":"SmartHOME","RSSI":100,"APMac":"60:31:97:3E:74:B4"}}', expect: {Vcc: 3.170, Wifi_RSSI: 100}},
+    'tele/HomeMonitor/SENSOR':            {send: '{"Time":"2018-01-19T20:15:16","Temperature":20.0,"Humidity":16.0,"Light":10,"Noise":60,"AirQuality":90,"TempUnit":"C"}', expect: {Temperature: 20.0, Humidity: 16.0, Light: 10, Noise: 60, AirQuality: 90}},
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
+    // This rule must be last to ensure Emitter_1 maps to tasmota_0912A7 for the existing test
+    'tele/tasmota_0912A7/STATE':       {send: '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}', expect: {'Wifi_Downtime': '0T00:00:07'}},
     'tele/button_test/SENSOR':           {send: '{"Time":"2025-01-07T10:00:00","Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
     'tele/klingel/RESULT':               {send: '{"Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
     'stat/button_device/RESULT':         {send: '{"Button2":{"Action":"DOUBLE"}}', expect: {'Button2_Action': 'DOUBLE'}},
