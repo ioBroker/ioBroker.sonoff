@@ -180,7 +180,8 @@
     "defaultQoS": 0,
     "retransmitInterval": 2000,
     "retransmitCount": 10,
-    "ignorePings": false
+    "ignorePings": false,
+    "ignoreNotConnectedWarnings": false
   },
   "objects": [],
   "instanceObjects": [
