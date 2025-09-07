@@ -50,5 +50,6 @@
     "WARNING! Check README.md!": "警告！检查 README.md！",
     "chars": "字符",
     "connected": "连接的",
-    "ms": "毫秒"
+    "ms": "毫秒",
+    "Ignore 'not connected' warnings": "忽略“不连接”警告"
 }
