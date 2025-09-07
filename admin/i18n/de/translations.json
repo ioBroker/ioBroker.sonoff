@@ -15,6 +15,7 @@
     "For tele/STATE": "Für tele/STATE",
     "IP": "IP",
     "Ignore warnings with pingreq": "Warnungen mit pingreq ignorieren",
+    "Ignore 'not connected' warnings": "'Nicht verbunden' Warnungen ignorieren",
     "Interval before send topics by connection:": "Interval vom Senden von allen Topics bei der Verbindung",
     "Main settings": "Haupteinstellungen",
     "Mask to publish": "z.B 'mqtt.0.*,javascript.*'",
@@ -50,5 +51,16 @@
     "WARNING! Check README.md!": "WARNUNG! Überprüfen Sie README.md!",
     "chars": "Zeichen",
     "connected": "verbunden",
-    "ms": "ms"
+    "ms": "ms",
+    "For tele/MARGINS": "Für tele/MARGINS",
+    "Advanced MQTT settings": "Erweiterte MQTT -Einstellungen",
+    "Store clients time": "Lagern Sie Kunden Zeit",
+    "Time in minutes to store client information": "Zeit in Minuten, um Kundeninformationen zu speichern",
+    "Default QoS": "Standard QoS",
+    "Default Quality of Service level (0, 1, or 2)": "Standardqualität der Serviceebene (0, 1 oder 2)",
+    "Retransmit interval": "Intervall übernehmen",
+    "Interval in milliseconds for message retransmission": "Intervall in Millisekunden für die Neuübertragung zur Nachricht",
+    "Retransmit count": "Zählen neu",
+    "Maximum number of retransmission attempts": "Maximale Anzahl von Wiedervermietungsversuchen",
+    "Suppress warnings when commands are sent to offline devices": "Warnungen unterdrücken, wenn Befehle an Offline -Geräte gesendet werden"
 }

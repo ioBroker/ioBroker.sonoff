@@ -41,9 +41,13 @@ Tests in `testServer.js` use a mock MQTT setup with predefined message rules tha
 
 1. **Adding New Datapoints**: Update `lib/datapoints.js` with proper type definitions
 2. **Testing**: Add corresponding test cases in `testServer.js` with real MQTT message examples
-3. **Translations**: Update admin UI translations in `admin/i18n/*/translations.json`
+3. **Translations**: When adding new UI elements to admin configuration:
+   - Add all English text entries to `admin/i18n/en/translations.json`
+   - Run `npm run translate` to automatically generate translations for all supported languages
+   - Verify translations were created in all language directories under `admin/i18n/`
 4. **Changelog**: Add entries to README.md under `### **WORK IN PROGRESS**` section for user-facing changes. DO NOT modify `io-package.json` news section as it's automatically updated during releases
-5. **Compatibility**: Maintain backward compatibility with existing Tasmota configurations
+5. **Linting**: Always run `npm run lint` to verify code passes ESLint validation
+6. **Compatibility**: Maintain backward compatibility with existing Tasmota configurations
 
 ## Code Style
 

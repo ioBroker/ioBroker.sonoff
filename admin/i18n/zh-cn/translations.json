@@ -50,5 +50,17 @@
     "WARNING! Check README.md!": "警告！检查 README.md！",
     "chars": "字符",
     "connected": "连接的",
-    "ms": "毫秒"
+    "ms": "毫秒",
+    "Ignore 'not connected' warnings": "忽略“不连接”警告",
+    "For tele/MARGINS": "用于电视/边距",
+    "Advanced MQTT settings": "高级MQTT设置",
+    "Store clients time": "存储客户时间",
+    "Time in minutes to store client information": "几分钟以存储客户信息的时间",
+    "Default QoS": "默认QoS",
+    "Default Quality of Service level (0, 1, or 2)": "默认服务质量级别（0、1或2）",
+    "Retransmit interval": "重新启动间隔",
+    "Interval in milliseconds for message retransmission": "毫秒间隔以进行消息重传",
+    "Retransmit count": "重新启动计数",
+    "Maximum number of retransmission attempts": "最大重传尝试数量",
+    "Suppress warnings when commands are sent to offline devices": "在将命令发送到离线设备时抑制警告"
 }

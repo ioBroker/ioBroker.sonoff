@@ -173,14 +173,16 @@
     "password": "",
     "timeout": 300,
     "TELE_SENSOR": true,
-    "TELE_STATE": false,
+    "TELE_MARGINS": false,
+    "TELE_STATE": true,
     "STAT_RESULT": false,
     "OBJ_TREE": false,
     "storeClientsTime": 1440,
     "defaultQoS": 0,
     "retransmitInterval": 2000,
     "retransmitCount": 10,
-    "ignorePings": false
+    "ignorePings": false,
+    "ignoreNotConnectedWarnings": false
   },
   "objects": [],
   "instanceObjects": [
