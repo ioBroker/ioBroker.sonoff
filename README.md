@@ -124,6 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (copilot) Added configuration for advanced MQTT settings
 * (copilot) Add support for Tasmota tele/MARGINS messages enabling integration of PowerLow, PowerHigh, and PowerDelta limits
 * (copilot) Fix pressure and temperature unit display to respect PressureUnit and TempUnit from Tasmota MQTT messages
 * (copilot) Add support for decoupled button actions in Tasmota devices - creates Button1-Button8 datapoints for button events
