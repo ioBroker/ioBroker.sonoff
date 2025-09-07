@@ -52,7 +52,7 @@
     "chars": "символов",
     "connected": "успешно",
     "ms": "мс",
-    "For tele/MARGINS": "Для телевизора/поля",
+    "For tele/MARGINS": "Для tele/MARGINS",
     "Advanced MQTT settings": "Усовершенствованные настройки MQTT",
     "Store clients time": "Хранить клиентов время",
     "Time in minutes to store client information": "Время за считанные минуты для хранения информации о клиенте",
