@@ -287,8 +287,8 @@ describe('Sonoff server: Test mqtt server', () => {
         setTimeout(() => done(), 1000);
     }).timeout(4000);
 
-    it('Sonoff server: detector must receive tele/tasmota_0912A7/POWER', done => {
-        checkAdapter2Mqtt('sonoff.0.Emitter_1.POWER', 'tele/tasmota_0912A7/POWER', false, done);
+    it('Sonoff server: detector must receive cmnd/tasmota_0912A7/POWER', done => {
+        checkAdapter2Mqtt('sonoff.0.Emitter_1.POWER', 'cmnd/tasmota_0912A7/POWER', false, done);
     }).timeout(4000);
 
     it('Sonoff Server: Check ENERGY.Power object role', done => {
