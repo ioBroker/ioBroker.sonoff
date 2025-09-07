@@ -50,5 +50,6 @@
     "WARNING! Check README.md!": "¡ADVERTENCIA! ¡Compruebe README.md!",
     "chars": "caracteres",
     "connected": "conectado",
-    "ms": "Sra"
+    "ms": "Sra",
+    "Ignore 'not connected' warnings": "Ignore 'not connected' warnings"
 }
