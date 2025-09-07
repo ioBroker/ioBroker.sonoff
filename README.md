@@ -124,6 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (copilot) Fix pressure and temperature unit display to respect PressureUnit and TempUnit from Tasmota MQTT messages
 * (copilot) Add support for decoupled button actions in Tasmota devices - creates Button1-Button8 datapoints for button events
 * (copilot) Fix RESULT message processing bug where tele/*/RESULT messages were incorrectly processed as WAKEUP instead of RESULT
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection

@@ -36,6 +36,8 @@ const rules = {
     'tele/nan/SENSOR':                 {send: '{"Time":"2018-10-31T11:57:31","SI7021-00":{"Temperature":17.1,"Humidity":70.0},"SI7021-02":{"Temperature":nan,"Humidity":nan},"SI7021-04":{"Temperature":10.0,"Humidity":59.7},"SI7021-05":{"Temperature":8.8,"Humidity":79.3},"TempUnit":"C"}', expect: {'SI7021-04_Temperature': 10}},
     'tele/true/SENSOR':                {send: '{"Time":"2017-10-02T19:26:06", "Uptime":0, "Vcc":3.226, "POWER1":"true"}', expect: {POWER1: true}},
     '/ESP_BOX/BM280/Pressure':         {send: '1010.09',    expect: {'Pressure': 1010.09}},
+    'tele/tasmota_BMP280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BMP280":{"Temperature":28.520,"Pressure":753.3},"PressureUnit":"mmHg"}', expect: {'BMP280_Temperature': 28.520, 'BMP280_Pressure': 753.3}},
+    'tele/tasmota_BME280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BME280":{"Temperature":25.1,"Pressure":1013.2,"Humidity":65.5},"TempUnit":"F","PressureUnit":"mmHg"}', expect: {'BME280_Temperature': 25.1, 'BME280_Pressure': 1013.2, 'BME280_Humidity': 65.5}},
     '/ESP_BOX/BM280/Humidity':         {send: '42.39',      expect: {'Humidity': 42.39}},
     '/ESP_BOX/BM280/Temperature':      {send: '25.86',      expect: {'Temperature': 25.86}},
     '/ESP_BOX/BM280/Approx. Altitude': {send: '24',         expect: {'Approx_Altitude': 24}},
@@ -282,6 +284,30 @@ describe('Sonoff server: Test mqtt server', () => {
             expect(obj).to.be.not.null.and.not.undefined;
             expect(obj.common.role).to.be.equal('value.power');  // Should be value.power not value.power.consumption
             done();
+        });
+    }).timeout(2000);
+
+    it('Sonoff Server: Check BMP280 pressure unit override', done => {
+        objects.getObject('sonoff.0.Emitter_1.BMP280_Pressure', (err, obj) => {
+            expect(err).to.be.null;
+            expect(obj).to.be.not.null.and.not.undefined;
+            expect(obj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            done();
+        });
+    }).timeout(2000);
+
+    it('Sonoff Server: Check BME280 pressure and temperature unit overrides', done => {
+        objects.getObject('sonoff.0.Emitter_1.BME280_Pressure', (err, pressureObj) => {
+            expect(err).to.be.null;
+            expect(pressureObj).to.be.not.null.and.not.undefined;
+            expect(pressureObj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            
+            objects.getObject('sonoff.0.Emitter_1.BME280_Temperature', (err, tempObj) => {
+                expect(err).to.be.null;
+                expect(tempObj).to.be.not.null.and.not.undefined;
+                expect(tempObj.common.unit).to.be.equal('F');  // Should use TempUnit from MQTT message
+                done();
+            });
         });
     }).timeout(2000);
 
