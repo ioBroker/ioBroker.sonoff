@@ -54,6 +54,18 @@ const rules = {
             expect: {'VEML6075_UvIndex': 2.4}
         },
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
+    'tele/button_test/SENSOR':           {send: '{"Time":"2025-01-07T10:00:00","Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'tele/klingel/RESULT':               {send: '{"Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'stat/button_device/RESULT':         {send: '{"Button2":{"Action":"DOUBLE"}}', expect: {'Button2_Action': 'DOUBLE'}},
+    'tele/IO-Board2_T/SENSOR':            {send: '{"Time":"2025-09-06T19:16:49","Switch1":"OFF","Switch2":"OFF","Switch3":"OFF","Switch4":"OFF","Switch5":"OFF","Switch7":"ON","Switch8":"OFF","Switch9":"OFF","ESP32":{"Temperature":33.9},"TempUnit":"C"}', expect: {Switch1: false, Switch2: false, Switch3: false, Switch4: false, Switch5: false, Switch7: true, Switch8: false, Switch9: false, ESP32_Temperature: 33.9}},
+    // Comprehensive Switch1-28 test with all switches
+    'tele/esp32_switch_board/SENSOR':     {send: '{"Time":"2025-09-06T20:00:00","Switch1":"ON","Switch2":"OFF","Switch3":"ON","Switch4":"OFF","Switch5":"ON","Switch6":"OFF","Switch7":"ON","Switch8":"OFF","Switch9":"ON","Switch10":"OFF","Switch11":"ON","Switch12":"OFF","Switch13":"ON","Switch14":"OFF","Switch15":"ON","Switch16":"OFF","Switch17":"ON","Switch18":"OFF","Switch19":"ON","Switch20":"OFF","Switch21":"ON","Switch22":"OFF","Switch23":"ON","Switch24":"OFF","Switch25":"ON","Switch26":"OFF","Switch27":"ON","Switch28":"OFF"}', expect: {Switch1: true, Switch2: false, Switch3: true, Switch4: false, Switch5: true, Switch6: false, Switch7: true, Switch8: false, Switch9: true, Switch10: false, Switch11: true, Switch12: false, Switch13: true, Switch14: false, Switch15: true, Switch16: false, Switch17: true, Switch18: false, Switch19: true, Switch20: false, Switch21: true, Switch22: false, Switch23: true, Switch24: false, Switch25: true, Switch26: false, Switch27: true, Switch28: false}},
+    // Test Switch1-10 range with mixed states
+    'tele/tasmota_switch_10/SENSOR':      {send: '{"Time":"2025-09-06T20:01:00","Switch1":"OFF","Switch2":"ON","Switch3":"OFF","Switch4":"ON","Switch5":"OFF","Switch6":"ON","Switch7":"OFF","Switch8":"ON","Switch9":"OFF","Switch10":"ON"}', expect: {Switch1: false, Switch2: true, Switch3: false, Switch4: true, Switch5: false, Switch6: true, Switch7: false, Switch8: true, Switch9: false, Switch10: true}},
+    // Test Switch11-20 range
+    'tele/tasmota_switch_20/SENSOR':      {send: '{"Time":"2025-09-06T20:02:00","Switch11":"ON","Switch12":"ON","Switch13":"OFF","Switch14":"OFF","Switch15":"ON","Switch16":"ON","Switch17":"OFF","Switch18":"OFF","Switch19":"ON","Switch20":"ON"}', expect: {Switch11: true, Switch12: true, Switch13: false, Switch14: false, Switch15: true, Switch16: true, Switch17: false, Switch18: false, Switch19: true, Switch20: true}},
+    // Test Switch21-28 range
+    'tele/tasmota_switch_28/SENSOR':      {send: '{"Time":"2025-09-06T20:03:00","Switch21":"OFF","Switch22":"OFF","Switch23":"OFF","Switch24":"OFF","Switch25":"ON","Switch26":"ON","Switch27":"ON","Switch28":"ON"}', expect: {Switch21: false, Switch22: false, Switch23: false, Switch24: false, Switch25: true, Switch26: true, Switch27: true, Switch28: true}},
 };
 
 function encryptLegacy(key, value) {
@@ -222,6 +234,8 @@ describe('Sonoff server: Test mqtt server', () => {
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
             config.native.password = encryptLegacy(systemConfig.native.secret, 'pass1');
+            // Enable RESULT processing for button testing
+            config.native.STAT_RESULT = true;
 
             await setup.setAdapterConfig(config.common, config.native);
 
