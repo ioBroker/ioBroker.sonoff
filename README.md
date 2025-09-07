@@ -124,6 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (copilot) Add Zigbee device control support for Tasmota coordinators - users can now control Zigbee devices (Power/Dimmer) through ioBroker states via automatic ZbSend command generation
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
