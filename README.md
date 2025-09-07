@@ -125,6 +125,7 @@ States:
 
 ### **WORK IN PROGRESS**
 * (copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix - Fix regex bug causing MQTT commands to use "tele" instead of "cmnd" topics
+* (copilot) Fix IRHVAC Power, Light and Mode fields showing NULL instead of actual string values
 * (copilot) Add Zigbee device control support for Tasmota coordinators - users can now control Zigbee devices (Power/Dimmer) through ioBroker states via automatic ZbSend command generation
 * (copilot) Added configuration for advanced MQTT settings
 * (copilot) Add support for Tasmota tele/MARGINS messages enabling integration of PowerLow, PowerHigh, and PowerDelta limits
