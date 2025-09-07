@@ -52,7 +52,7 @@
     "connected": "підключений",
     "ms": "РС",
     "Ignore 'not connected' warnings": "Ігноруйте попередження \"не пов'язані\"",
-    "For tele/MARGINS": "Для теле/запасів",
+    "For tele/MARGINS": "Для tele/MARGINS",
     "Advanced MQTT settings": "Розширені налаштування MQTT",
     "Store clients time": "Час магазину клієнтів",
     "Time in minutes to store client information": "Час за лічені хвилини зберігання клієнтської інформації",
