@@ -50,5 +50,6 @@
     "WARNING! Check README.md!": "AVVERTIMENTO! Controlla README.md!",
     "chars": "caratteri",
     "connected": "collegato",
-    "ms": "Signorina"
+    "ms": "Signorina",
+    "Ignore 'not connected' warnings": "Ignora gli avvisi \"non connessi\""
 }

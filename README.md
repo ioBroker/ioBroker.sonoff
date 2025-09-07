@@ -129,6 +129,7 @@ States:
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
+* (copilot) Add configuration option to suppress "not connected" warnings for temporarily offline devices
 * (copilot) Add Switch5-Switch28 datapoint definitions for consistent boolean mapping
 * (copilot) Fix write flag for all Switch datapoints to enable proper control from ioBroker
 
