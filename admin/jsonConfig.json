@@ -107,6 +107,15 @@
       "lg": 4,
       "xl": 4
     },
+    "TELE_MARGINS": {
+      "type": "checkbox",
+      "label": "For tele/MARGINS",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
     "STAT_RESULT": {
       "type": "checkbox",
       "label": "For stat/RESULT",
@@ -141,6 +150,76 @@
       "newLine": true,
       "type": "checkbox",
       "label": "Ignore warnings with pingreq",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "ignoreNotConnectedWarnings": {
+      "type": "checkbox",
+      "label": "Ignore 'not connected' warnings",
+      "help": "Suppress warnings when commands are sent to offline devices",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "_header5": {
+      "newLine": true,
+      "type": "header",
+      "text": "Advanced MQTT settings",
+      "size": 3,
+      "xs": 12,
+      "sm": 12,
+      "md": 12,
+      "lg": 12,
+      "xl": 12
+    },
+    "storeClientsTime": {
+      "newLine": true,
+      "type": "number",
+      "label": "Store clients time",
+      "help": "Time in minutes to store client information",
+      "min": 1,
+      "max": 99999,
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "defaultQoS": {
+      "type": "number",
+      "label": "Default QoS",
+      "help": "Default Quality of Service level (0, 1, or 2)",
+      "min": 0,
+      "max": 2,
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "retransmitInterval": {
+      "type": "number",
+      "label": "Retransmit interval",
+      "help": "Interval in milliseconds for message retransmission",
+      "min": 100,
+      "max": 99999,
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "retransmitCount": {
+      "type": "number",
+      "label": "Retransmit count",
+      "help": "Maximum number of retransmission attempts",
+      "min": 1,
+      "max": 100,
       "xs": 12,
       "sm": 12,
       "md": 6,

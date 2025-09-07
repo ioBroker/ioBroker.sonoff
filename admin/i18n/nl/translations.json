@@ -50,5 +50,17 @@
     "WARNING! Check README.md!": "WAARSCHUWING! Controleer README.md!",
     "chars": "caracteres",
     "connected": "conectado",
-    "ms": "Senhora"
+    "ms": "Senhora",
+    "Ignore 'not connected' warnings": "Negeer 'niet verbonden' waarschuwingen",
+    "For tele/MARGINS": "Voor tele/MARGINS",
+    "Advanced MQTT settings": "Geavanceerde MQTT -instellingen",
+    "Store clients time": "Bewaar klanten tijd",
+    "Time in minutes to store client information": "Tijd in minuten om klantinformatie op te slaan",
+    "Default QoS": "Standaard QoS",
+    "Default Quality of Service level (0, 1, or 2)": "Standaardkwaliteit van serviceniveau (0, 1 of 2)",
+    "Retransmit interval": "Hertransmit interval",
+    "Interval in milliseconds for message retransmission": "Interval in milliseconden voor het heroveren van berichten",
+    "Retransmit count": "Retransmit Count",
+    "Maximum number of retransmission attempts": "Maximaal aantal hertransmissiepogingen",
+    "Suppress warnings when commands are sent to offline devices": "Onderdruk waarschuwingen wanneer opdrachten worden verzonden naar offline apparaten"
 }
