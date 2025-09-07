@@ -124,7 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
-* (copilot) Fix pressure unit display to respect PressureUnit from Tasmota MQTT messages
+* (copilot) Fix pressure and temperature unit display to respect PressureUnit and TempUnit from Tasmota MQTT messages
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility

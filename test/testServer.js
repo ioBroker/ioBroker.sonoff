@@ -273,6 +273,30 @@ describe('Sonoff server: Test mqtt server', () => {
         });
     }).timeout(2000);
 
+    it('Sonoff Server: Check BMP280 pressure unit override', done => {
+        objects.getObject('sonoff.0.Emitter_1.BMP280_Pressure', (err, obj) => {
+            expect(err).to.be.null;
+            expect(obj).to.be.not.null.and.not.undefined;
+            expect(obj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            done();
+        });
+    }).timeout(2000);
+
+    it('Sonoff Server: Check BME280 pressure and temperature unit overrides', done => {
+        objects.getObject('sonoff.0.Emitter_1.BME280_Pressure', (err, pressureObj) => {
+            expect(err).to.be.null;
+            expect(pressureObj).to.be.not.null.and.not.undefined;
+            expect(pressureObj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            
+            objects.getObject('sonoff.0.Emitter_1.BME280_Temperature', (err, tempObj) => {
+                expect(err).to.be.null;
+                expect(tempObj).to.be.not.null.and.not.undefined;
+                expect(tempObj.common.unit).to.be.equal('F');  // Should use TempUnit from MQTT message
+                done();
+            });
+        });
+    }).timeout(2000);
+
     it('Sonoff Server: check reconnection', done => {
         mqttClientEmitter.stop();
         mqttClientDetector.stop();
