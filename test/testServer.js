@@ -36,6 +36,8 @@ const rules = {
     'tele/nan/SENSOR':                 {send: '{"Time":"2018-10-31T11:57:31","SI7021-00":{"Temperature":17.1,"Humidity":70.0},"SI7021-02":{"Temperature":nan,"Humidity":nan},"SI7021-04":{"Temperature":10.0,"Humidity":59.7},"SI7021-05":{"Temperature":8.8,"Humidity":79.3},"TempUnit":"C"}', expect: {'SI7021-04_Temperature': 10}},
     'tele/true/SENSOR':                {send: '{"Time":"2017-10-02T19:26:06", "Uptime":0, "Vcc":3.226, "POWER1":"true"}', expect: {POWER1: true}},
     '/ESP_BOX/BM280/Pressure':         {send: '1010.09',    expect: {'Pressure': 1010.09}},
+    'tele/tasmota_BMP280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BMP280":{"Temperature":28.520,"Pressure":753.3},"PressureUnit":"mmHg"}', expect: {'BMP280_Temperature': 28.520, 'BMP280_Pressure': 753.3}},
+    'tele/tasmota_BME280/SENSOR':      {send: '{"Time":"2024-02-25T11:27:00","BME280":{"Temperature":25.1,"Pressure":1013.2,"Humidity":65.5},"TempUnit":"F","PressureUnit":"mmHg"}', expect: {'BME280_Temperature': 25.1, 'BME280_Pressure': 1013.2, 'BME280_Humidity': 65.5}},
     '/ESP_BOX/BM280/Humidity':         {send: '42.39',      expect: {'Humidity': 42.39}},
     '/ESP_BOX/BM280/Temperature':      {send: '25.86',      expect: {'Temperature': 25.86}},
     '/ESP_BOX/BM280/Approx. Altitude': {send: '24',         expect: {'Approx_Altitude': 24}},
@@ -63,6 +65,18 @@ const rules = {
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
     // This rule must be last to ensure Emitter_1 maps to tasmota_0912A7 for the existing test
     'tele/tasmota_0912A7/STATE':       {send: '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}', expect: {'Wifi_Downtime': '0T00:00:07'}},
+    'tele/button_test/SENSOR':           {send: '{"Time":"2025-01-07T10:00:00","Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'tele/klingel/RESULT':               {send: '{"Button1":{"Action":"SINGLE"}}', expect: {'Button1_Action': 'SINGLE'}},
+    'stat/button_device/RESULT':         {send: '{"Button2":{"Action":"DOUBLE"}}', expect: {'Button2_Action': 'DOUBLE'}},
+    'tele/IO-Board2_T/SENSOR':            {send: '{"Time":"2025-09-06T19:16:49","Switch1":"OFF","Switch2":"OFF","Switch3":"OFF","Switch4":"OFF","Switch5":"OFF","Switch7":"ON","Switch8":"OFF","Switch9":"OFF","ESP32":{"Temperature":33.9},"TempUnit":"C"}', expect: {Switch1: false, Switch2: false, Switch3: false, Switch4: false, Switch5: false, Switch7: true, Switch8: false, Switch9: false, ESP32_Temperature: 33.9}},
+    // Comprehensive Switch1-28 test with all switches
+    'tele/esp32_switch_board/SENSOR':     {send: '{"Time":"2025-09-06T20:00:00","Switch1":"ON","Switch2":"OFF","Switch3":"ON","Switch4":"OFF","Switch5":"ON","Switch6":"OFF","Switch7":"ON","Switch8":"OFF","Switch9":"ON","Switch10":"OFF","Switch11":"ON","Switch12":"OFF","Switch13":"ON","Switch14":"OFF","Switch15":"ON","Switch16":"OFF","Switch17":"ON","Switch18":"OFF","Switch19":"ON","Switch20":"OFF","Switch21":"ON","Switch22":"OFF","Switch23":"ON","Switch24":"OFF","Switch25":"ON","Switch26":"OFF","Switch27":"ON","Switch28":"OFF"}', expect: {Switch1: true, Switch2: false, Switch3: true, Switch4: false, Switch5: true, Switch6: false, Switch7: true, Switch8: false, Switch9: true, Switch10: false, Switch11: true, Switch12: false, Switch13: true, Switch14: false, Switch15: true, Switch16: false, Switch17: true, Switch18: false, Switch19: true, Switch20: false, Switch21: true, Switch22: false, Switch23: true, Switch24: false, Switch25: true, Switch26: false, Switch27: true, Switch28: false}},
+    // Test Switch1-10 range with mixed states
+    'tele/tasmota_switch_10/SENSOR':      {send: '{"Time":"2025-09-06T20:01:00","Switch1":"OFF","Switch2":"ON","Switch3":"OFF","Switch4":"ON","Switch5":"OFF","Switch6":"ON","Switch7":"OFF","Switch8":"ON","Switch9":"OFF","Switch10":"ON"}', expect: {Switch1: false, Switch2: true, Switch3: false, Switch4: true, Switch5: false, Switch6: true, Switch7: false, Switch8: true, Switch9: false, Switch10: true}},
+    // Test Switch11-20 range
+    'tele/tasmota_switch_20/SENSOR':      {send: '{"Time":"2025-09-06T20:02:00","Switch11":"ON","Switch12":"ON","Switch13":"OFF","Switch14":"OFF","Switch15":"ON","Switch16":"ON","Switch17":"OFF","Switch18":"OFF","Switch19":"ON","Switch20":"ON"}', expect: {Switch11: true, Switch12: true, Switch13: false, Switch14: false, Switch15: true, Switch16: true, Switch17: false, Switch18: false, Switch19: true, Switch20: true}},
+    // Test Switch21-28 range
+    'tele/tasmota_switch_28/SENSOR':      {send: '{"Time":"2025-09-06T20:03:00","Switch21":"OFF","Switch22":"OFF","Switch23":"OFF","Switch24":"OFF","Switch25":"ON","Switch26":"ON","Switch27":"ON","Switch28":"ON"}', expect: {Switch21: false, Switch22: false, Switch23: false, Switch24: false, Switch25: true, Switch26: true, Switch27: true, Switch28: true}},
 };
 
 function encryptLegacy(key, value) {
@@ -231,6 +245,8 @@ describe('Sonoff server: Test mqtt server', () => {
             config.common.loglevel = 'debug';
             config.native.user     = 'user';
             config.native.password = encryptLegacy(systemConfig.native.secret, 'pass1');
+            // Enable RESULT processing for button testing
+            config.native.STAT_RESULT = true;
 
             await setup.setAdapterConfig(config.common, config.native);
 
@@ -279,6 +295,30 @@ describe('Sonoff server: Test mqtt server', () => {
             expect(obj).to.be.not.null.and.not.undefined;
             expect(obj.common.role).to.be.equal('value.power');  // Should be value.power not value.power.consumption
             done();
+        });
+    }).timeout(2000);
+
+    it('Sonoff Server: Check BMP280 pressure unit override', done => {
+        objects.getObject('sonoff.0.Emitter_1.BMP280_Pressure', (err, obj) => {
+            expect(err).to.be.null;
+            expect(obj).to.be.not.null.and.not.undefined;
+            expect(obj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            done();
+        });
+    }).timeout(2000);
+
+    it('Sonoff Server: Check BME280 pressure and temperature unit overrides', done => {
+        objects.getObject('sonoff.0.Emitter_1.BME280_Pressure', (err, pressureObj) => {
+            expect(err).to.be.null;
+            expect(pressureObj).to.be.not.null.and.not.undefined;
+            expect(pressureObj.common.unit).to.be.equal('mmHg');  // Should use PressureUnit from MQTT message
+            
+            objects.getObject('sonoff.0.Emitter_1.BME280_Temperature', (err, tempObj) => {
+                expect(err).to.be.null;
+                expect(tempObj).to.be.not.null.and.not.undefined;
+                expect(tempObj.common.unit).to.be.equal('F');  // Should use TempUnit from MQTT message
+                done();
+            });
         });
     }).timeout(2000);
 

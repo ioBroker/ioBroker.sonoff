@@ -146,6 +146,16 @@
       "md": 6,
       "lg": 4,
       "xl": 4
+    },
+    "ignoreNotConnectedWarnings": {
+      "type": "checkbox",
+      "label": "Ignore 'not connected' warnings",
+      "help": "Suppress warnings when commands are sent to offline devices",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
     }
   }
 }

@@ -50,5 +50,6 @@
     "WARNING! Check README.md!": "УВАГА! Перевірте README.md!",
     "chars": "символи",
     "connected": "підключений",
-    "ms": "РС"
+    "ms": "РС",
+    "Ignore 'not connected' warnings": "Ігноруйте попередження \"не пов'язані\""
 }
