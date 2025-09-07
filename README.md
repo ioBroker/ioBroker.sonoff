@@ -124,6 +124,8 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (copilot) Add support for decoupled button actions in Tasmota devices - creates Button1-Button8 datapoints for button events
+* (copilot) Fix RESULT message processing bug where tele/*/RESULT messages were incorrectly processed as WAKEUP instead of RESULT
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
