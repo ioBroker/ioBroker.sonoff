@@ -51,5 +51,16 @@
     "chars": "caratteri",
     "connected": "collegato",
     "ms": "Signorina",
-    "Ignore 'not connected' warnings": "Ignora gli avvisi \"non connessi\""
+    "Ignore 'not connected' warnings": "Ignora gli avvisi \"non connessi\"",
+    "For tele/MARGINS": "Per tele/margini",
+    "Advanced MQTT settings": "Impostazioni MQTT avanzate",
+    "Store clients time": "Metti in conserva i clienti",
+    "Time in minutes to store client information": "Tempo in pochi minuti per archiviare le informazioni sui clienti",
+    "Default QoS": "QoS predefinito",
+    "Default Quality of Service level (0, 1, or 2)": "Qualità predefinita del livello di servizio (0, 1 o 2)",
+    "Retransmit interval": "Intervallo di ritrasmissione",
+    "Interval in milliseconds for message retransmission": "Intervallo in millisecondi per la ritrasmissione dei messaggi",
+    "Retransmit count": "Conteggio di ritrasmetto",
+    "Maximum number of retransmission attempts": "Numero massimo di tentativi di ritrasmissione",
+    "Suppress warnings when commands are sent to offline devices": "Sopprimere gli avvisi quando i comandi vengono inviati a dispositivi offline"
 }
