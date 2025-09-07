@@ -124,6 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (copilot) Fix regex bug causing MQTT commands to use "tele" instead of "cmnd" topics - **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
 * (copilot) Fix deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
 * (copilot) Add support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
 * (copilot) Update admin UI responsive design to use ioBroker standard values for mobile compatibility
