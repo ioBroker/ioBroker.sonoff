@@ -125,6 +125,7 @@ States:
 
 ### **WORK IN PROGRESS**
 * (copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix - Fix regex bug causing MQTT commands to use "tele" instead of "cmnd" topics
+* (copilot) Fix shutter command mapping to use correct Tasmota format - Transforms Shutter1_Position to ShutterPosition1 for proper device control
 * (copilot) Fix IRHVAC Power, Light and Mode fields showing NULL instead of actual string values
 * (copilot) Add Zigbee device control support for Tasmota coordinators - users can now control Zigbee devices (Power/Dimmer) through ioBroker states via automatic ZbSend command generation
 * (copilot) Added configuration for advanced MQTT settings

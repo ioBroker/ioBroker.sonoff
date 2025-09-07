@@ -66,6 +66,10 @@ const rules = {
     'tele/HomeMonitor/STATE':             {send: '{"Time":"2018-01-19T20:15:16","Uptime":0,"Vcc":3.170,"Wifi":{"AP":1,"SSId":"SmartHOME","RSSI":100,"APMac":"60:31:97:3E:74:B4"}}', expect: {Vcc: 3.170, Wifi_RSSI: 100}},
     'tele/HomeMonitor/SENSOR':            {send: '{"Time":"2018-01-19T20:15:16","Temperature":20.0,"Humidity":16.0,"Light":10,"Noise":60,"AirQuality":90,"TempUnit":"C"}', expect: {Temperature: 20.0, Humidity: 16.0, Light: 10, Noise: 60, AirQuality: 90}},
     'tele/esp32_shutter/STATE':           {send: '{"Time":"2025-01-07T10:00:00","Uptime":"0T01:00:00","SHUTTER1":0,"SHUTTER2":25,"SHUTTER3":50,"SHUTTER4":75,"SHUTTER5":100,"SHUTTER6":0,"SHUTTER7":25,"SHUTTER8":50,"SHUTTER9":75,"SHUTTER10":100,"SHUTTER11":0,"SHUTTER12":25,"SHUTTER13":50,"SHUTTER14":75,"SHUTTER15":100,"SHUTTER16":33}', expect: {SHUTTER1: 0, SHUTTER2: 25, SHUTTER3: 50, SHUTTER4: 75, SHUTTER5: 100, SHUTTER6: 0, SHUTTER7: 25, SHUTTER8: 50, SHUTTER9: 75, SHUTTER10: 100, SHUTTER11: 0, SHUTTER12: 25, SHUTTER13: 50, SHUTTER14: 75, SHUTTER15: 100, SHUTTER16: 33}},
+    // Shutter control test cases - issue #278
+    'stat/TM_Shutter/RESULT':             {send: '{"Shutter1":{"Position":56,"Direction":0,"Target":56,"Tilt":0}}', expect: {'Shutter1_Position': 56, 'Shutter1_Direction': 0, 'Shutter1_Target': 56, 'Shutter1_Tilt': 0}},
+    'stat/Shutter_Device/RESULT':         {send: '{"Shutter2":{"Position":75,"Direction":1,"Target":100,"Tilt":25}}', expect: {'Shutter2_Position': 75, 'Shutter2_Direction': 1, 'Shutter2_Target': 100, 'Shutter2_Tilt': 25}},
+    'stat/MultiShutter/RESULT':           {send: '{"Shutter3":{"Position":0,"Direction":-1,"Target":0,"Tilt":50},"Shutter4":{"Position":100,"Direction":0,"Target":100,"Tilt":0}}', expect: {'Shutter3_Position': 0, 'Shutter3_Direction': -1, 'Shutter3_Target': 0, 'Shutter3_Tilt': 50, 'Shutter4_Position': 100, 'Shutter4_Direction': 0, 'Shutter4_Target': 100, 'Shutter4_Tilt': 0}},
     'tele/tasmota/RESULT':                {send: '{"IrReceived":{"Protocol":"FUJITSU_AC","Bits":128,"Data":"0x1463001010FE0930210000000000208F","Repeat":0,"IRHVAC":{"Vendor":"FUJITSU_AC","Model":1,"Mode":"Auto","Power":"On","Celsius":"On","Temp":18,"FanSpeed":"Auto","SwingV":"Off","SwingH":"Off","Quiet":"Off","Turbo":"Off","Econo":"Off","Light":"Off","Filter":"Off","Clean":"Off","Beep":"Off","Sleep":-1}}}', expect: {'IrReceived_IRHVAC_Power': 'On', 'IrReceived_IRHVAC_Light': 'Off', 'IrReceived_IRHVAC_Mode': 'Auto', 'IrReceived_IRHVAC_Vendor': 'FUJITSU_AC', 'IrReceived_IRHVAC_Temp': 18}},
     // Zigbee bulb test case from issue #265
     'tele/Zigbee_Coordinator_CC2530/SENSOR': {send: '{"Time":"2022-05-05T20:49:08","ZbReceived":{"0x0856":{"Device":"0x0856","Name":"E14 Bulb","Power":1,"Dimmer":20,"Endpoint":1,"LinkQuality":65}}}', expect: {'ZbReceived_0x0856_Power': 1, 'ZbReceived_0x0856_Dimmer': 20, 'ZbReceived_0x0856_Device': '0x0856', 'ZbReceived_0x0856_Name': 'E14 Bulb'}},
@@ -415,6 +419,78 @@ describe('Sonoff server: Test mqtt server', () => {
                     const zbCommand = JSON.parse(receivedMessage);
                     expect(zbCommand.device).to.equal('0x1234');
                     expect(zbCommand.send.Dimmer).to.equal(75);
+                    
+                    done();
+                }, 100);
+            });
+        }, 500);
+    }).timeout(10000);
+
+    it('Sonoff Server: Test shutter command transformation', function (done) { // let FUNCTION and not => here
+        this.timeout(5000);
+        
+        // First send a shutter RESULT message to create the device states using a shutter client
+        mqttClientEmitter.publish('stat/TM_Shutter/RESULT', 
+            '{"Shutter1":{"Position":56,"Direction":0,"Target":56,"Tilt":0}}');
+        
+        setTimeout(() => {
+            // Simulate user changing the Shutter1_Position state 
+            const shutterPositionStateId = 'sonoff.0.Emitter_1.Shutter1_Position';
+            
+            // Clear any previous received messages
+            lastReceivedTopic1 = null;
+            lastReceivedMessage1 = null;
+            lastReceivedTopic2 = null;
+            lastReceivedMessage2 = null;
+            
+            // Trigger state change
+            states.setState(shutterPositionStateId, {val: 49, ack: false}, (err) => {
+                expect(err).to.be.not.ok;
+                
+                setTimeout(() => {
+                    // Check if ShutterPosition1 command was published (check both emitter and detector received messages)
+                    const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
+                    const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
+                    
+                    expect(receivedTopic).to.be.ok;
+                    expect(receivedTopic).to.equal('cmnd/Emitter_1/ShutterPosition1');
+                    expect(receivedMessage).to.equal('49');
+                    
+                    done();
+                }, 100);
+            });
+        }, 500);
+    }).timeout(10000);
+
+    it('Sonoff Server: Test shutter tilt command transformation', function (done) { // let FUNCTION and not => here
+        this.timeout(5000);
+        
+        // First send a shutter RESULT message to create the device states using a shutter client
+        mqttClientEmitter.publish('stat/TM_Shutter/RESULT', 
+            '{"Shutter2":{"Position":75,"Direction":1,"Target":100,"Tilt":25}}');
+        
+        setTimeout(() => {
+            // Simulate user changing the Shutter2_Tilt state 
+            const shutterTiltStateId = 'sonoff.0.Emitter_1.Shutter2_Tilt';
+            
+            // Clear any previous received messages
+            lastReceivedTopic1 = null;
+            lastReceivedMessage1 = null;
+            lastReceivedTopic2 = null;
+            lastReceivedMessage2 = null;
+            
+            // Trigger state change
+            states.setState(shutterTiltStateId, {val: 80, ack: false}, (err) => {
+                expect(err).to.be.not.ok;
+                
+                setTimeout(() => {
+                    // Check if ShutterTilt2 command was published (check both emitter and detector received messages)
+                    const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
+                    const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
+                    
+                    expect(receivedTopic).to.be.ok;
+                    expect(receivedTopic).to.equal('cmnd/Emitter_1/ShutterTilt2');
+                    expect(receivedMessage).to.equal('80');
                     
                     done();
                 }, 100);
