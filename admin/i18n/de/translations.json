@@ -17,7 +17,7 @@
     "Ignore warnings with pingreq": "Warnungen mit pingreq ignorieren",
     "Ignore 'not connected' warnings": "'Nicht verbunden' Warnungen ignorieren",
     "Interval before send topics by connection:": "Interval vom Senden von allen Topics bei der Verbindung",
-    "Main settings": "Haupteinstellungen",
+    "Main settings": "Allgemeine Einstellungen",
     "Mask to publish": "z.B 'mqtt.0.*,javascript.*'",
     "Mask to publish own states:": "Maske zur Bekanntgabe eigener States",
     "Max topic length:": "Maximale Länge eines Topicnamens",
