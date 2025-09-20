@@ -124,9 +124,9 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
-* (@Apollon77/@copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix - Fix regex bug causing MQTT commands to use "tele" instead of "cmnd" topics
+* (@Apollon77/@copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
 * (@Apollon77/@copilot) Added configuration for advanced MQTT settings
-* (@Apollon77/@copilot) Enhance, Add or Optimize various datapoint definitions and roles, see Changelog
+* (@Apollon77/@copilot) Enhanced, Added and Optimized various datapoint definitions and roles, see Changelog
 
 ### 3.3.0...
 
@@ -302,7 +302,7 @@ States:
 
 The MIT License (MIT)
 
-Copyright (c) 2017-2024, bluefox <dogafox@gmail.com>
+Copyright (c) 2017-2025, bluefox <dogafox@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
