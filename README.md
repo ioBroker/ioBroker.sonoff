@@ -124,7 +124,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
-* (@Apollon77/@copilot) **BREAKING**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
+* (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
 * (@Apollon77/@copilot) Added configuration for advanced MQTT settings
 * (@Apollon77/@copilot) Enhanced, Added and Optimized various datapoint definitions and roles, see Changelog
 
