@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.2.1",
+    "version": "3.3.0",
     "news": {
+      "3.3.0": {
+        "en": "**IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix\nAdded configuration for advanced MQTT settings\nEnhanced, Added and Optimized various datapoint definitions and roles, see Changelog",
+        "de": "**WICHTIG**: Befehle verwenden jetzt korrekterweise das Präfix cmnd/ anstelle von tele/\nErweiterte Konfiguration für MQTT-Einstellungen hinzugefügt.\nVerbesserte, hinzugefügte und optimierte verschiedene Datenpunktdefinitionen und Rollen, siehe Changelog.",
+        "ru": "**ВАЖНО**: Теперь команды правильно используют префикс cmnd/ вместо префикса tele/\nДобавлена конфигурация для расширенных настроек MQTT.\nУлучшены, добавлены и оптимизированы различные определения и роли точек данных, см. журнал изменений",
+        "pt": "**IMPORTANTE**: Os comandos agora utilizam corretamente o prefixo cmnd/ em vez do prefixo tele/\nAdicionada configuração para ajustes avançados do MQTT\nMelhorado, adicionado e otimizado várias definições e funções de ponto de dados, consulte o registro de alterações",
+        "nl": "**BELANGRIJK**: Commando's maken nu correct gebruik van het voorvoegsel cmnd/ in plaats van tele/ voorvoegsel\nToegevoegd: configuratie voor geavanceerde MQTT-instellingen\nVerbeterde, toegevoegde en geoptimaliseerde diverse gegevenspuntdefinities en rollen, zie Changelog.",
+        "fr": "**IMPORTANT** : Les commandes utilisent désormais correctement le préfixe cmnd/ au lieu du préfixe tele/\nAjout de la configuration pour les paramètres MQTT avancés\nAméliorations, ajouts et optimisations de diverses définitions de points de données et rôles, voir Journal des modifications",
+        "it": "**IMPORTANTE**: Ora i comandi utilizzano correttamente il prefisso cmnd/ anziché tele/\nAggiunta configurazione per le impostazioni avanzate di MQTT\nMigliorate, aggiunte e ottimizzate diverse definizioni di datapoint e ruoli, vedi Changelog",
+        "es": "**IMPORTANTE**: Ahora los comandos utilizan correctamente el prefijo cmnd/ en lugar del prefijo tele/\nAñadida configuración para ajustes avanzados de MQTT\nMejoradas, añadidas y optimizadas varias definiciones y roles de puntos de datos, ver Registro de cambios.",
+        "pl": "**WAŻNE**: Komendy teraz poprawnie używają prefiksu cmnd/ zamiast prefiksu tele/\nDodano konfigurację dla zaawansowanych ustawień MQTT\nUlepszono, dodano i zoptymalizowano różne definicje i role punktów danych, zobacz Changelog",
+        "uk": "**ВАЖЛИВО**: Тепер команди правильно використовують префікс cmnd/ замість префіксу tele/\nДодана конфігурація для розширених налаштувань MQTT.\nПокращено, додано та оптимізовано різні визначення точок даних та ролей, дивіться Журнал змін",
+        "zh-cn": "**重要提示**：命令现在正确使用cmnd/前缀，而不再使用tele/前缀\n添加了高级MQTT设置的配置\n增强，添加和优化了各种数据点的定义和角色，详见变更日志。"
+      },
       "3.2.1": {
         "en": "Sanitize the IDs of the clients\nAdded information about connected clients in the server mode",
         "de": "Sanitize die IDs der Kunden\nWeitere Informationen zu verbundenen Clients im Servermodus",

@@ -122,14 +122,9 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 3.3.0 (2025-09-20)
 * (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
 * (@Apollon77/@copilot) Added configuration for advanced MQTT settings
-* (@Apollon77/@copilot) Enhanced, Added and Optimized various datapoint definitions and roles, see Changelog
-
-### 3.3.0...
-
 * (@Apollon77/@copilot) Fix shutter command mapping to use correct Tasmota format - Transforms Shutter1_Position to ShutterPosition1 for proper device control
 * (@Apollon77/@copilot) Fix IRHVAC Power, Light and Mode fields showing NULL instead of actual string values
 * (@Apollon77/@copilot) Add Zigbee device control support for Tasmota coordinators - users can now control Zigbee devices (Power/Dimmer) through ioBroker states via automatic ZbSend command generation
