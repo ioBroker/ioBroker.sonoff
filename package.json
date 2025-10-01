@@ -28,7 +28,7 @@
     "@iobroker/eslint-config": "^2.2.0",
     "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.1.1",
-    "chai": "^4.5.0",
+    "chai": "^6.2.0",
     "mocha": "^11.7.2",
     "mqtt": "^5.14.0"
   },
