@@ -26,7 +26,6 @@
     "@alcalzone/release-script-plugin-manual-review": "^4.0.0",
     "@iobroker/adapter-dev": "^1.5.0",
     "@iobroker/eslint-config": "^2.2.0",
-    "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.1.1",
     "mqtt": "^5.14.1"
   },
@@ -42,7 +41,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --exit",
+    "test": "mocha --exit",
     "lint": "eslint -c eslint.config.mjs .",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
