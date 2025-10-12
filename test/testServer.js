@@ -87,6 +87,21 @@ const rules = {
     'tele/tasmota_switch_20/SENSOR':      {send: '{"Time":"2025-09-06T20:02:00","Switch11":"ON","Switch12":"ON","Switch13":"OFF","Switch14":"OFF","Switch15":"ON","Switch16":"ON","Switch17":"OFF","Switch18":"OFF","Switch19":"ON","Switch20":"ON"}', expect: {Switch11: true, Switch12: true, Switch13: false, Switch14: false, Switch15: true, Switch16: true, Switch17: false, Switch18: false, Switch19: true, Switch20: true}},
     // Test Switch21-28 range
     'tele/tasmota_switch_28/SENSOR':      {send: '{"Time":"2025-09-06T20:03:00","Switch21":"OFF","Switch22":"OFF","Switch23":"OFF","Switch24":"OFF","Switch25":"ON","Switch26":"ON","Switch27":"ON","Switch28":"ON"}', expect: {Switch21: false, Switch22: false, Switch23: false, Switch24: false, Switch25: true, Switch26: true, Switch27: true, Switch28: true}},
+    // OpenBeken LED topics - https://github.com/openshwprojects/OpenBK7231T_App/blob/main/docs/mqttTopics.md
+    // Testing with /get suffix (reports state)
+    'obk_lamp1/led_enableAll/get':        {send: '1', expect: {led_enableAll: true}},
+    'obk_lamp1/led_dimmer/get':           {send: '50', expect: {led_dimmer: 50}},
+    'obk_lamp2/led_temperature/get':      {send: '500', expect: {led_temperature: 500}},
+    'obk_lamp2/led_basecolor_rgb/get':    {send: '00FF00', expect: {led_basecolor_rgb: '00FF00'}},
+    // Testing without suffix (alternative mode)
+    'obk_lamp3/led_enableAll':            {send: '0', expect: {led_enableAll: false}},
+    'obk_lamp3/led_dimmer':               {send: '100', expect: {led_dimmer: 100}},
+    'obk_lamp4/led_temperature':          {send: '154', expect: {led_temperature: 154}},
+    'obk_lamp4/led_basecolor_rgb':        {send: 'FF0000', expect: {led_basecolor_rgb: 'FF0000'}},
+    'obk_lamp5/led_finalcolor_rgbcw/get': {send: 'FFFFFF0000', expect: {led_finalcolor_rgbcw: 'FFFFFF0000'}},
+    'obk_lamp5/led_basecolor_rgbcw':      {send: 'FFAABB8899', expect: {led_basecolor_rgbcw: 'FFAABB8899'}},
+    'obk_lamp6/led_hue':                  {send: '180', expect: {led_hue: 180}},
+    'obk_lamp6/led_saturation':           {send: '75', expect: {led_saturation: 75}},
     // PulseTime test cases - issue #106
     'stat/sonoff_relay/RESULT':           {send: '{"PulseTime1":{"Set":100,"Remaining":95}}', expect: {'PulseTime1_Set': 100, 'PulseTime1_Remaining': 95}},
     'stat/multi_relay/RESULT':            {send: '{"PulseTime1":{"Set":50,"Remaining":0},"PulseTime2":{"Set":200,"Remaining":150}}', expect: {'PulseTime1_Set': 50, 'PulseTime1_Remaining': 0, 'PulseTime2_Set': 200, 'PulseTime2_Remaining': 150}},
