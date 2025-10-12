@@ -102,6 +102,10 @@ const rules = {
     'obk_lamp5/led_basecolor_rgbcw':      {send: 'FFAABB8899', expect: {led_basecolor_rgbcw: 'FFAABB8899'}},
     'obk_lamp6/led_hue':                  {send: '180', expect: {led_hue: 180}},
     'obk_lamp6/led_saturation':           {send: '75', expect: {led_saturation: 75}},
+    // PulseTime test cases - issue #106
+    'stat/sonoff_relay/RESULT':           {send: '{"PulseTime1":{"Set":100,"Remaining":95}}', expect: {'PulseTime1_Set': 100, 'PulseTime1_Remaining': 95}},
+    'stat/multi_relay/RESULT':            {send: '{"PulseTime1":{"Set":50,"Remaining":0},"PulseTime2":{"Set":200,"Remaining":150}}', expect: {'PulseTime1_Set': 50, 'PulseTime1_Remaining': 0, 'PulseTime2_Set': 200, 'PulseTime2_Remaining': 150}},
+    'stat/sonoff4ch/RESULT':              {send: '{"PulseTime3":{"Set":300,"Remaining":250}}', expect: {'PulseTime3_Set': 300, 'PulseTime3_Remaining': 250}},
 };
 
 function encryptLegacy(key, value) {
