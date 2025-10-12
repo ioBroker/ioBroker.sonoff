@@ -87,6 +87,10 @@ const rules = {
     'tele/tasmota_switch_20/SENSOR':      {send: '{"Time":"2025-09-06T20:02:00","Switch11":"ON","Switch12":"ON","Switch13":"OFF","Switch14":"OFF","Switch15":"ON","Switch16":"ON","Switch17":"OFF","Switch18":"OFF","Switch19":"ON","Switch20":"ON"}', expect: {Switch11: true, Switch12: true, Switch13: false, Switch14: false, Switch15: true, Switch16: true, Switch17: false, Switch18: false, Switch19: true, Switch20: true}},
     // Test Switch21-28 range
     'tele/tasmota_switch_28/SENSOR':      {send: '{"Time":"2025-09-06T20:03:00","Switch21":"OFF","Switch22":"OFF","Switch23":"OFF","Switch24":"OFF","Switch25":"ON","Switch26":"ON","Switch27":"ON","Switch28":"ON"}', expect: {Switch21: false, Switch22: false, Switch23: false, Switch24: false, Switch25: true, Switch26: true, Switch27: true, Switch28: true}},
+    // PulseTime test cases - issue #106
+    'stat/sonoff_relay/RESULT':           {send: '{"PulseTime1":{"Set":100,"Remaining":95}}', expect: {'PulseTime1_Set': 100, 'PulseTime1_Remaining': 95}},
+    'stat/multi_relay/RESULT':            {send: '{"PulseTime1":{"Set":50,"Remaining":0},"PulseTime2":{"Set":200,"Remaining":150}}', expect: {'PulseTime1_Set': 50, 'PulseTime1_Remaining': 0, 'PulseTime2_Set': 200, 'PulseTime2_Remaining': 150}},
+    'stat/sonoff4ch/RESULT':              {send: '{"PulseTime3":{"Set":300,"Remaining":250}}', expect: {'PulseTime3_Set': 300, 'PulseTime3_Remaining': 250}},
 };
 
 function encryptLegacy(key, value) {

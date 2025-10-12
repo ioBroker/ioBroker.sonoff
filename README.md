@@ -122,6 +122,9 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
+
 ### 3.3.0 (2025-09-20)
 * (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
 * (@Apollon77/@copilot) Added configuration for advanced MQTT settings
