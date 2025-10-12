@@ -127,7 +127,7 @@ tests.integration(path.join(__dirname, '..'), {
 
                 // Get system.config to encrypt password
                 const systemConfig = await harness.objects.getObjectAsync('system.config');
-                const secret = (systemConfig && systemConfig.native && systemConfig.native.secret) || '12345';
+                const secret = (systemConfig && systemConfig.native && systemConfig.native.secret) || 'Zgfr56gFe87jJOM';
 
                 // Configure adapter
                 await harness.changeAdapterConfig('sonoff', {
