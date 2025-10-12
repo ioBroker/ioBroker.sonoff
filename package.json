@@ -43,7 +43,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --exit",
+    "test": "mocha --exit",
     "lint": "eslint -c eslint.config.mjs .",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
