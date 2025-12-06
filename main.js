@@ -72,7 +72,9 @@ function startAdapter(options) {
 
     // called if the subscribed state changes itself
     adapter.on('stateChange', (id, state) => {
-        adapter.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
+        if (adapter.log.level === 'debug') {
+            adapter.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
+        }
         // you can use the ack flag to detect if state is desired or acknowledged
         if (server) {
             server.onStateChange(id, state);
