@@ -64,11 +64,19 @@ function startAdapter(options) {
         }
     });
 
+    adapter.on('objectChange', (id, obj) => {
+        if (server) {
+            server.onObjectChange(id, obj);
+        }
+    });
+
     // called if the subscribed state changes itself
     adapter.on('stateChange', (id, state) => {
         adapter.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
         // you can use the ack flag to detect if state is desired or acknowledged
-        state && !state.ack && server && server.onStateChange(id, state);
+        if (server) {
+            server.onStateChange(id, state);
+        }
     });
     return adapter;
 }
@@ -81,6 +89,7 @@ function main() {
 
     // subscribe for all own variables
     adapter.subscribeStates('*');
+    adapter.subscribeObjects('*');
 
     // read all states and set alive to false
     adapter.getStatesOf(
