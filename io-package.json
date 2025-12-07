@@ -200,7 +200,9 @@
     "retransmitInterval": 2000,
     "retransmitCount": 10,
     "ignorePings": false,
-    "ignoreNotConnectedWarnings": false
+    "ignoreNotConnectedWarnings": false,
+    "debounceTime": 0,
+    "debounceIgnoreAck": false
   },
   "objects": [],
   "instanceObjects": [

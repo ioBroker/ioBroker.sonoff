@@ -166,6 +166,29 @@
       "lg": 4,
       "xl": 4
     },
+    "debounceTime": {
+      "newLine": true,
+      "type": "number",
+      "label": "Debounce time (ms)",
+      "help": "0 to disable",
+      "min": 0,
+      "max": 5000,
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
+    "debounceIgnoreAck": {
+      "type": "checkbox",
+      "label": "Ignore acknowledged state for debounce",
+      "help": "Use debounce time to not set the same value again until time has passed",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
     "_header5": {
       "newLine": true,
       "type": "header",
