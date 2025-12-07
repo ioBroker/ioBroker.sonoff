@@ -169,7 +169,7 @@
     "debounceTime": {
       "newLine": true,
       "type": "number",
-      "label": "Debounce time (ms)",
+      "label": "Debounce time",
       "help": "0 to disable",
       "min": 0,
       "max": 5000,
