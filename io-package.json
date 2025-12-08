@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.3.1",
+    "version": "3.3.0",
     "news": {
       "3.3.1": {
         "en": "Performance optimizations (CPU/Database) and synchronous task processing",
