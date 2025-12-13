@@ -59,9 +59,7 @@ function startAdapter(options) {
         if (server) {
             server.destroy(cb);
             server = null;
-        } else if (typeof cb === 'function') {
-            cb();
-        }
+        } else if (typeof cb === 'function') { cb(); }
     });
 
     adapter.on('objectChange', (id, obj) => {
