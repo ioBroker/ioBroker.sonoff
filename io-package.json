@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.3.0",
+    "version": "3.3.1",
     "news": {
+      "3.3.1": {
+        "en": "Add per-device reachability status states to distinguish online and offline devices.",
+        "de": "Pro Gerät eigene Erreichbarkeits-Statuszustände hinzugefügt, um online und offline Geräte zu unterscheiden.",
+        "ru": "Добавлены отдельные состояния доступности для каждого устройства, чтобы различать онлайн и офлайн устройства.",
+        "pt": "Adicionados estados de status de disponibilidade por dispositivo para distinguir dispositivos online e offline.",
+        "nl": "Per apparaat bereikbaarheidsstatus toegevoegd om online en offline apparaten te onderscheiden.",
+        "fr": "Ajout d'états de statut de disponibilité par appareil pour distinguer les appareils en ligne et hors ligne.",
+        "it": "Aggiunti stati di disponibilità per singolo dispositivo per distinguere tra dispositivi online e offline.",
+        "es": "Añadidos estados de disponibilidad por dispositivo para distinguir dispositivos en línea y fuera de línea.",
+        "pl": "Dodano stany dostępności dla każdego urządzenia, aby rozróżnić urządzenia online i offline.",
+        "uk": "Додано окремі стани доступності для кожного пристрою, щоб розрізняти онлайн та офлайн пристрої.",
+        "zh-cn": "为每个设备添加可达性状态，以区分在线和离线设备。"
+      },
       "3.3.0": {
         "en": "**IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix\nAdded configuration for advanced MQTT settings\nEnhanced, Added and Optimized various datapoint definitions and roles, see Changelog",
         "de": "**WICHTIG**: Befehle verwenden jetzt korrekterweise das Präfix cmnd/ anstelle von tele/\nErweiterte Konfiguration für MQTT-Einstellungen hinzugefügt.\nVerbesserte, hinzugefügte und optimierte verschiedene Datenpunktdefinitionen und Rollen, siehe Changelog.",
