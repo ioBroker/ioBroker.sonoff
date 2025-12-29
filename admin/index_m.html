@@ -209,6 +209,20 @@
                     <input id="ignorePings" type="checkbox" class="value"/>
                     <span class="translate" for="ignorePings">Ignore warnings with pingreq</span>
                 </div>
+                <div class="input-field col s6 m4">
+                    <input id="ignoreNotConnectedWarnings" type="checkbox" class="value"/>
+                    <span class="translate" for="ignoreNotConnectedWarnings">Ignore 'not connected' warnings</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s6 m4">
+                     <input id="debounceTime" type="number" min="0" max="5000" class="value"/>
+                     <label class="translate" for="debounceTime">Debounce time</label>
+                </div>
+                <div class="input-field col s6 m4">
+                    <input id="debounceIgnoreAck" type="checkbox" class="value"/>
+                    <span class="translate" for="debounceIgnoreAck">Ignore acknowledged state for debounce</span>
+                </div>
             </div>
         </div>
     </div>

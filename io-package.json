@@ -3,6 +3,19 @@
     "name": "sonoff",
     "version": "3.3.0",
     "news": {
+      "3.3.1": {
+        "en": "Performance optimizations (CPU/Database) and synchronous task processing",
+        "de": "Leistungsoptimierungen (CPU/Datenbank) und synchrone Aufgabenverarbeitung",
+        "ru": "Оптимизация производительности (CPU/Database) и синхронная обработка задач",
+        "pt": "Otimizações de desempenho (CPU / banco de dados) e processamento de tarefas síncronas",
+        "nl": "Prestatieoptimalisaties (CPU/Database) en synchrone taakverwerking",
+        "fr": "Optimisation des performances (CPU/Database) et traitement synchrone des tâches",
+        "it": "Ottimizzazioni delle prestazioni (CPU/Database) ed elaborazione di attività sincrone",
+        "es": "Optimizaciones de rendimiento (CPU/Database) y procesamiento de tareas síncronas",
+        "pl": "Optymalizacja wydajności (CPU/Database) i synchroniczne przetwarzanie zadań",
+        "uk": "Оптимізація продуктивності (CPU/Database) та синхронна обробка завдань",
+        "zh-cn": "性能优化(CPU/数据库)和同步任务处理"
+      },
       "3.3.0": {
         "en": "**IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix\nAdded configuration for advanced MQTT settings\nEnhanced, Added and Optimized various datapoint definitions and roles, see Changelog",
         "de": "**WICHTIG**: Befehle verwenden jetzt korrekterweise das Präfix cmnd/ anstelle von tele/\nErweiterte Konfiguration für MQTT-Einstellungen hinzugefügt.\nVerbesserte, hinzugefügte und optimierte verschiedene Datenpunktdefinitionen und Rollen, siehe Changelog.",
@@ -187,7 +200,9 @@
     "retransmitInterval": 2000,
     "retransmitCount": 10,
     "ignorePings": false,
-    "ignoreNotConnectedWarnings": false
+    "ignoreNotConnectedWarnings": false,
+    "debounceTime": 0,
+    "debounceIgnoreAck": false
   },
   "objects": [],
   "instanceObjects": [
