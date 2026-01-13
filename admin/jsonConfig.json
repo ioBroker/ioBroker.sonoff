@@ -125,6 +125,15 @@
       "lg": 4,
       "xl": 4
     },
+    "STAT_STATUS": {
+      "type": "checkbox",
+      "label": "For stat/STATUS",
+      "xs": 12,
+      "sm": 12,
+      "md": 6,
+      "lg": 4,
+      "xl": 4
+    },
     "OBJ_TREE": {
       "type": "checkbox",
       "label": "Create object tree",

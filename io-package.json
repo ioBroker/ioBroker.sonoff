@@ -181,6 +181,7 @@
     "TELE_MARGINS": false,
     "TELE_STATE": true,
     "STAT_RESULT": false,
+    "STAT_STATUS": false,
     "OBJ_TREE": false,
     "storeClientsTime": 1440,
     "defaultQoS": 0,
