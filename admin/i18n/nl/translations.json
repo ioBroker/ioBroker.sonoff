@@ -11,6 +11,7 @@
     "Create object tree": "Maak een objectboom",
     "Divided by comma": "Dividido por vírgula, e. 'mqtt/0/#, javascript/#'",
     "For stat/RESULT": "Voor stat/RESULT",
+    "For stat/STATUS": "Voor stat/STATUS",
     "For tele/SENSOR": "Voor tele/SENSOR",
     "For tele/STATE": "Voor tele/STATE",
     "IP": "IP",

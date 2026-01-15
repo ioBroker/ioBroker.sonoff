@@ -11,6 +11,7 @@
     "Create object tree": "Créer une arborescence d'objets",
     "Divided by comma": "Divisé par une virgule, par ex. 'mqtt/0/#, javascript/#'",
     "For stat/RESULT": "Pour stat/RESULT",
+    "For stat/STATUS": "Pour stat/STATUS",
     "For tele/SENSOR": "Pour tele/SENSOR",
     "For tele/STATE": "Pour tele/STATE",
     "IP": "IP",

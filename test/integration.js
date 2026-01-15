@@ -98,6 +98,8 @@ const rules = {
     'stat/sonoff_relay/RESULT':           {send: '{"PulseTime1":{"Set":100,"Remaining":95}}', expect: {'PulseTime1_Set': 100, 'PulseTime1_Remaining': 95}},
     'stat/multi_relay/RESULT':            {send: '{"PulseTime1":{"Set":50,"Remaining":0},"PulseTime2":{"Set":200,"Remaining":150}}', expect: {'PulseTime1_Set': 50, 'PulseTime1_Remaining': 0, 'PulseTime2_Set': 200, 'PulseTime2_Remaining': 150}},
     'stat/sonoff4ch/RESULT':              {send: '{"PulseTime3":{"Set":300,"Remaining":250}}', expect: {'PulseTime3_Set': 300, 'PulseTime3_Remaining': 250}},
+    // Generate MAC datapoint test
+    'stat/TestDevice/STATUS5':            {send: '{"StatusNET":{"Hostname":"Licht-4688","IPAddress":"192.168.0.50","Gateway":"192.168.0.1","Subnetmask":"255.255.255.0","DNSServer1":"1.1.1.1","DNSServer2":"8.8.8.8","Mac":"AB:CD:EF:01:23:45","Webserver":2,"HTTP_API":1,"WifiConfig":4,"WifiPower":17}}', expect: {'STATUS.StatusNET_Mac': 'AB:CD:EF:12:34:56', 'STATUS.StatusNET_IPAddress': '192.168.0.50', 'STATUS.StatusNET_Hostname': 'Licht-4688'}},
 };
 
 // Encrypt helper for password
@@ -135,7 +137,8 @@ tests.integration(path.join(__dirname, '..'), {
                         user: 'user',
                         password: encryptLegacy(secret, 'pass1'),
                         TELE_MARGINS: true,
-                        STAT_RESULT: true
+                        STAT_RESULT: true,
+                        STAT_STATUS: true
                     }
                 });
 

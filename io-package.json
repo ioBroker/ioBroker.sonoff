@@ -180,6 +180,7 @@
     "TELE_SENSOR": true,
     "TELE_MARGINS": false,
     "TELE_STATE": true,
+    "STAT_STATUS": false,
     "STAT_RESULT": false,
     "OBJ_TREE": false,
     "storeClientsTime": 1440,

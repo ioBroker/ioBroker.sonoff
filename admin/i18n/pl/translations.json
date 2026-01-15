@@ -11,6 +11,7 @@
     "Create object tree": "Utwórz drzewo obiektów",
     "Divided by comma": "Podzielone przecinkiem, np. \"mqtt / 0 / #, javascript / # '",
     "For stat/RESULT": "Dla stat/RESULT",
+    "For stat/STATUS": "Dla stat/STATUS",
     "For tele/SENSOR": "Dla tele/SENSOR",
     "For tele/STATE": "Dla tele/STATE",
     "IP": "IP",
