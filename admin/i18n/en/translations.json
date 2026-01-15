@@ -11,6 +11,7 @@
     "Create object tree": "Create object tree",
     "Divided by comma": "Divided by comma, e.g. 'mqtt/0/#,javascript/#'",
     "For stat/RESULT": "For stat/RESULT",
+    "For stat/STATUS": "For stat/STATUS",
     "For tele/SENSOR": "For tele/SENSOR",
     "For tele/STATE": "For tele/STATE",
     "For tele/SENSOR": "For tele/SENSOR",

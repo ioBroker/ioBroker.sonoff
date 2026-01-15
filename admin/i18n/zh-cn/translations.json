@@ -11,6 +11,7 @@
     "Create object tree": "创建对象树",
     "Divided by comma": "除以逗号，例如 'mqtt/0/#,javascript/#'",
     "For stat/RESULT": "对于统计/结果",
+    "For stat/STATUS": "对于统计/状况",
     "For tele/SENSOR": "对于电话/传感器",
     "For tele/STATE": "对于电话/状态",
     "IP": "IP",

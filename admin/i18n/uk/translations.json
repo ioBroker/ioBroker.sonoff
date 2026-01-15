@@ -11,6 +11,7 @@
     "Create object tree": "Створення дерева об'єктів",
     "Divided by comma": "Розділяється комою, напр. 'mqtt/0/#,javascript/#'",
     "For stat/RESULT": "Для статистики/РЕЗУЛЬТАТУ",
+    "For stat/STATUS": "Для статистики/СТАТУС",
     "For tele/SENSOR": "Для теле/сенсора",
     "For tele/STATE": "Для теле/ДЕРЖ",
     "IP": "IP",
