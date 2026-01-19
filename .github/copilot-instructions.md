@@ -22,9 +22,9 @@ This is an ioBroker adapter for Sonoff/Tasmota devices that enables MQTT communi
 **Repository Structure:**
 - `admin/` - Admin UI configuration files and translations
 - `lib/` - Core library files
-  - `datapoints.js` - Defines all supported Tasmota datapoints and their properties
-  - `server.js` - Main MQTT server implementation
-- `main.js` - Adapter entry point
+  - `datapoints.ts` - Defines all supported Tasmota datapoints and their properties
+  - `server.ts` - Main MQTT server implementation
+- `main.ts` - Adapter entry point
 - `test/` - Test files
   - `integration.js` - Integration tests for MQTT message processing
   - `testPackageFiles.js` - Validates package.json and io-package.json
@@ -32,7 +32,7 @@ This is an ioBroker adapter for Sonoff/Tasmota devices that enables MQTT communi
 **Key Concepts:**
 
 #### Datapoints
-Datapoints in `lib/datapoints.js` define how Tasmota device parameters are mapped to ioBroker states. Each datapoint has:
+Datapoints in `lib/datapoints.ts` define how Tasmota device parameters are mapped to ioBroker states. Each datapoint has:
 - `type` - Data type (string, number, boolean)
 - `role` - ioBroker role (state, level, switch, etc.)
 - `read/write` - Access permissions
@@ -46,7 +46,7 @@ The adapter processes MQTT messages from Tasmota devices:
 - `cmnd/*` - Commands to devices
 
 **Development Guidelines:**
-1. **Adding New Datapoints**: Update `lib/datapoints.js` with proper type definitions
+1. **Adding New Datapoints**: Update `lib/datapoints.ts` with proper type definitions
 2. **Testing**: Add corresponding test cases in `test/integration.js` with real MQTT message examples
 3. **Translations**: When adding new UI elements to admin configuration:
    - Add all English text entries to `admin/i18n/en/translations.json`
@@ -212,7 +212,7 @@ tests.integration(path.join(__dirname, '..'), {
 ## Core Development Principles
 
 ### Adapter Structure
-- Main adapter code goes in `main.js` (entry point) or a modular structure with `lib/` directory
+- Main adapter code goes in `main.ts` (entry point) or a modular structure with `lib/` directory
 - Admin UI configuration in `admin/` directory
 - Adapter metadata in `io-package.json`
 - npm package information in `package.json`

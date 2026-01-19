@@ -53,7 +53,7 @@ const rules = {
     'stat/LED1/RESULT1':                  {send: '{"POWER":"ON","Dimmer":100,"Color":"FFFFFF0000"}', expect: {'RESULT': null}},
     'stat/LED1/RESULT2':                  {send: '{"Dimmer":100}', expect: {'RESULT': null}},
     'stat/LED1/RESULT3':                  {send: '{"CT":499}', expect: {'RESULT': null}},
-    // Sonoff SC (Environmental Sensor) test cases based on actual device logs  
+    // Sonoff SC (Environmental Sensor) test cases based on actual device logs
     'tele/HomeMonitor/INFO1':             {send: '{"Module":"Sonoff SC","Version":"5.9.1f","FallbackTopic":"HomeMonitor","GroupTopic":"sonoffs"}', expect: {'INFO.Module': 'Sonoff SC', 'INFO.Version': '5.9.1f'}},
     'tele/HomeMonitor/STATE':             {send: '{"Time":"2018-01-19T20:15:16","Uptime":0,"Vcc":3.170,"Wifi":{"AP":1,"SSId":"SmartHOME","RSSI":100,"APMac":"60:31:97:3E:74:B4"}}', expect: {Vcc: 3.170, Wifi_RSSI: 100}},
     'tele/HomeMonitor/SENSOR':            {send: '{"Time":"2018-01-19T20:15:16","Temperature":20.0,"Humidity":16.0,"Light":10,"Noise":60,"AirQuality":90,"TempUnit":"C"}', expect: {Temperature: 20.0, Humidity: 16.0, Light: 10, Noise: 60, AirQuality: 90}},
@@ -188,11 +188,15 @@ tests.integration(path.join(__dirname, '..'), {
 
             it('Should have adapter connected with clients', async function() {
                 this.timeout(5000);
-                
+
                 // Check if adapter has connection info
                 const connectionState = await harness.states.getStateAsync('sonoff.0.info.connection');
-                expect(connectionState).to.exist;
-                expect(connectionState.val).to.be.a('string');
+                if (!connectionState) {
+                    throw new Error('connectionState not found');
+                }
+                if (typeof connectionState.val !== 'string') {
+                    throw new Error('typeof connectionState is not string');
+                }
                 // Should have at least one client connected
                 expect(connectionState.val.indexOf(',')).to.not.equal(-1);
             });
@@ -200,7 +204,7 @@ tests.integration(path.join(__dirname, '..'), {
             // Create tests for each MQTT rule
             for (const topic in rules) {
                 const rule = rules[topic];
-                
+
                 it(`Should process MQTT message: ${topic}`, async function() {
                     this.timeout(3000);
 

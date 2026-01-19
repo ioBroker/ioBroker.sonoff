@@ -1,4 +1,20 @@
-module.exports = {
+const datapoints: {
+    [key: string]: {
+        type: 'number' | 'string' | 'boolean' | 'object' | 'mixed' | 'array';
+        role: string;
+        read: boolean;
+        write: boolean;
+        unit?: string;
+        min?: number;
+        max?: number;
+        states?: { [key: number]: string };
+        storeMap?: boolean;
+        zbDevice?: boolean;
+        def?: ioBroker.StateValue;
+        desc?: string;
+        replace?: string;
+    };
+} = {
     'Approx. Altitude': { type: 'number', role: 'value.altitude', read: true, write: false, unit: 'm' },
     'PM2.5': { type: 'number', role: 'value', read: true, write: false, unit: 'ug/m3' },
     A0: { type: 'number', role: 'value', read: true, write: false },
@@ -408,3 +424,5 @@ module.exports = {
     Shutter16_Target: { type: 'number', role: 'value', read: true, write: false, min: 0, max: 100, unit: '%' },
     Shutter16_Tilt: { type: 'number', role: 'level.tilt', read: true, write: true, min: 0, max: 100, unit: '%' },
 };
+
+export default datapoints;
