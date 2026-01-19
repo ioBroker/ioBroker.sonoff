@@ -3,10 +3,15 @@ const mqtt = require('mqtt');
 
 function Client(cbConnected, cbChanged, config) {
     let that = this;
-    if (typeof config === 'string') config = {name: config};
-    config = config || {};
+    if (typeof config === 'string') {
+        config = { name: config };
+    }
+    config ||= {};
     config.url = config.url || '127.0.0.1';
-    this.client = mqtt.connect(`mqtt://${config.user ? (`${config.user}:${config.pass}@`) : ''}${config.url}${config.name ? `?clientId=${config.name}` : ''}`, config);
+    this.client = mqtt.connect(
+        `mqtt://${config.user ? `${config.user}:${config.pass}@` : ''}${config.url}${config.name ? `?clientId=${config.name}` : ''}`,
+        config,
+    );
 
     this.client.on('connect', () => {
         console.log(`${new Date()} test client connected to 127.0.0.1`);
@@ -25,7 +30,7 @@ function Client(cbConnected, cbChanged, config) {
          client.subscribe('arduino/kitchen/in/#');*/
         //client.subscribe('arduino/kitchen/in/updateInterval');
         that.client.subscribe('#');
-        cbConnected && cbConnected(true);
+        cbConnected?.(true);
     });
 
     this.client.on('message', (topic, message, packet) => {
@@ -36,6 +41,7 @@ function Client(cbConnected, cbChanged, config) {
             console.log(`Test MQTT Client received "${topic}": ${message.toString()}`);
         }
     });
+
     this.client.on('close', err => {
         if (err) console.error(`Connection closed: ${err}`);
         // message is Buffer
@@ -61,10 +67,11 @@ function Client(cbConnected, cbChanged, config) {
         }
         const opts = {
             retain: retain || false,
-            qos: qos || 0
+            qos: qos || 0,
         };
-        that.client.publish(topic,  message, opts, cb);
+        that.client.publish(topic, message, opts, cb);
     };
+
     this.subscribe = (topic, opts, cb) => {
         if (typeof opts === 'function') {
             cb = opts;
@@ -72,9 +79,11 @@ function Client(cbConnected, cbChanged, config) {
         }
         that.client.subscribe(topic, opts, cb);
     };
+
     this.unsubscribe = (topic, cb) => {
         that.client.unsubscribe(topic, cb);
     };
+
     this.destroy = () => {
         if (that.client) {
             that.client.end();

@@ -6,7 +6,6 @@
 
 const path = require('path');
 const { tests } = require('@iobroker/testing');
-const { expect } = require('chai');
 
 // Test MQTT client
 const MqttClient = require('./lib/mqttClient.js');
@@ -198,7 +197,9 @@ tests.integration(path.join(__dirname, '..'), {
                     throw new Error('typeof connectionState is not string');
                 }
                 // Should have at least one client connected
-                expect(connectionState.val.indexOf(',')).to.not.equal(-1);
+                if (connectionState.val.indexOf(',') === -1) {
+                    throw new Error('Expected at least two clients connected (comma-separated)');
+                }
             });
 
             // Create tests for each MQTT rule
@@ -227,17 +228,28 @@ tests.integration(path.join(__dirname, '..'), {
                         if (expectedValue !== null) {
                             // Object and state should exist
                             const obj = await harness.objects.getObjectAsync(fullStateId);
-                            expect(obj, `Object ${fullStateId} should exist`).to.exist;
-                            expect(obj.type).to.equal('state');
+                            if (!obj) {
+                                throw new Error(`Object ${fullStateId} should exist`);
+                            }
+                            if (obj.type !== 'state') {
+                                throw new Error(`Object ${fullStateId} should have type 'state', but has '${obj.type}'`);
+                            }
 
                             const state = await harness.states.getStateAsync(fullStateId);
-                            expect(state, `State ${fullStateId} should exist`).to.exist;
-                            expect(state.val).to.equal(expectedValue);
-                            expect(state.ack).to.be.true;
+                            if (!state) {
+                                throw new Error(`State ${fullStateId} should exist`);
+                            }
+                            if (state.val !== expectedValue) {
+                                throw new Error(`State ${fullStateId} should have value '${expectedValue}', but has '${state.val}'`);
+                            }if (state.ack !== true) {
+                                throw new Error(`State ${fullStateId} should have ack=true, but has ack=${state.ack}`);
+                            }
                         } else {
                             // State should not exist or object should not exist
                             const obj = await harness.objects.getObjectAsync(fullStateId);
-                            expect(obj, `Object ${fullStateId} should not exist`).to.be.null;
+                            if (obj !== null) {
+                                throw new Error(`Object ${fullStateId} should not exist`);
+                            }
                         }
                     }
                 });
@@ -262,30 +274,50 @@ tests.integration(path.join(__dirname, '..'), {
                 const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
                 const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
 
-                expect(receivedTopic).to.equal('cmnd/tasmota_0912A7/POWER');
-                expect(receivedMessage).to.equal('OFF');
+                if (receivedTopic !== 'cmnd/tasmota_0912A7/POWER') {
+                    throw new Error(`Expected topic 'cmnd/tasmota_0912A7/POWER', but received '${receivedTopic}'`);
+                }
+                if (receivedMessage !== 'OFF') {
+                    throw new Error(`Expected message 'OFF', but received '${receivedMessage}'`);
+                }
             });
 
             it('Should have correct role for ENERGY.Power object', async function() {
                 const obj = await harness.objects.getObjectAsync('sonoff.0.Emitter_1.ENERGY.Power');
-                expect(obj).to.exist;
-                expect(obj.common.role).to.equal('value.power');
+                if (!obj) {
+                    throw new Error('Object sonoff.0.Emitter_1.ENERGY.Power should exist');
+                }
+                if (obj.common.role !== 'value.power') {
+                    throw new Error(`Expected role 'value.power', but got '${obj.common.role}'`);
+                }
             });
 
             it('Should have correct unit for BMP280_Pressure object', async function() {
                 const obj = await harness.objects.getObjectAsync('sonoff.0.Emitter_1.BMP280_Pressure');
-                expect(obj).to.exist;
-                expect(obj.common.unit).to.equal('mmHg');
+                if (!obj) {
+                    throw new Error('Object sonoff.0.Emitter_1.BMP280_Pressure should exist');
+                }
+                if (obj.common.unit !== 'mmHg') {
+                    throw new Error(`Expected unit 'mmHg', but got '${obj.common.unit}'`);
+                }
             });
 
             it('Should have correct units for BME280 object', async function() {
                 const pressureObj = await harness.objects.getObjectAsync('sonoff.0.Emitter_1.BME280_Pressure');
-                expect(pressureObj).to.exist;
-                expect(pressureObj.common.unit).to.equal('mmHg');
+                if (!pressureObj) {
+                    throw new Error('Object sonoff.0.Emitter_1.BME280_Pressure should exist');
+                }
+                if (pressureObj.common.unit !== 'mmHg') {
+                    throw new Error(`Expected pressure unit 'mmHg', but got '${pressureObj.common.unit}'`);
+                }
 
                 const tempObj = await harness.objects.getObjectAsync('sonoff.0.Emitter_1.BME280_Temperature');
-                expect(tempObj).to.exist;
-                expect(tempObj.common.unit).to.equal('F');
+                if (!tempObj) {
+                    throw new Error('Object sonoff.0.Emitter_1.BME280_Temperature should exist');
+                }
+                if (tempObj.common.unit !== 'F') {
+                    throw new Error(`Expected temperature unit 'F', but got '${tempObj.common.unit}'`);
+                }
             });
 
             it('Should handle Zigbee device control', async function() {
@@ -319,13 +351,23 @@ tests.integration(path.join(__dirname, '..'), {
                 const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
                 const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
 
-                expect(receivedTopic).to.exist;
-                expect(receivedTopic).to.contain('ZbSend');
-                expect(receivedMessage).to.exist;
+                if (!receivedTopic) {
+                    throw new Error('Expected to receive a topic, but got null');
+                }
+                if (!receivedTopic.includes('ZbSend')) {
+                    throw new Error(`Expected topic to contain 'ZbSend', but got '${receivedTopic}'`);
+                }
+                if (!receivedMessage) {
+                    throw new Error('Expected to receive a message, but got null');
+                }
 
                 const zbCommand = JSON.parse(receivedMessage);
-                expect(zbCommand.device).to.equal('0x0856');
-                expect(zbCommand.send.Power).to.equal('1');
+                if (zbCommand.device !== '0x0856') {
+                    throw new Error(`Expected device '0x0856', but got '${zbCommand.device}'`);
+                }
+                if (zbCommand.send.Power !== '1') {
+                    throw new Error(`Expected Power '1', but got '${zbCommand.send.Power}'`);
+                }
             });
 
             it('Should handle Zigbee dimmer control', async function() {
@@ -359,13 +401,23 @@ tests.integration(path.join(__dirname, '..'), {
                 const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
                 const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
 
-                expect(receivedTopic).to.exist;
-                expect(receivedTopic).to.contain('ZbSend');
-                expect(receivedMessage).to.exist;
+                if (!receivedTopic) {
+                    throw new Error('Expected to receive a topic, but got null');
+                }
+                if (!receivedTopic.includes('ZbSend')) {
+                    throw new Error(`Expected topic to contain 'ZbSend', but got '${receivedTopic}'`);
+                }
+                if (!receivedMessage) {
+                    throw new Error('Expected to receive a message, but got null');
+                }
 
                 const zbCommand = JSON.parse(receivedMessage);
-                expect(zbCommand.device).to.equal('0x1234');
-                expect(zbCommand.send.Dimmer).to.equal(75);
+                if (zbCommand.device !== '0x1234') {
+                    throw new Error(`Expected device '0x1234', but got '${zbCommand.device}'`);
+                }
+                if (zbCommand.send.Dimmer !== 75) {
+                    throw new Error(`Expected Dimmer 75, but got '${zbCommand.send.Dimmer}'`);
+                }
             });
 
             it('Should handle shutter position command transformation', async function() {
@@ -399,10 +451,16 @@ tests.integration(path.join(__dirname, '..'), {
                 const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
                 const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
 
-                expect(receivedTopic).to.exist;
+                if (!receivedTopic) {
+                    throw new Error('Expected to receive a topic, but got null');
+                }
                 // The adapter sends to the last known device topic (sonoff_4ch in this case from previous tests)
-                expect(receivedTopic).to.match(/cmnd\/.+\/ShutterPosition1/);
-                expect(receivedMessage).to.equal('49');
+                if (!/cmnd\/.+\/ShutterPosition1/.test(receivedTopic)) {
+                    throw new Error(`Expected topic to match 'cmnd/.+/ShutterPosition1', but got '${receivedTopic}'`);
+                }
+                if (receivedMessage !== '49') {
+                    throw new Error(`Expected message '49', but got '${receivedMessage}'`);
+                }
             });
 
             it('Should handle shutter tilt command transformation', async function() {
@@ -436,10 +494,16 @@ tests.integration(path.join(__dirname, '..'), {
                 const receivedTopic = lastReceivedTopic1 || lastReceivedTopic2;
                 const receivedMessage = lastReceivedMessage1 || lastReceivedMessage2;
 
-                expect(receivedTopic).to.exist;
+                if (!receivedTopic) {
+                    throw new Error('Expected to receive a topic, but got null');
+                }
                 // The adapter sends to the last known device topic (sonoff_4ch in this case from previous tests)
-                expect(receivedTopic).to.match(/cmnd\/.+\/ShutterTilt2/);
-                expect(receivedMessage).to.equal('80');
+                if (!/cmnd\/.+\/ShutterTilt2/.test(receivedTopic)) {
+                    throw new Error(`Expected topic to match 'cmnd/.+/ShutterTilt2', but got '${receivedTopic}'`);
+                }
+                if (receivedMessage !== '80') {
+                    throw new Error(`Expected message '80', but got '${receivedMessage}'`);
+                }
             });
         });
     }
