@@ -36,9 +36,8 @@
     },
     "main": "build/main.js",
     "files": [
-        "main.js",
         "admin/",
-        "lib/",
+        "build/",
         "io-package.json",
         "LICENSE"
     ],
