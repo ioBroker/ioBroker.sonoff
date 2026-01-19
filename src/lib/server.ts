@@ -150,7 +150,6 @@ interface MQTTClient {
 }
 
 interface Task {
-    type: 'addObject';
     id: string;
     data: ioBroker.StateObject | ioBroker.ChannelObject;
     storeMap?: boolean;
@@ -1245,36 +1244,28 @@ export default class MQTTServer {
         }
         const task: Task = this.tasks[0];
         this.adapter.log.debug(`process task: ${JSON.stringify(task)}`);
-        if (task.type === 'addObject') {
-            if (!this.cacheAddedObjects[task.id]) {
-                this.cacheAddedObjects[task.id] = true;
-                const obj = await this.adapter.getForeignObjectAsync(task.id);
-                if (!obj?.common) {
-                    try {
-                        await this.adapter.setForeignObjectAsync(task.id, task.data);
-                        this.adapter.log.info(`New object created: ${task.id}`);
-                    } catch (err) {
-                        this.adapter.log.warn(`New object creation error: ${err.message}`);
-                    }
-                } else if (
-                    obj.common.type !== (task.data as ioBroker.StateObject).common.type ||
-                    task.storeMap !== undefined
-                ) {
-                    obj.common.type = (task.data as ioBroker.StateObject).common.type;
-                    try {
-                        await this.adapter.setForeignObjectAsync(task.id, obj);
-                        this.adapter.log.info(`Object updated: ${task.id}`);
-                    } catch (err) {
-                        this.adapter.log.warn(`Object update error: ${err.message}`);
-                    }
+        if (!this.cacheAddedObjects[task.id]) {
+            this.cacheAddedObjects[task.id] = true;
+            const obj = await this.adapter.getForeignObjectAsync(task.id);
+            if (!obj?.common) {
+                try {
+                    await this.adapter.setForeignObjectAsync(task.id, task.data);
+                    this.adapter.log.info(`New object created: ${task.id}`);
+                } catch (err) {
+                    this.adapter.log.warn(`New object creation error: ${err.message}`);
+                }
+            } else if (
+                obj.common.type !== (task.data as ioBroker.StateObject).common.type ||
+                task.storeMap !== undefined
+            ) {
+                obj.common.type = (task.data as ioBroker.StateObject).common.type;
+                try {
+                    await this.adapter.setForeignObjectAsync(task.id, obj);
+                    this.adapter.log.info(`Object updated: ${task.id}`);
+                } catch (err) {
+                    this.adapter.log.warn(`Object update error: ${err.message}`);
                 }
             }
-        } else if (task.type === 'extendObject') {
-            await this.adapter.extendObjectAsync(task.id, task.data);
-        } else if (task.type === 'deleteObject') {
-            await this.adapter.delForeignObjectAsync(task.id);
-        } else {
-            this.adapter.log.error(`Unknown task name: ${JSON.stringify(task)}`);
         }
         if (task.setState) {
             await this._setState(task.id, task.setValue!);
@@ -1300,7 +1291,7 @@ export default class MQTTServer {
             },
             type: 'channel',
         };
-        this.tasks.push({ type: 'addObject', id: obj._id, data: obj });
+        this.tasks.push({ id: obj._id, data: obj });
 
         const stateObj: ioBroker.StateObject = {
             _id: `${id}.alive`,
@@ -1314,7 +1305,7 @@ export default class MQTTServer {
             native: {},
             type: 'state',
         };
-        this.tasks.push({ type: 'addObject', id: obj._id, data: stateObj });
+        this.tasks.push({ id: obj._id, data: stateObj });
 
         if (isStart) {
             this.processTasks(callback).catch(err => this.adapter.log.error(err));
@@ -1447,7 +1438,6 @@ export default class MQTTServer {
         const replaceAttr = types[typeKey].replace || attr;
         const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr.replace(FORBIDDEN_CHARS, '_')}`;
         return {
-            type: 'addObject',
             id,
             data: {
                 _id: id,
@@ -1531,7 +1521,6 @@ export default class MQTTServer {
                             const replaceAttr = attr.replace(FORBIDDEN_CHARS, '_') + i.toString();
                             const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr}`;
                             const obj: Task = {
-                                type: 'addObject',
                                 id,
                                 data: {
                                     _id: id,
@@ -1792,8 +1781,7 @@ export default class MQTTServer {
 
                     const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr}`;
                     const obj: Task = {
-                        type: 'addObject',
-                        id: id,
+                        id,
                         data: {
                             _id: id,
                             common: attributes,
@@ -1991,7 +1979,6 @@ export default class MQTTServer {
             if (types[stateId]) {
                 const id = `${this.adapter.namespace}.${client.iobId}.${stateId.replace(/[-.+\s]+/g, '_').replace(FORBIDDEN_CHARS, '_')}`;
                 const obj: Task = {
-                    type: 'addObject',
                     id,
                     data: {
                         _id: id,
