@@ -1742,9 +1742,9 @@ export default class MQTTServer {
                 }
             } else {
                 // not in list, auto insert
-                //if (client.id=='DVES_008ADB') {
+                // if (client.id=='DVES_008ADB') {
                 //	this.adapter.log.warn('[' + client.id + '] Received attr not in list: ' + attr + '' + data[attr]);
-                //}
+                // }
                 // tele/sonoff/SENSOR  tele/sonoff/STATE => read only
                 // stat/sonoff/RESULT => read,write
 
