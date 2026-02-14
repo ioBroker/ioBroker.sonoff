@@ -19,10 +19,94 @@ For other scenarios, consider the different options:
 |-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
 | Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
 | Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | unsupported      | unsupported                                                                   | required                                                                     | required                                                               |
+| External MQTT broker                          | supported (v4+)  | unsupported                                                                   | required                                                                     | required                                                               |
 | Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
+
+## MQTT Modi / MQTT Modes
+
+Seit Version 4.0.0 unterstützt der Adapter zwei Betriebsmodi:
+
+### Server-Modus (Eingebauter Broker) - Standard
+Der Adapter betreibt seinen eigenen MQTT-Broker. Tasmota-Geräte verbinden sich direkt mit ioBroker. Dies ist das ursprüngliche Verhalten und die einfachste Einrichtung: Konfigurieren Sie den Port und richten Sie Ihre Tasmota-Geräte auf die ioBroker-IP.
+
+### Client-Modus (Externer Broker)
+Der Adapter verbindet sich als Client mit einem externen MQTT-Broker (z.B. Mosquitto, EMQX, HiveMQ). Dies ist nützlich wenn:
+- Sie bereits einen zentralen MQTT-Broker in Ihrem Netzwerk betreiben
+- Mehrere Systeme dieselben MQTT-Nachrichten nutzen sollen
+- Sie erweiterte MQTT-Funktionen wie Message Bridging, ACLs oder Clustering benötigen
+
+#### Konfiguration für den Client-Modus
+1. Setzen Sie **MQTT Modus** auf `Client (Externer Broker)`
+2. Geben Sie **Broker Host** (IP-Adresse oder Hostname) und **Broker Port** ein
+3. Falls erforderlich, geben Sie **Benutzername** und **Passwort** für die Broker-Authentifizierung ein
+4. Aktivieren Sie **TLS/SSL** für verschlüsselte Verbindungen (MQTTS):
+   - Der Adapter verbindet sich dann über `mqtts://` statt `mqtt://`
+   - Optional können Sie CA-Zertifikat, Client-Zertifikat und Client-Schlüssel für gegenseitige TLS-Authentifizierung angeben
+   - Deaktivieren Sie "Selbstsignierte Zertifikate ablehnen" wenn Ihr Broker ein selbstsigniertes Zertifikat verwendet
+5. Optional setzen Sie ein **Topic Präfix** wenn Ihre Tasmota-Topics ein eigenes Präfix verwenden (z.B. `haus/eg`)
+6. Passen Sie bei Bedarf **Keepalive**, **Reconnect-Intervall** und **Clean Session** unter den erweiterten Einstellungen an
+
+#### Beispiel: Mosquitto mit Authentifizierung
+```
+Broker Host:     192.168.1.100
+Broker Port:     1883
+Benutzername:    iobroker
+Passwort:        ********
+```
+
+#### Beispiel: Mosquitto mit TLS (MQTTS)
+```
+Broker Host:     mqtt.example.com
+Broker Port:     8883
+TLS/SSL:         ✓
+CA-Zertifikat:   /etc/ssl/certs/ca.pem
+Benutzername:    iobroker
+Passwort:        ********
+```
+
+---
+
+Since version 4.0.0 the adapter supports two operating modes:
+
+### Server Mode (Built-in Broker) - Default
+The adapter runs its own MQTT broker. Tasmota devices connect directly to ioBroker. This is the original behavior and the simplest setup: just configure the port and point your Tasmota devices to the ioBroker IP.
+
+### Client Mode (External Broker)
+The adapter connects as a client to an external MQTT broker (e.g. Mosquitto, EMQX, HiveMQ). This is useful when:
+- You already run a central MQTT broker in your network
+- Multiple systems need to share the same MQTT messages
+- You need advanced MQTT features like message bridging, ACLs, or clustering
+
+#### Configuration for Client Mode
+1. Set **MQTT Mode** to `Client (External broker)`
+2. Enter the **Broker host** (IP address or hostname) and **Broker port**
+3. If required, enter **Username** and **Password** for broker authentication
+4. Enable **TLS/SSL** for encrypted connections (MQTTS):
+   - The adapter will connect via `mqtts://` instead of `mqtt://`
+   - Optionally provide CA certificate, client certificate, and client key paths for mutual TLS authentication
+   - Disable "Reject self-signed certificates" if your broker uses a self-signed certificate
+5. Optionally set a **Topic prefix** if your Tasmota topics use a custom prefix (e.g. `home/floor1`)
+6. Adjust **Keepalive**, **Reconnect interval**, and **Clean Session** under Advanced Settings if needed
+
+#### Example: Mosquitto with Authentication
+```
+Broker host:     192.168.1.100
+Broker port:     1883
+Username:        iobroker
+Password:        ********
+```
+
+#### Example: Mosquitto with TLS (MQTTS)
+```
+Broker host:     mqtt.example.com
+Broker port:     8883
+Enable TLS/SSL:  ✓
+CA certificate:  /etc/ssl/certs/ca.pem
+Username:        iobroker
+Password:        ********
+```
 
 ## Usage
 
@@ -124,6 +208,12 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* **MAJOR**: Added external MQTT broker support (client mode) - connect to Mosquitto, EMQX, HiveMQ or any MQTT broker
+* Added username/password authentication for external broker connections
+* Added MQTTS (TLS/SSL) support with certificate configuration for secure connections
+* Added topic prefix support for multi-gateway setups
+* Added advanced connection settings (keepalive, reconnect interval, clean session)
+* Added translations for ru, fr, it, es, pt, nl, pl, uk, zh-cn
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 

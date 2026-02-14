@@ -1,96 +1,94 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mqtt = __importStar(require("mqtt"));
-const node_fs_1 = __importDefault(require("node:fs"));
-class MQTTClientWrapper {
-    client = null;
-    _connected = false;
-    adapter;
-    options;
-    knownDevices = new Set();
-    onMessage;
-    onConnected;
-    onDisconnected;
-    onError;
-    onDeviceOnline;
-    constructor(adapter, options) {
+import * as mqtt from 'mqtt';
+import fs from 'node:fs';
+
+export interface MQTTClientOptions {
+    url: string;
+    user: string;
+    password: string;
+    clientId: string;
+    useTls: boolean;
+    rejectUnauthorized: boolean;
+    caPath: string;
+    certPath: string;
+    keyPath: string;
+    topicPrefix: string;
+    keepalive: number;
+    reconnectPeriod: number;
+    cleanSession: boolean;
+}
+
+export default class MQTTClientWrapper {
+    private client: mqtt.MqttClient | null = null;
+    private _connected = false;
+    private readonly adapter: ioBroker.Adapter;
+    private readonly options: MQTTClientOptions;
+    private readonly knownDevices = new Set<string>();
+
+    onMessage?: (topic: string, message: string, deviceId: string) => void;
+    onConnected?: () => void;
+    onDisconnected?: () => void;
+    onError?: (error: Error) => void;
+    onDeviceOnline?: (deviceId: string) => void;
+
+    constructor(adapter: ioBroker.Adapter, options: MQTTClientOptions) {
         this.adapter = adapter;
         this.options = options;
     }
-    get connected() {
+
+    get connected(): boolean {
         return this._connected;
     }
-    async connect() {
-        const connectOptions = {
+
+    async connect(): Promise<void> {
+        const connectOptions: mqtt.IClientOptions = {
             clientId: this.options.clientId,
             keepalive: this.options.keepalive || 60,
             reconnectPeriod: this.options.reconnectPeriod || 5000,
             clean: this.options.cleanSession !== false,
             protocolVersion: 4,
         };
+
         if (this.options.user) {
             connectOptions.username = this.options.user;
             connectOptions.password = this.options.password || '';
         }
+
         if (this.options.useTls) {
             connectOptions.rejectUnauthorized = this.options.rejectUnauthorized !== false;
+
             if (this.options.caPath) {
                 try {
-                    connectOptions.ca = node_fs_1.default.readFileSync(this.options.caPath);
+                    connectOptions.ca = fs.readFileSync(this.options.caPath);
                     this.adapter.log.debug('CA certificate loaded');
-                }
-                catch (err) {
+                } catch (err: any) {
                     this.adapter.log.warn(`Cannot read CA certificate: ${err.message}`);
                 }
             }
+
             if (this.options.certPath) {
                 try {
-                    connectOptions.cert = node_fs_1.default.readFileSync(this.options.certPath);
+                    connectOptions.cert = fs.readFileSync(this.options.certPath);
                     this.adapter.log.debug('Client certificate loaded');
-                }
-                catch (err) {
+                } catch (err: any) {
                     this.adapter.log.warn(`Cannot read client certificate: ${err.message}`);
                 }
             }
+
             if (this.options.keyPath) {
                 try {
-                    connectOptions.key = node_fs_1.default.readFileSync(this.options.keyPath);
+                    connectOptions.key = fs.readFileSync(this.options.keyPath);
                     this.adapter.log.debug('Client key loaded');
-                }
-                catch (err) {
+                } catch (err: any) {
                     this.adapter.log.warn(`Cannot read client key: ${err.message}`);
                 }
             }
         }
-        return new Promise(resolve => {
+
+        return new Promise<void>(resolve => {
             this.adapter.log.info(`Connecting to MQTT broker: ${this.options.url}`);
+
             this.client = mqtt.connect(this.options.url, connectOptions);
+
             this.client.on('connect', () => {
                 this._connected = true;
                 this.adapter.log.info('Successfully connected to external MQTT broker');
@@ -98,26 +96,32 @@ class MQTTClientWrapper {
                 this.subscribeToTasmotaTopics();
                 resolve();
             });
-            this.client.on('message', (topic, message) => {
+
+            this.client.on('message', (topic: string, message: Buffer) => {
                 this.handleMessage(topic, message);
             });
+
             this.client.on('reconnect', () => {
                 this.adapter.log.debug('Reconnecting to MQTT broker...');
             });
+
             this.client.on('close', () => {
                 if (this._connected) {
                     this._connected = false;
                     this.onDisconnected?.();
                 }
             });
+
             this.client.on('offline', () => {
                 this._connected = false;
                 this.adapter.log.debug('MQTT client offline');
             });
-            this.client.on('error', (err) => {
+
+            this.client.on('error', (err: Error) => {
                 this.adapter.log.error(`MQTT client error: ${err.message}`);
                 this.onError?.(err);
             });
+
             // Don't block adapter startup on connection timeout
             setTimeout(() => {
                 if (!this._connected) {
@@ -127,8 +131,10 @@ class MQTTClientWrapper {
             }, 10000);
         });
     }
-    subscribeToTasmotaTopics() {
+
+    private subscribeToTasmotaTopics(): void {
         const prefix = this.options.topicPrefix ? `${this.options.topicPrefix}/` : '';
+
         const topics = [
             `${prefix}tele/+/STATE`,
             `${prefix}tele/+/SENSOR`,
@@ -166,56 +172,68 @@ class MQTTClientWrapper {
             `${prefix}tele/+/+`,
             `${prefix}stat/+/+`,
         ];
-        this.client?.subscribe(topics, { qos: 0 }, (err) => {
+
+        this.client?.subscribe(topics, { qos: 0 }, (err?: Error | null) => {
             if (err) {
                 this.adapter.log.error(`Error subscribing to Tasmota topics: ${err.message}`);
-            }
-            else {
-                this.adapter.log.info(`Subscribed to Tasmota topics${this.options.topicPrefix ? ` with prefix "${this.options.topicPrefix}"` : ''}`);
+            } else {
+                this.adapter.log.info(
+                    `Subscribed to Tasmota topics${this.options.topicPrefix ? ` with prefix "${this.options.topicPrefix}"` : ''}`,
+                );
             }
         });
     }
-    handleMessage(topic, messageBuffer) {
+
+    private handleMessage(topic: string, messageBuffer: Buffer): void {
         const message = messageBuffer.toString();
         const prefix = this.options.topicPrefix;
+
         let effectiveTopic = topic;
         if (prefix && topic.startsWith(`${prefix}/`)) {
             effectiveTopic = topic.substring(prefix.length + 1);
         }
+
         const parts = effectiveTopic.split('/');
         if (parts.length < 3) {
             return;
         }
+
         const deviceId = parts[1];
+
         if (!this.knownDevices.has(deviceId)) {
             this.knownDevices.add(deviceId);
             this.onDeviceOnline?.(deviceId);
         }
+
         // Handle LWT (Last Will and Testament)
         if (parts[0] === 'tele' && parts[2] === 'LWT') {
             if (message === 'Offline') {
                 this.knownDevices.delete(deviceId);
             }
         }
+
         this.onMessage?.(effectiveTopic, message, deviceId);
     }
-    publish(topic, payload, options) {
+
+    publish(topic: string, payload: string, options?: mqtt.IClientPublishOptions): void {
         if (!this.client || !this._connected) {
             this.adapter.log.warn('Cannot publish - not connected to MQTT broker');
             return;
         }
+
         const prefix = this.options.topicPrefix;
         const fullTopic = prefix ? `${prefix}/${topic}` : topic;
-        this.client.publish(fullTopic, payload, options || { qos: 0, retain: false }, (err) => {
+
+        this.client.publish(fullTopic, payload, options || { qos: 0, retain: false }, (err?: Error) => {
             if (err) {
                 this.adapter.log.error(`Error publishing to ${fullTopic}: ${err.message}`);
-            }
-            else {
+            } else {
                 this.adapter.log.debug(`Published: ${fullTopic} = ${payload}`);
             }
         });
     }
-    disconnect() {
+
+    disconnect(): void {
         if (this.client) {
             this._connected = false;
             this.client.end(true);
@@ -224,5 +242,3 @@ class MQTTClientWrapper {
         }
     }
 }
-exports.default = MQTTClientWrapper;
-//# sourceMappingURL=client.js.map

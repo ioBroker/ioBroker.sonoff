@@ -5,16 +5,43 @@
     "news": {
       "4.0.0": {
         "en": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
-        "de": "MAJOR: Externer MQTT Broker Support (Client-Modus) mit User/Passwort und TLS hinzugefügt. Server-Modus bleibt wie bisher."
+        "de": "MAJOR: Externer MQTT Broker Support (Client-Modus) mit User/Passwort und TLS hinzugefügt. Server-Modus bleibt wie bisher.",
+        "ru": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "pt": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "nl": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "fr": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "it": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "es": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "pl": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "uk": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "zh-cn": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before."
       }
     },
     "titleLang": {
       "en": "Sonoff / Tasmota",
-      "de": "Sonoff / Tasmota"
+      "de": "Sonoff / Tasmota",
+      "ru": "Sonoff / Tasmota",
+      "pt": "Sonoff / Tasmota",
+      "nl": "Sonoff / Tasmota",
+      "fr": "Sonoff / Tasmota",
+      "it": "Sonoff / Tasmota",
+      "es": "Sonoff / Tasmota",
+      "pl": "Sonoff / Tasmota",
+      "uk": "Sonoff / Tasmota",
+      "zh-cn": "Sonoff / Tasmota"
     },
     "desc": {
       "en": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
-      "de": "Dieser Adapter ermöglicht den Anschluss von Tasmota/Sonoff Geräten über MQTT - mit eingebautem oder externem Broker"
+      "de": "Dieser Adapter ermöglicht den Anschluss von Tasmota/Sonoff Geräten über MQTT - mit eingebautem oder externem Broker",
+      "ru": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "pt": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "nl": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "fr": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "it": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "es": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "pl": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "uk": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "zh-cn": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker"
     },
     "authors": [
       "bluefox <dogafox@gmail.com>"
@@ -68,7 +95,6 @@
   ],
   "native": {
     "mode": "server",
-
     "port": 1883,
     "bind": "0.0.0.0",
     "user": "",
@@ -76,7 +102,6 @@
     "serverSsl": false,
     "serverCertPath": "",
     "serverKeyPath": "",
-
     "brokerUrl": "",
     "brokerPort": 1883,
     "brokerUser": "",
@@ -91,7 +116,6 @@
     "brokerKeepalive": 60,
     "brokerReconnectPeriod": 5000,
     "brokerCleanSession": true,
-
     "timeout": 300,
     "TELE_SENSOR": true,
     "TELE_STATE": false,
