@@ -24,62 +24,7 @@ For other scenarios, consider the different options:
 | non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
 
-## MQTT Modi / MQTT Modes
-
-Seit Version 4.0.0 unterstützt der Adapter zwei Betriebsmodi:
-
-### Server-Modus (Eingebauter Broker) - Standard
-Der Adapter betreibt seinen eigenen MQTT-Broker. Tasmota-Geräte verbinden sich direkt mit ioBroker. Dies ist das ursprüngliche Verhalten und die einfachste Einrichtung: Konfigurieren Sie den Port und richten Sie Ihre Tasmota-Geräte auf die ioBroker-IP.
-
-### Client-Modus (Externer Broker)
-Der Adapter verbindet sich als Client mit einem externen MQTT-Broker (z.B. Mosquitto, EMQX, HiveMQ). Dies ist nützlich wenn:
-- Sie bereits einen zentralen MQTT-Broker in Ihrem Netzwerk betreiben
-- Mehrere Systeme dieselben MQTT-Nachrichten nutzen sollen
-- Sie erweiterte MQTT-Funktionen wie Message Bridging, ACLs oder Clustering benötigen
-
-#### Konfiguration für den Client-Modus
-1. Setzen Sie **MQTT Modus** auf `Client (Externer Broker)`
-2. Geben Sie **Broker Host** (IP-Adresse oder Hostname) und **Broker Port** ein
-3. Falls erforderlich, geben Sie **Benutzername** und **Passwort** für die Broker-Authentifizierung ein
-4. Aktivieren Sie **TLS/SSL** für verschlüsselte Verbindungen (MQTTS):
-   - Der Adapter verbindet sich dann über `mqtts://` statt `mqtt://`
-   - Optional können Sie CA-Zertifikat, Client-Zertifikat und Client-Schlüssel für gegenseitige TLS-Authentifizierung angeben
-   - Deaktivieren Sie "Selbstsignierte Zertifikate ablehnen" wenn Ihr Broker ein selbstsigniertes Zertifikat verwendet
-5. Optional setzen Sie ein **Topic Präfix** wenn Ihre Tasmota-Topics ein eigenes Präfix verwenden (z.B. `tasmota`)
-6. Wählen Sie die **Topic-Struktur** passend zu Ihrer Tasmota FullTopic-Konfiguration:
-   - **Standard** (`tele/<Gerät>/STATE`): Für Tasmota Standard-FullTopic `%prefix%/%topic%/` (Standard)
-   - **Gerät-zuerst** (`<Gerät>/tele/STATE`): Für Tasmota FullTopic `%topic%/%prefix%/` oder `tasmota/%topic%/%prefix%/`
-7. Passen Sie bei Bedarf **Keepalive**, **Reconnect-Intervall** und **Clean Session** unter den erweiterten Einstellungen an
-
-#### Beispiel: Mosquitto mit Authentifizierung
-```
-Broker Host:     192.168.1.100
-Broker Port:     1883
-Benutzername:    iobroker
-Passwort:        ********
-```
-
-#### Beispiel: Mosquitto mit TLS (MQTTS)
-```
-Broker Host:     mqtt.example.com
-Broker Port:     8883
-TLS/SSL:         ✓
-CA-Zertifikat:   /etc/ssl/certs/ca.pem
-Benutzername:    iobroker
-Passwort:        ********
-```
-
-#### Beispiel: Tasmota mit FullTopic `tasmota/%topic%/%prefix%/`
-```
-Broker Host:     192.168.1.100
-Broker Port:     1883
-Topic Präfix:    tasmota
-Topic-Struktur:  Gerät-zuerst (Gerät/tele/STATE)
-```
-In Tasmota: `SetOption19 0` und FullTopic `tasmota/%topic%/%prefix%/` konfigurieren.
-Topics werden dann als `tasmota/meinGeraet/tele/STATE` gesendet und Befehle als `tasmota/meinGeraet/cmnd/POWER`.
-
----
+## MQTT Modes
 
 Since version 4.0.0 the adapter supports two operating modes:
 
