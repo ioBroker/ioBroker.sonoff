@@ -108,6 +108,7 @@
     "brokerPassword": "",
     "brokerClientId": "",
     "brokerTopicPrefix": "",
+    "brokerTopicStructure": "standard",
     "brokerUseTls": false,
     "brokerTlsRejectUnauthorized": true,
     "brokerCaPath": "",

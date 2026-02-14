@@ -18,6 +18,7 @@ export interface SonoffAdapterConfig {
     brokerPassword: string;
     brokerClientId: string;
     brokerTopicPrefix: string;
+    brokerTopicStructure: 'standard' | 'device-first';
     brokerUseTls: boolean;
     brokerTlsRejectUnauthorized: boolean;
     brokerCaPath: string;

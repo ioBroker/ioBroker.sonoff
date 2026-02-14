@@ -52,5 +52,9 @@
   "teleStateHelp": "Создавать объекты из телеграмм tele/xxx/STATE",
   "topicPrefix": "Префикс топиков",
   "topicPrefixHelp": "Опциональный префикс для топиков Tasmota (напр. 'dom/1etazh', если топики Tasmota 'dom/1etazh/tele/...'). Оставьте пустым для стандартных топиков.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Имя пользователя"
 }

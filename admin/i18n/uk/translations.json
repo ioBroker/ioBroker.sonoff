@@ -52,5 +52,9 @@
   "teleStateHelp": "Створювати об'єкти з телеграм tele/xxx/STATE",
   "topicPrefix": "Префікс топіків",
   "topicPrefixHelp": "Опціональний префікс для топіків Tasmota (напр. 'dim/1poverkh', якщо топіки Tasmota 'dim/1poverkh/tele/...'). Залиште порожнім для стандартних топіків.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Ім'я користувача"
 }

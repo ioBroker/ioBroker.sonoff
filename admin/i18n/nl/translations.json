@@ -52,5 +52,9 @@
   "teleStateHelp": "Objecten maken van tele/xxx/STATE telegrammen",
   "topicPrefix": "Topic prefix",
   "topicPrefixHelp": "Optioneel prefix voor Tasmota topics (bijv. 'huis/bg' als Tasmota topics 'huis/bg/tele/...' zijn). Leeg laten voor standaard topics.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Gebruikersnaam"
 }

@@ -52,5 +52,9 @@
   "teleStateHelp": "Créer des objets à partir des télégrammes tele/xxx/STATE",
   "topicPrefix": "Préfixe de topic",
   "topicPrefixHelp": "Préfixe optionnel ajouté aux topics Tasmota (ex. 'maison/rdc' si les topics Tasmota sont 'maison/rdc/tele/...'). Laisser vide pour les topics standards.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Nom d'utilisateur"
 }

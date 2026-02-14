@@ -52,5 +52,9 @@
   "teleStateHelp": "Objekte aus tele/xxx/STATE Telegrammen erstellen",
   "topicPrefix": "Topic Präfix",
   "topicPrefixHelp": "Optionales Präfix, das den Tasmota Topics vorangestellt wird (z.B. 'haus/eg' wenn Tasmota Topics 'haus/eg/tele/...' sind). Leer lassen für Standard-Tasmota-Topics.",
+  "topicStructure": "Topic-Struktur",
+  "topicStructureHelp": "Standard: tele/<Gerät>/STATE (Tasmota Standard: %prefix%/%topic%/). Gerät-zuerst: <Gerät>/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/ oder tasmota/%topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/Gerät/STATE)",
+  "topicStructureDeviceFirst": "Gerät-zuerst (Gerät/tele/STATE)",
   "username": "Benutzername"
 }

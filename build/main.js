@@ -95,6 +95,7 @@ class SonoffAdapter extends adapter_core_1.Adapter {
             certPath: this.config.brokerCertPath || '',
             keyPath: this.config.brokerKeyPath || '',
             topicPrefix: this.config.brokerTopicPrefix || '',
+            topicStructure: this.config.brokerTopicStructure || 'standard',
             keepalive: parseInt(this.config.brokerKeepalive, 10) || 60,
             reconnectPeriod: parseInt(this.config.brokerReconnectPeriod, 10) || 5000,
             cleanSession: this.config.brokerCleanSession !== false,

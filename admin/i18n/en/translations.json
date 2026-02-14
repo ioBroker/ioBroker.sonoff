@@ -30,6 +30,10 @@
   "clientIdHelp": "Unique client ID for broker connection (default: iobroker_sonoff_<instance>)",
   "topicPrefix": "Topic prefix",
   "topicPrefixHelp": "Optional prefix prepended to Tasmota topics (e.g. 'home/floor1' if Tasmota topics are 'home/floor1/tele/...'). Leave empty for standard Tasmota topics.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/<device>/STATE (Tasmota default: %prefix%/%topic%/). Device-first: <device>/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/ or tasmota/%topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
 
   "headerTLS": "TLS / SSL Encryption",
   "rejectUnauthorized": "Reject self-signed certificates",

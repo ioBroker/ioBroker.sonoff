@@ -52,5 +52,9 @@
   "teleStateHelp": "Twórz obiekty z telegramów tele/xxx/STATE",
   "topicPrefix": "Prefiks tematu",
   "topicPrefixHelp": "Opcjonalny prefiks dodawany do tematów Tasmota (np. 'dom/parter' jeśli tematy Tasmota to 'dom/parter/tele/...'). Pozostaw puste dla standardowych tematów.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Nazwa użytkownika"
 }

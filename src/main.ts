@@ -100,6 +100,7 @@ export class SonoffAdapter extends Adapter {
             certPath: this.config.brokerCertPath || '',
             keyPath: this.config.brokerKeyPath || '',
             topicPrefix: this.config.brokerTopicPrefix || '',
+            topicStructure: this.config.brokerTopicStructure || 'standard',
             keepalive: parseInt(this.config.brokerKeepalive as string, 10) || 60,
             reconnectPeriod: parseInt(this.config.brokerReconnectPeriod as string, 10) || 5000,
             cleanSession: this.config.brokerCleanSession !== false,

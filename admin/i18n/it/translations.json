@@ -52,5 +52,9 @@
   "teleStateHelp": "Crea oggetti dai telegrammi tele/xxx/STATE",
   "topicPrefix": "Prefisso topic",
   "topicPrefixHelp": "Prefisso opzionale aggiunto ai topic Tasmota (es. 'casa/piano1' se i topic Tasmota sono 'casa/piano1/tele/...'). Lasciare vuoto per i topic standard.",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "Nome utente"
 }

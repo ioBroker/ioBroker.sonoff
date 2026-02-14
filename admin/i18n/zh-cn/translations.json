@@ -52,5 +52,9 @@
   "teleStateHelp": "从 tele/xxx/STATE 电报创建对象",
   "topicPrefix": "主题前缀",
   "topicPrefixHelp": "添加到 Tasmota 主题的可选前缀（例如 'home/floor1'，如果 Tasmota 主题是 'home/floor1/tele/...'）。留空则使用标准主题。",
+  "topicStructure": "Topic structure",
+  "topicStructureHelp": "Standard: tele/device/STATE (Tasmota default). Device-first: device/tele/STATE (Tasmota FullTopic: %topic%/%prefix%/).",
+  "topicStructureStandard": "Standard (tele/device/STATE)",
+  "topicStructureDeviceFirst": "Device-first (device/tele/STATE)",
   "username": "用户名"
 }

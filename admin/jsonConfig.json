@@ -154,6 +154,19 @@
           "md": 6,
           "lg": 4
         },
+        "brokerTopicStructure": {
+          "type": "select",
+          "label": "topicStructure",
+          "help": "topicStructureHelp",
+          "options": [
+            { "label": "topicStructureStandard", "value": "standard" },
+            { "label": "topicStructureDeviceFirst", "value": "device-first" }
+          ],
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
 
         "_divider2": {
           "type": "divider",

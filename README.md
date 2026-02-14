@@ -45,8 +45,11 @@ Der Adapter verbindet sich als Client mit einem externen MQTT-Broker (z.B. Mosqu
    - Der Adapter verbindet sich dann über `mqtts://` statt `mqtt://`
    - Optional können Sie CA-Zertifikat, Client-Zertifikat und Client-Schlüssel für gegenseitige TLS-Authentifizierung angeben
    - Deaktivieren Sie "Selbstsignierte Zertifikate ablehnen" wenn Ihr Broker ein selbstsigniertes Zertifikat verwendet
-5. Optional setzen Sie ein **Topic Präfix** wenn Ihre Tasmota-Topics ein eigenes Präfix verwenden (z.B. `haus/eg`)
-6. Passen Sie bei Bedarf **Keepalive**, **Reconnect-Intervall** und **Clean Session** unter den erweiterten Einstellungen an
+5. Optional setzen Sie ein **Topic Präfix** wenn Ihre Tasmota-Topics ein eigenes Präfix verwenden (z.B. `tasmota`)
+6. Wählen Sie die **Topic-Struktur** passend zu Ihrer Tasmota FullTopic-Konfiguration:
+   - **Standard** (`tele/<Gerät>/STATE`): Für Tasmota Standard-FullTopic `%prefix%/%topic%/` (Standard)
+   - **Gerät-zuerst** (`<Gerät>/tele/STATE`): Für Tasmota FullTopic `%topic%/%prefix%/` oder `tasmota/%topic%/%prefix%/`
+7. Passen Sie bei Bedarf **Keepalive**, **Reconnect-Intervall** und **Clean Session** unter den erweiterten Einstellungen an
 
 #### Beispiel: Mosquitto mit Authentifizierung
 ```
@@ -65,6 +68,16 @@ CA-Zertifikat:   /etc/ssl/certs/ca.pem
 Benutzername:    iobroker
 Passwort:        ********
 ```
+
+#### Beispiel: Tasmota mit FullTopic `tasmota/%topic%/%prefix%/`
+```
+Broker Host:     192.168.1.100
+Broker Port:     1883
+Topic Präfix:    tasmota
+Topic-Struktur:  Gerät-zuerst (Gerät/tele/STATE)
+```
+In Tasmota: `SetOption19 0` und FullTopic `tasmota/%topic%/%prefix%/` konfigurieren.
+Topics werden dann als `tasmota/meinGeraet/tele/STATE` gesendet und Befehle als `tasmota/meinGeraet/cmnd/POWER`.
 
 ---
 
@@ -87,8 +100,11 @@ The adapter connects as a client to an external MQTT broker (e.g. Mosquitto, EMQ
    - The adapter will connect via `mqtts://` instead of `mqtt://`
    - Optionally provide CA certificate, client certificate, and client key paths for mutual TLS authentication
    - Disable "Reject self-signed certificates" if your broker uses a self-signed certificate
-5. Optionally set a **Topic prefix** if your Tasmota topics use a custom prefix (e.g. `home/floor1`)
-6. Adjust **Keepalive**, **Reconnect interval**, and **Clean Session** under Advanced Settings if needed
+5. Optionally set a **Topic prefix** if your Tasmota topics use a custom prefix (e.g. `tasmota`)
+6. Select the **Topic structure** matching your Tasmota FullTopic configuration:
+   - **Standard** (`tele/<device>/STATE`): For Tasmota default FullTopic `%prefix%/%topic%/`
+   - **Device-first** (`<device>/tele/STATE`): For Tasmota FullTopic `%topic%/%prefix%/` or `tasmota/%topic%/%prefix%/`
+7. Adjust **Keepalive**, **Reconnect interval**, and **Clean Session** under Advanced Settings if needed
 
 #### Example: Mosquitto with Authentication
 ```
@@ -107,6 +123,16 @@ CA certificate:  /etc/ssl/certs/ca.pem
 Username:        iobroker
 Password:        ********
 ```
+
+#### Example: Tasmota with FullTopic `tasmota/%topic%/%prefix%/`
+```
+Broker host:      192.168.1.100
+Broker port:      1883
+Topic prefix:     tasmota
+Topic structure:  Device-first (device/tele/STATE)
+```
+In Tasmota: configure `SetOption19 0` and FullTopic `tasmota/%topic%/%prefix%/`.
+Topics will be sent as `tasmota/myDevice/tele/STATE` and commands as `tasmota/myDevice/cmnd/POWER`.
 
 ## Usage
 
@@ -212,6 +238,7 @@ States:
 * Added username/password authentication for external broker connections
 * Added MQTTS (TLS/SSL) support with certificate configuration for secure connections
 * Added topic prefix support for multi-gateway setups
+* Added device-first topic structure support for Tasmota FullTopic `%topic%/%prefix%/` (e.g. `tasmota/device/tele/STATE`)
 * Added advanced connection settings (keepalive, reconnect interval, clean session)
 * Added translations for ru, fr, it, es, pt, nl, pl, uk, zh-cn
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes

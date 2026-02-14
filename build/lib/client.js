@@ -129,55 +129,40 @@ class MQTTClientWrapper {
     }
     subscribeToTasmotaTopics() {
         const prefix = this.options.topicPrefix ? `${this.options.topicPrefix}/` : '';
-        const topics = [
-            `${prefix}tele/+/STATE`,
-            `${prefix}tele/+/SENSOR`,
-            `${prefix}tele/+/RESULT`,
-            `${prefix}tele/+/LWT`,
-            `${prefix}tele/+/INFO1`,
-            `${prefix}tele/+/INFO2`,
-            `${prefix}tele/+/INFO3`,
-            `${prefix}tele/+/ENERGY`,
-            `${prefix}tele/+/MARGINS`,
-            `${prefix}tele/+/WAKEUP`,
-            `${prefix}stat/+/RESULT`,
-            `${prefix}stat/+/POWER`,
-            `${prefix}stat/+/POWER1`,
-            `${prefix}stat/+/POWER2`,
-            `${prefix}stat/+/POWER3`,
-            `${prefix}stat/+/POWER4`,
-            `${prefix}stat/+/POWER5`,
-            `${prefix}stat/+/POWER6`,
-            `${prefix}stat/+/POWER7`,
-            `${prefix}stat/+/POWER8`,
-            `${prefix}stat/+/STATUS`,
-            `${prefix}stat/+/STATUS1`,
-            `${prefix}stat/+/STATUS2`,
-            `${prefix}stat/+/STATUS3`,
-            `${prefix}stat/+/STATUS4`,
-            `${prefix}stat/+/STATUS5`,
-            `${prefix}stat/+/STATUS6`,
-            `${prefix}stat/+/STATUS7`,
-            `${prefix}stat/+/STATUS8`,
-            `${prefix}stat/+/STATUS9`,
-            `${prefix}stat/+/STATUS10`,
-            `${prefix}stat/+/STATUS11`,
-            // Wildcard fallback for any additional topics
-            `${prefix}tele/+/+`,
-            `${prefix}stat/+/+`,
-        ];
+        const deviceFirst = this.options.topicStructure === 'device-first';
+        let topics;
+        if (deviceFirst) {
+            // Device-first structure: [prefix/]<device>/tele/<command>
+            // Tasmota FullTopic: %topic%/%prefix%/ or tasmota/%topic%/%prefix%/
+            topics = [
+                // Wildcard subscriptions cover all commands
+                `${prefix}+/tele/+`,
+                `${prefix}+/stat/+`,
+            ];
+        }
+        else {
+            // Standard structure: [prefix/]tele/<device>/<command>
+            // Tasmota FullTopic: %prefix%/%topic%/ (default)
+            topics = [
+                // Wildcard subscriptions cover all commands
+                `${prefix}tele/+/+`,
+                `${prefix}stat/+/+`,
+            ];
+        }
+        const structureLabel = deviceFirst ? 'device-first' : 'standard';
         this.client?.subscribe(topics, { qos: 0 }, (err) => {
             if (err) {
                 this.adapter.log.error(`Error subscribing to Tasmota topics: ${err.message}`);
             }
             else {
-                this.adapter.log.info(`Subscribed to Tasmota topics${this.options.topicPrefix ? ` with prefix "${this.options.topicPrefix}"` : ''}`);
+                this.adapter.log.info(`Subscribed to Tasmota topics (${structureLabel})${this.options.topicPrefix ? ` with prefix "${this.options.topicPrefix}"` : ''}`);
             }
         });
     }
     handleMessage(topic, messageBuffer) {
         const message = messageBuffer.toString();
         const prefix = this.options.topicPrefix;
+        const deviceFirst = this.options.topicStructure === 'device-first';
         let effectiveTopic = topic;
         if (prefix && topic.startsWith(`${prefix}/`)) {
             effectiveTopic = topic.substring(prefix.length + 1);
@@ -186,26 +171,59 @@ class MQTTClientWrapper {
         if (parts.length < 3) {
             return;
         }
-        const deviceId = parts[1];
+        let mqttPrefix;
+        let deviceId;
+        let command;
+        if (deviceFirst) {
+            // Device-first: <device>/tele/<command> or <device>/stat/<command>
+            deviceId = parts[0];
+            mqttPrefix = parts[1]; // tele, stat
+            command = parts.slice(2).join('/');
+        }
+        else {
+            // Standard: tele/<device>/<command> or stat/<device>/<command>
+            mqttPrefix = parts[0]; // tele, stat
+            deviceId = parts[1];
+            command = parts.slice(2).join('/');
+        }
         if (!this.knownDevices.has(deviceId)) {
             this.knownDevices.add(deviceId);
             this.onDeviceOnline?.(deviceId);
         }
         // Handle LWT (Last Will and Testament)
-        if (parts[0] === 'tele' && parts[2] === 'LWT') {
+        if (mqttPrefix === 'tele' && command === 'LWT') {
             if (message === 'Offline') {
                 this.knownDevices.delete(deviceId);
             }
         }
-        this.onMessage?.(effectiveTopic, message, deviceId);
+        // Normalize to standard format for processing: tele/<device>/<command>
+        const normalizedTopic = `${mqttPrefix}/${deviceId}/${command}`;
+        this.onMessage?.(normalizedTopic, message, deviceId);
     }
+    /**
+     * Publish an MQTT message.
+     * @param topic - Topic in standard format: cmnd/<device>/<command>
+     *   Will be automatically converted to device-first format if configured.
+     */
     publish(topic, payload, options) {
         if (!this.client || !this._connected) {
             this.adapter.log.warn('Cannot publish - not connected to MQTT broker');
             return;
         }
         const prefix = this.options.topicPrefix;
-        const fullTopic = prefix ? `${prefix}/${topic}` : topic;
+        const deviceFirst = this.options.topicStructure === 'device-first';
+        let effectiveTopic = topic;
+        if (deviceFirst) {
+            // Convert standard cmnd/<device>/<command> to <device>/cmnd/<command>
+            const parts = topic.split('/');
+            if (parts.length >= 3) {
+                const mqttPrefix = parts[0]; // cmnd
+                const device = parts[1];
+                const command = parts.slice(2).join('/');
+                effectiveTopic = `${device}/${mqttPrefix}/${command}`;
+            }
+        }
+        const fullTopic = prefix ? `${prefix}/${effectiveTopic}` : effectiveTopic;
         this.client.publish(fullTopic, payload, options || { qos: 0, retain: false }, (err) => {
             if (err) {
                 this.adapter.log.error(`Error publishing to ${fullTopic}: ${err.message}`);
