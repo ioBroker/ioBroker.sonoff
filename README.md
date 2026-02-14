@@ -19,10 +19,65 @@ For other scenarios, consider the different options:
 |-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
 | Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
 | Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | unsupported      | unsupported                                                                   | required                                                                     | required                                                               |
+| External MQTT broker                          | supported (v4+)  | unsupported                                                                   | required                                                                     | required                                                               |
 | Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
+
+## MQTT Modes
+
+Since version 4.0.0 the adapter supports two operating modes:
+
+### Server Mode (Built-in Broker) - Default
+The adapter runs its own MQTT broker. Tasmota devices connect directly to ioBroker. This is the original behavior and the simplest setup: just configure the port and point your Tasmota devices to the ioBroker IP.
+
+### Client Mode (External Broker)
+The adapter connects as a client to an external MQTT broker (e.g. Mosquitto, EMQX, HiveMQ). This is useful when:
+- You already run a central MQTT broker in your network
+- Multiple systems need to share the same MQTT messages
+- You need advanced MQTT features like message bridging, ACLs, or clustering
+
+#### Configuration for Client Mode
+1. Set **MQTT Mode** to `Client (External broker)`
+2. Enter the **Broker host** (IP address or hostname) and **Broker port**
+3. If required, enter **Username** and **Password** for broker authentication
+4. Enable **TLS/SSL** for encrypted connections (MQTTS):
+   - The adapter will connect via `mqtts://` instead of `mqtt://`
+   - Optionally provide CA certificate, client certificate, and client key paths for mutual TLS authentication
+   - Disable "Reject self-signed certificates" if your broker uses a self-signed certificate
+5. Optionally set a **Topic prefix** if your Tasmota topics use a custom prefix (e.g. `tasmota`)
+6. Select the **Topic structure** matching your Tasmota FullTopic configuration:
+   - **Standard** (`tele/<device>/STATE`): For Tasmota default FullTopic `%prefix%/%topic%/`
+   - **Device-first** (`<device>/tele/STATE`): For Tasmota FullTopic `%topic%/%prefix%/` or `tasmota/%topic%/%prefix%/`
+7. Adjust **Keepalive**, **Reconnect interval**, and **Clean Session** under Advanced Settings if needed
+
+#### Example: Mosquitto with Authentication
+```
+Broker host:     192.168.1.100
+Broker port:     1883
+Username:        iobroker
+Password:        ********
+```
+
+#### Example: Mosquitto with TLS (MQTTS)
+```
+Broker host:     mqtt.example.com
+Broker port:     8883
+Enable TLS/SSL:  ✓
+CA certificate:  /etc/ssl/certs/ca.pem
+Username:        iobroker
+Password:        ********
+```
+
+#### Example: Tasmota with FullTopic `tasmota/%topic%/%prefix%/`
+```
+Broker host:      192.168.1.100
+Broker port:      1883
+Topic prefix:     tasmota
+Topic structure:  Device-first (device/tele/STATE)
+```
+In Tasmota: configure `SetOption19 0` and FullTopic `tasmota/%topic%/%prefix%/`.
+Topics will be sent as `tasmota/myDevice/tele/STATE` and commands as `tasmota/myDevice/cmnd/POWER`.
 
 ## Usage
 
@@ -124,6 +179,13 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* **MAJOR**: Added external MQTT broker support (client mode) - connect to Mosquitto, EMQX, HiveMQ or any MQTT broker
+* Added username/password authentication for external broker connections
+* Added MQTTS (TLS/SSL) support with certificate configuration for secure connections
+* Added topic prefix support for multi-gateway setups
+* Added device-first topic structure support for Tasmota FullTopic `%topic%/%prefix%/` (e.g. `tasmota/device/tele/STATE`)
+* Added advanced connection settings (keepalive, reconnect interval, clean session)
+* Added translations for ru, fr, it, es, pt, nl, pl, uk, zh-cn
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 
