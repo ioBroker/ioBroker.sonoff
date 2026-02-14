@@ -83,6 +83,20 @@ export class SonoffAdapter extends Adapter {
     //  CLIENT MODE - Connect to external MQTT broker
     // =====================================================================
     private async startClientMode(): Promise<void> {
+        // Ensure info.connection object exists before setting state
+        await this.setObjectNotExistsAsync('info.connection', {
+            type: 'state',
+            common: {
+                name: 'Connected to MQTT broker',
+                type: 'boolean',
+                role: 'indicator.connected',
+                read: true,
+                write: false,
+            },
+            native: {},
+        });
+        await this.setStateAsync('info.connection', false, true);
+
         const brokerUrl = this.config.brokerUrl || 'localhost';
         const brokerPort = parseInt(this.config.brokerPort as string, 10) || 1883;
         const useTls = this.config.brokerUseTls || false;
