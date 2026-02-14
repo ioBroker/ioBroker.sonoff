@@ -1,125 +1,20 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.3.0",
+    "version": "4.0.0",
     "news": {
-      "3.3.0": {
-        "en": "**IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix\nAdded configuration for advanced MQTT settings\nEnhanced, Added and Optimized various datapoint definitions and roles, see Changelog",
-        "de": "**WICHTIG**: Befehle verwenden jetzt korrekterweise das Präfix cmnd/ anstelle von tele/\nErweiterte Konfiguration für MQTT-Einstellungen hinzugefügt.\nVerbesserte, hinzugefügte und optimierte verschiedene Datenpunktdefinitionen und Rollen, siehe Changelog.",
-        "ru": "**ВАЖНО**: Теперь команды правильно используют префикс cmnd/ вместо префикса tele/\nДобавлена конфигурация для расширенных настроек MQTT.\nУлучшены, добавлены и оптимизированы различные определения и роли точек данных, см. журнал изменений",
-        "pt": "**IMPORTANTE**: Os comandos agora utilizam corretamente o prefixo cmnd/ em vez do prefixo tele/\nAdicionada configuração para ajustes avançados do MQTT\nMelhorado, adicionado e otimizado várias definições e funções de ponto de dados, consulte o registro de alterações",
-        "nl": "**BELANGRIJK**: Commando's maken nu correct gebruik van het voorvoegsel cmnd/ in plaats van tele/ voorvoegsel\nToegevoegd: configuratie voor geavanceerde MQTT-instellingen\nVerbeterde, toegevoegde en geoptimaliseerde diverse gegevenspuntdefinities en rollen, zie Changelog.",
-        "fr": "**IMPORTANT** : Les commandes utilisent désormais correctement le préfixe cmnd/ au lieu du préfixe tele/\nAjout de la configuration pour les paramètres MQTT avancés\nAméliorations, ajouts et optimisations de diverses définitions de points de données et rôles, voir Journal des modifications",
-        "it": "**IMPORTANTE**: Ora i comandi utilizzano correttamente il prefisso cmnd/ anziché tele/\nAggiunta configurazione per le impostazioni avanzate di MQTT\nMigliorate, aggiunte e ottimizzate diverse definizioni di datapoint e ruoli, vedi Changelog",
-        "es": "**IMPORTANTE**: Ahora los comandos utilizan correctamente el prefijo cmnd/ en lugar del prefijo tele/\nAñadida configuración para ajustes avanzados de MQTT\nMejoradas, añadidas y optimizadas varias definiciones y roles de puntos de datos, ver Registro de cambios.",
-        "pl": "**WAŻNE**: Komendy teraz poprawnie używają prefiksu cmnd/ zamiast prefiksu tele/\nDodano konfigurację dla zaawansowanych ustawień MQTT\nUlepszono, dodano i zoptymalizowano różne definicje i role punktów danych, zobacz Changelog",
-        "uk": "**ВАЖЛИВО**: Тепер команди правильно використовують префікс cmnd/ замість префіксу tele/\nДодана конфігурація для розширених налаштувань MQTT.\nПокращено, додано та оптимізовано різні визначення точок даних та ролей, дивіться Журнал змін",
-        "zh-cn": "**重要提示**：命令现在正确使用cmnd/前缀，而不再使用tele/前缀\n添加了高级MQTT设置的配置\n增强，添加和优化了各种数据点的定义和角色，详见变更日志。"
-      },
-      "3.2.1": {
-        "en": "Sanitize the IDs of the clients\nAdded information about connected clients in the server mode",
-        "de": "Sanitize die IDs der Kunden\nWeitere Informationen zu verbundenen Clients im Servermodus",
-        "ru": "Санитизируйте идентификаторы клиентов\nДобавлена информация о подключенных клиентах в серверном режиме",
-        "pt": "Sanitize os IDs dos clientes\nInformaÃ§Ãμes adicionais sobre clientes conectados no modo servidor",
-        "nl": "De identificaties van de cliënten reinigen\nInformatie over verbonden clients toegevoegd in de servermodus",
-        "fr": "Sanitiser les ID des clients\nAjout d'informations sur les clients connectés en mode serveur",
-        "it": "Smaltire gli ID dei clienti\nAggiunte informazioni sui client connessi nella modalità server",
-        "es": "Sanitize the IDs of the clients\nInformación adicional sobre clientes conectados en el modo servidor",
-        "pl": "Sanitize identyfikatory klientów\nDodano informacje o podłączonych klientach w trybie serwera",
-        "uk": "Сатизувати ідентифікатори клієнтів\nДодано інформацію про підключені клієнти в режимі сервера",
-        "zh-cn": "对客户身份进行保密\n在服务器模式中添加了连接客户端的信息"
-      },
-      "3.1.2": {
-        "en": "updated packages",
-        "de": "aktualisierte pakete",
-        "ru": "обновления пакетов",
-        "pt": "pacotes atualizados",
-        "nl": "bijgewerkte pakketten",
-        "fr": "paquets mis à jour",
-        "it": "pacchetti aggiornati",
-        "es": "paquetes actualizados",
-        "pl": "zaktualizowane pakiety",
-        "uk": "оновлені пакети",
-        "zh-cn": "更新软件包"
-      },
-      "3.1.1": {
-        "en": "updated packages",
-        "de": "aktualisierte pakete",
-        "ru": "обновления пакетов",
-        "pt": "pacotes atualizados",
-        "nl": "bijgewerkte pakketten",
-        "fr": "paquets mis à jour",
-        "it": "pacchetti aggiornati",
-        "es": "paquetes actualizados",
-        "pl": "zaktualizowane pakiety",
-        "uk": "оновлені пакети",
-        "zh-cn": "更新软件包"
-      },
-      "3.1.0": {
-        "en": "Important: Node.js 18.x  and js-controller 5.0.19+ is needed at minimum\nupgraded states for Tasmota 13.4.0.3 20240402\nenhanced some log messages\nAdded PWM Items\nFixed QoS handling to prevent invalid resubmissions\nPrevent creation of storeMap property in common and cleanup",
-        "de": "Wichtig: Node.js 18.x und js-controller 5.0.19+ ist mindestens erforderlich\naktualisierte Zustände für Tasmota 13.4.0.3 20240402\neinige log-nachrichten erweitert\nPWM Waren\nBehobene QoS-Behandlung, um ungültige Wiedereinsetzungen zu verhindern\nVerhindern Sie die Erstellung von Geschäft Karte Immobilien gemeinsam und sauber",
-        "ru": "Важно: Node.js 18.x и js-контроллер 5.0.19+ необходимо как минимум\nмодернизированные штаты для Тасмота 13.4.0.3 20240402\nрасширенные сообщения\nДобавлено PWM Пункты\nФиксированная обработка QoS для предотвращения неправильных повторной подачи\nПредотвращение создания магазина Карта недвижимости в целом и очистки",
-        "pt": "Importante: Node.js 18.x e js-controller 5.0.19+ é necessário no mínimo\nestados atualizados para Tasmota 13.4.0.3 20240402\nmelhorou algumas mensagens de log\nAdicionado PWM Itens\nManuseio QoS fixo para evitar resubmissões inválidas\nImpedir a criação de loja Propriedade do mapa em comum e limpeza",
-        "nl": "Belangrijk: Node.js 18.x en js-controller 5.0.19+ is minimaal nodig\nverbeterde staten voor Tasmota 13.4.0.3 20240402\nsommige logberichten verbeterd\nToegevoegd PWM Artikelen\nVaste QoS-behandeling om ongeldige resubmissions te voorkomen\nVoorkoming van de oprichting van een opslagplaats Kaart eigendom gemeenschappelijk en opruimen",
-        "fr": "Important: Node.js 18.x et js-controller 5.0.19+ est nécessaire au minimum\nétats améliorés pour Tasmota 13.4.03 202402\namélioré certains messages de journal\nAjouté PWM Éléments\nManipulation fixe de QoS pour empêcher les nouvelles présentations non valides\nEmpêcher la création de magasins Carte propriété en commun et nettoyage",
-        "it": "Importante: Node.js 18.x e js-controller 5.0.19+ è necessario al minimo\nstati aggiornati per Tasmota 13.4.0.3 20240402\nmigliorato alcuni messaggi di log\nAggiunto PWM Articoli\nMovimentazione QoS fissa per evitare resubmissioni non valide\nPrevenire la creazione di negozio Mappa di proprietà in comune e pulizia",
-        "es": "Importante: Node.js 18.x y js-controller 5.0.19+ se necesita al mínimo\nestados actualizados para Tasmota 13.4.0.3 20240402\nmejorar algunos mensajes de registro\nAñadido PWM Temas\nManejo fijo de QoS para prevenir las remisiones inválidas\nPrevenir la creación de la tienda Mapa propiedad en común y limpieza",
-        "pl": "Ważne: Node.js 18.x i sterownik js- 5.0.19 + jest potrzebny co najmniej\nzaktualizowane stany dla Tasmota 13.4.0.3 20240402\npoprawiła niektóre komunikaty dziennika\nDodano PWM Pozycje\nNaprawiono obsługę QoS, aby zapobiec niepoprawnym ponownym uruchomieniom\nZapobieganie tworzeniu magazynu Map właściwość wspólne i sprzątanie",
-        "uk": "Важливо: Node.js 18.x і js-controller 5.0.19+ необхідний мінімум\nоновлені стани для Тасмота 13.4.0.3 20240402\nрозширено деяких повідомлень журналу\nДодано PWM Товари\nВиправлена обробка QoS для запобігання недійсних відповідей\nПрофілактика створення магазину Карта нерухомості в загальному і чистому вигляді",
-        "zh-cn": "重要:节点.js 18.x和js控制器 5.0.19+至少需要\n塔斯莫塔州升级\n增强一些日志消息\n已添加的 PWM 项目\n防止重新提交无效的固定QoS处理\n防止创建仓库 共同和清理的映射属性"
-      },
-      "3.0.3": {
-        "en": "Added migration of password on JSON Config",
-        "de": "Migration von Passwort auf JSON Config hinzugefügt",
-        "ru": "Добавлена миграция пароля на JSON Config",
-        "pt": "Adicionado migração de senha em JSON Config",
-        "nl": "Vermelding van wachtwoord op JSON Config",
-        "fr": "Ajout de la migration de mot de passe sur JSON Config",
-        "it": "Aggiunta migrazione di password su JSON Config",
-        "es": "Migración agregada de contraseña en JSON Config",
-        "pl": "Dostęp do migracji haseł JSON Config",
-        "uk": "Додано міграції пароля на JSON Config",
-        "zh-cn": "A. 增加联索行动密码的移徙"
-      },
-      "2.5.7": {
-        "en": "Disabled the logging of username and password during connection errors\nadded json config",
-        "de": "Deaktiviert die Protokollierung von Benutzername und Passwort während der Verbindungsfehler\nadd json config",
-        "ru": "Отключение логина имени пользователя и пароля во время ошибок соединения\nдобавлено json config",
-        "pt": "Desativado o registro de nome de usuário e senha durante erros de conexão\nadicionado json config",
-        "nl": "De logeerkamer van gebruikers en wachtwoord tijdens de verbindingsfouten\nvoegde json config",
-        "fr": "Handicapés l'enregistrement du nom d'utilisateur et du mot de passe lors des erreurs de connexion\najouté json config",
-        "it": "Disattivare la registrazione di nome utente e password durante gli errori di connessione\naggiunto json config",
-        "es": "Desactivar el registro de nombre de usuario y contraseña durante errores de conexión\njson config",
-        "pl": "Dysponował logowaniem nazwy użytkownika i hasła podczas błędów połączenia\ndodał json configig",
-        "uk": "Вимкнено логування імені користувача та пароля під час помилок підключення\nдодано json config",
-        "zh-cn": "残疾人在联系错误期间的用户名称和密码\nj的额外活动"
+      "4.0.0": {
+        "en": "MAJOR: Added external MQTT broker support (client mode) with user/password and TLS. Server mode remains as before.",
+        "de": "MAJOR: Externer MQTT Broker Support (Client-Modus) mit User/Passwort und TLS hinzugefügt. Server-Modus bleibt wie bisher."
       }
     },
     "titleLang": {
-      "en": "Sonoff",
-      "de": "Sonoff",
-      "ru": "Sonoff",
-      "pt": "Sonoff",
-      "nl": "Sonoff",
-      "fr": "Sonoff",
-      "it": "Sonoff",
-      "es": "Sonoff",
-      "pl": "Sonoff",
-      "zh-cn": "索诺夫",
-      "uk": "Сонофф"
+      "en": "Sonoff / Tasmota",
+      "de": "Sonoff / Tasmota"
     },
     "desc": {
-      "en": "This adapter allows to connect sonoff components via MQTT",
-      "de": "Dieser Adapter ermöglicht den Anschluss von Sonoff-Komponenten über MQTT",
-      "ru": "Этот адаптер позволяет подключать компоненты Sonoff через MQTT",
-      "pt": "Este adaptador permite conectar os componentes do sonoff via MQTT",
-      "nl": "Met deze adapter kunnen sonoff-componenten via MQTT worden aangesloten",
-      "fr": "Cet adaptateur permet de connecter des composants sonoff via MQTT",
-      "it": "Questo adattatore consente di collegare i componenti Sonoff via MQTT",
-      "es": "Este adaptador permite conectar componentes de sonof a través de MQTT",
-      "pl": "Ten adapter umożliwia łączenie komponentów sonoff za pośrednictwem MQTT",
-      "zh-cn": "该适配器允许通过MQTT连接Sonoff组件",
-      "uk": "Цей адаптер дозволяє підключати компоненти sonoff через MQTT"
+      "en": "This adapter allows to connect Tasmota/Sonoff devices via MQTT - with built-in broker or external broker",
+      "de": "Dieser Adapter ermöglicht den Anschluss von Tasmota/Sonoff Geräten über MQTT - mit eingebautem oder externem Broker"
     },
     "authors": [
       "bluefox <dogafox@gmail.com>"
@@ -135,6 +30,7 @@
     "readme": "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
     "loglevel": "info",
     "icon": "sonoff.png",
+    "materialize": true,
     "adminUI": {
       "config": "json"
     },
@@ -142,7 +38,9 @@
       "ITEAD",
       "MQTT",
       "Sonoff",
-      "Tasmota"
+      "Tasmota",
+      "Mosquitto",
+      "external broker"
     ],
     "connectionType": "local",
     "dataSource": "push",
@@ -154,11 +52,6 @@
         "js-controller": ">=5.0.19"
       }
     ],
-    "globalDependencies": [
-      {
-        "admin": ">=7.6.17"
-      }
-    ],
     "plugins": {
       "sentry": {
         "dsn": "https://b975bb630271452e96a6bf115ec7946d@sentry.iobroker.net/37"
@@ -166,50 +59,43 @@
     }
   },
   "encryptedNative": [
-    "password"
+    "password",
+    "brokerPassword"
   ],
   "protectedNative": [
-    "password"
+    "password",
+    "brokerPassword"
   ],
   "native": {
+    "mode": "server",
+
     "port": 1883,
     "bind": "0.0.0.0",
     "user": "",
     "password": "",
+    "serverSsl": false,
+    "serverCertPath": "",
+    "serverKeyPath": "",
+
+    "brokerUrl": "",
+    "brokerPort": 1883,
+    "brokerUser": "",
+    "brokerPassword": "",
+    "brokerClientId": "",
+    "brokerTopicPrefix": "",
+    "brokerUseTls": false,
+    "brokerTlsRejectUnauthorized": true,
+    "brokerCaPath": "",
+    "brokerCertPath": "",
+    "brokerKeyPath": "",
+    "brokerKeepalive": 60,
+    "brokerReconnectPeriod": 5000,
+    "brokerCleanSession": true,
+
     "timeout": 300,
     "TELE_SENSOR": true,
-    "TELE_MARGINS": false,
-    "TELE_STATE": true,
+    "TELE_STATE": false,
     "STAT_RESULT": false,
-    "OBJ_TREE": false,
-    "storeClientsTime": 1440,
-    "defaultQoS": 0,
-    "retransmitInterval": 2000,
-    "retransmitCount": 10,
-    "ignorePings": false,
-    "ignoreNotConnectedWarnings": false
-  },
-  "objects": [],
-  "instanceObjects": [
-    {
-      "_id": "info",
-      "type": "channel",
-      "common": {
-        "name": "Information"
-      },
-      "native": {}
-    },
-    {
-      "_id": "info.connection",
-      "type": "state",
-      "common": {
-        "role": "info.clients",
-        "name": "List of connected clients",
-        "type": "string",
-        "read": true,
-        "write": false
-      },
-      "native": {}
-    }
-  ]
+    "OBJ_TREE": false
+  }
 }

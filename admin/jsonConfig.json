@@ -1,230 +1,315 @@
 {
-    "type": "panel",
-    "i18n": true,
-    "items": {
-        "_header1": {
-            "type": "header",
-            "text": "Connection settings",
-            "size": 3,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
+  "type": "tabs",
+  "i18n": true,
+  "items": {
+    "_connectionTab": {
+      "type": "panel",
+      "label": "Connection",
+      "items": {
+        "mode": {
+          "type": "select",
+          "label": "MQTT Mode",
+          "help": "modeHelp",
+          "options": [
+            { "label": "modeServer", "value": "server" },
+            { "label": "modeClient", "value": "client" }
+          ],
+          "newLine": true,
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "_divider1": {
+          "type": "divider"
+        },
+        "_headerServer": {
+          "type": "header",
+          "text": "headerBuiltInBroker",
+          "size": 4,
+          "hidden": "data.mode === 'client'"
         },
         "bind": {
-            "newLine": true,
-            "type": "ip",
-            "label": "IP",
-            "listenOnAllPorts": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "ip",
+          "label": "bindAddress",
+          "help": "bindAddressHelp",
+          "hidden": "data.mode === 'client'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
         },
         "port": {
-            "label": "Port",
-            "type": "number",
-            "min": 1,
-            "max": 65535,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "timeout": {
-            "label": "Client timeout",
-            "help": "in seconds",
-            "type": "number",
-            "min": 1,
-            "max": 99999,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_header2": {
-            "newLine": true,
-            "type": "header",
-            "text": "Authentication settings",
-            "size": 3,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
+          "type": "number",
+          "label": "port",
+          "min": 1,
+          "max": 65535,
+          "hidden": "data.mode === 'client'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
         },
         "user": {
-            "newLine": true,
-            "type": "text",
-            "label": "User",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "text",
+          "label": "username",
+          "help": "serverUserHelp",
+          "hidden": "data.mode === 'client'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
         },
         "password": {
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4,
-            "type": "password",
-            "label": "Password",
-            "repeat": true
+          "type": "password",
+          "label": "password",
+          "hidden": "data.mode === 'client'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
         },
-        "_header3": {
-            "newLine": true,
-            "type": "header",
-            "text": "Auto creation of states",
-            "size": 3,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
+        "serverSsl": {
+          "type": "checkbox",
+          "label": "enableTLS",
+          "hidden": "data.mode === 'client'",
+          "newLine": true,
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "serverCertPath": {
+          "type": "text",
+          "label": "certPath",
+          "help": "certPathHelp",
+          "hidden": "data.mode === 'client' || !data.serverSsl",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "serverKeyPath": {
+          "type": "text",
+          "label": "keyPath",
+          "help": "keyPathHelp",
+          "hidden": "data.mode === 'client' || !data.serverSsl",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+
+        "_headerClient": {
+          "type": "header",
+          "text": "headerExternalBroker",
+          "size": 4,
+          "hidden": "data.mode === 'server'"
+        },
+        "brokerUrl": {
+          "type": "text",
+          "label": "brokerHost",
+          "help": "brokerHostHelp",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerPort": {
+          "type": "number",
+          "label": "brokerPort",
+          "min": 1,
+          "max": 65535,
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerUser": {
+          "type": "text",
+          "label": "username",
+          "help": "brokerUserHelp",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerPassword": {
+          "type": "password",
+          "label": "password",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerClientId": {
+          "type": "text",
+          "label": "clientId",
+          "help": "clientIdHelp",
+          "placeholder": "iobroker_sonoff_0",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerTopicPrefix": {
+          "type": "text",
+          "label": "topicPrefix",
+          "help": "topicPrefixHelp",
+          "placeholder": "",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+
+        "_divider2": {
+          "type": "divider",
+          "hidden": "data.mode === 'server'"
+        },
+        "_headerTls": {
+          "type": "header",
+          "text": "headerTLS",
+          "size": 5,
+          "hidden": "data.mode === 'server'"
+        },
+        "brokerUseTls": {
+          "type": "checkbox",
+          "label": "enableTLS",
+          "hidden": "data.mode === 'server'",
+          "newLine": true,
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerTlsRejectUnauthorized": {
+          "type": "checkbox",
+          "label": "rejectUnauthorized",
+          "help": "rejectUnauthorizedHelp",
+          "hidden": "data.mode === 'server' || !data.brokerUseTls",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerCaPath": {
+          "type": "text",
+          "label": "caCertPath",
+          "help": "caCertPathHelp",
+          "hidden": "data.mode === 'server' || !data.brokerUseTls",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerCertPath": {
+          "type": "text",
+          "label": "clientCertPath",
+          "help": "clientCertPathHelp",
+          "hidden": "data.mode === 'server' || !data.brokerUseTls",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerKeyPath": {
+          "type": "text",
+          "label": "clientKeyPath",
+          "help": "clientKeyPathHelp",
+          "hidden": "data.mode === 'server' || !data.brokerUseTls",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+
+        "_divider3": {
+          "type": "divider",
+          "hidden": "data.mode === 'server'"
+        },
+        "_headerAdvanced": {
+          "type": "header",
+          "text": "headerAdvanced",
+          "size": 5,
+          "hidden": "data.mode === 'server'"
+        },
+        "brokerKeepalive": {
+          "type": "number",
+          "label": "keepalive",
+          "help": "keepaliveHelp",
+          "min": 10,
+          "max": 3600,
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerReconnectPeriod": {
+          "type": "number",
+          "label": "reconnectPeriod",
+          "help": "reconnectPeriodHelp",
+          "min": 1000,
+          "max": 60000,
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "brokerCleanSession": {
+          "type": "checkbox",
+          "label": "cleanSession",
+          "help": "cleanSessionHelp",
+          "hidden": "data.mode === 'server'",
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        }
+      }
+    },
+    "_optionsTab": {
+      "type": "panel",
+      "label": "Options",
+      "items": {
+        "timeout": {
+          "type": "number",
+          "label": "clientTimeout",
+          "help": "clientTimeoutHelp",
+          "min": 0,
+          "max": 86400,
+          "sm": 12,
+          "md": 6,
+          "lg": 4
+        },
+        "_dividerOptions": {
+          "type": "divider"
+        },
+        "_headerTelegrams": {
+          "type": "header",
+          "text": "headerTelegrams",
+          "size": 5
         },
         "TELE_SENSOR": {
-            "newLine": true,
-            "type": "checkbox",
-            "label": "For tele/SENSOR",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "checkbox",
+          "label": "teleSensor",
+          "help": "teleSensorHelp",
+          "sm": 12,
+          "md": 4,
+          "lg": 3
         },
         "TELE_STATE": {
-            "type": "checkbox",
-            "label": "For tele/STATE",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "TELE_MARGINS": {
-            "type": "checkbox",
-            "label": "For tele/MARGINS",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "checkbox",
+          "label": "teleState",
+          "help": "teleStateHelp",
+          "sm": 12,
+          "md": 4,
+          "lg": 3
         },
         "STAT_RESULT": {
-            "type": "checkbox",
-            "label": "For stat/RESULT",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "checkbox",
+          "label": "statResult",
+          "help": "statResultHelp",
+          "sm": 12,
+          "md": 4,
+          "lg": 3
         },
         "OBJ_TREE": {
-            "type": "checkbox",
-            "label": "Create object tree",
-            "help": "WARNING! Check README.md!",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_header4": {
-            "newLine": true,
-            "type": "header",
-            "text": "Other settings",
-            "size": 3,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
-        },
-        "ignorePings": {
-            "newLine": true,
-            "type": "checkbox",
-            "label": "Ignore warnings with pingreq",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "ignoreNotConnectedWarnings": {
-            "type": "checkbox",
-            "label": "Ignore 'not connected' warnings",
-            "help": "Suppress warnings when commands are sent to offline devices",
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_header5": {
-            "newLine": true,
-            "type": "header",
-            "text": "Advanced MQTT settings",
-            "size": 3,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
-        },
-        "storeClientsTime": {
-            "newLine": true,
-            "type": "number",
-            "label": "Store clients time",
-            "help": "Time in minutes to store client information",
-            "min": 1,
-            "max": 99999,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "defaultQoS": {
-            "type": "number",
-            "label": "Default QoS",
-            "help": "Default Quality of Service level (0, 1, or 2)",
-            "min": 0,
-            "max": 2,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "retransmitInterval": {
-            "type": "number",
-            "label": "Retransmit interval",
-            "help": "Interval in milliseconds for message retransmission",
-            "min": 100,
-            "max": 99999,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "retransmitCount": {
-            "type": "number",
-            "label": "Retransmit count",
-            "help": "Maximum number of retransmission attempts",
-            "min": 1,
-            "max": 100,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+          "type": "checkbox",
+          "label": "objTree",
+          "help": "objTreeHelp",
+          "newLine": true,
+          "sm": 12,
+          "md": 4,
+          "lg": 3
         }
+      }
     }
+  }
 }

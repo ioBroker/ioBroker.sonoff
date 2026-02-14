@@ -1,60 +1,57 @@
 {
-    "name": "iobroker.sonoff",
-    "description": "The adapter allows to send and receive MQTT messages from ioBroker and to be a broker.",
-    "version": "3.3.0",
-    "author": "bluefox <dogafox@gmail.com>",
-    "homepage": "https://github.com/ioBroker/ioBroker.sonoff",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ioBroker/ioBroker.sonoff"
-    },
-    "keywords": [
-        "ioBroker",
-        "sonoff",
-        "MQTT",
-        "tasmota",
-        "esp"
-    ],
-    "dependencies": {
-        "@iobroker/adapter-core": "^3.3.2",
-        "mqtt-connection": "^4.1.0"
-    },
-    "devDependencies": {
-        "@alcalzone/release-script": "^5.0.0",
-        "@alcalzone/release-script-plugin-iobroker": "^4.0.0",
-        "@alcalzone/release-script-plugin-license": "^4.0.0",
-        "@alcalzone/release-script-plugin-manual-review": "^4.0.0",
-        "@iobroker/adapter-dev": "^1.5.0",
-        "@iobroker/eslint-config": "^2.2.0",
-        "@iobroker/testing": "^5.2.2",
-        "@iobroker/types": "^7.1.0",
-        "mqtt": "^5.14.1",
-        "typescript": "^5.9.3"
-    },
-    "bugs": {
-        "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
-    },
-    "main": "build/main.js",
-    "files": [
-        "admin/",
-        "build/",
-        "io-package.json",
-        "LICENSE"
-    ],
-    "scripts": {
-        "test:integration": "mocha test/integration.js --exit",
-        "test:package": "mocha test/testPackageFiles.js --exit",
-        "test": "npm run test:integration",
-        "lint": "eslint -c eslint.config.mjs",
-        "build": "tsc -p tsconfig.build.json",
-        "release": "release-script",
-        "release-patch": "release-script patch --yes",
-        "release-minor": "release-script minor --yes",
-        "release-major": "release-script major --yes",
-        "update-packages": "npx -y npm-check-updates --upgrade"
-    },
-    "engines": {
-        "node": ">=20.0.0"
-    },
-    "license": "MIT"
+  "name": "iobroker.sonoff",
+  "version": "4.0.0",
+  "description": "The adapter allows to send and receive MQTT messages from ioBroker and to be a broker. Now with external broker support.",
+  "author": {
+    "name": "bluefox",
+    "email": "dogafox@gmail.com"
+  },
+  "homepage": "https://github.com/ioBroker/ioBroker.sonoff",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "MQTT",
+    "Sonoff",
+    "Tasmota",
+    "Smart Home"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ioBroker/ioBroker.sonoff"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.0.4",
+    "mqtt": "^5.3.0",
+    "mqtt-connection": "^4.1.0",
+    "aedes": "^0.51.0"
+  },
+  "devDependencies": {
+    "@alcalzone/release-script": "^3.7.0",
+    "@alcalzone/release-script-plugin-iobroker": "^3.7.0",
+    "@alcalzone/release-script-plugin-license": "^3.7.0",
+    "@iobroker/testing": "^4.1.0",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0"
+  },
+  "bugs": {
+    "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
+  },
+  "main": "main.js",
+  "files": [
+    "main.js",
+    "admin/",
+    "lib/",
+    "io-package.json",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --exit",
+    "release": "release-script",
+    "release-patch": "release-script patch --yes",
+    "release-minor": "release-script minor --yes",
+    "release-major": "release-script major --yes"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
