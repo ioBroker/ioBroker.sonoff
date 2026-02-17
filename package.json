@@ -28,7 +28,7 @@
         "@iobroker/eslint-config": "^2.2.0",
         "@iobroker/testing": "^5.2.2",
         "@iobroker/types": "^7.1.0",
-        "mqtt": "^5.14.1",
+        "mqtt": "^5.15.0",
         "typescript": "^5.9.3"
     },
     "bugs": {
