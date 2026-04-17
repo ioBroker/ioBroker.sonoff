@@ -29,7 +29,7 @@
         "@iobroker/testing": "^5.2.2",
         "@iobroker/types": "^7.1.0",
         "mqtt": "^5.14.1",
-        "typescript": "^5.9.3"
+        "typescript": "^6.0.3"
     },
     "bugs": {
         "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
