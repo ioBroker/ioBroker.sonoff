@@ -60,6 +60,13 @@
     "Use different topic names for set and get:": "使用不同的主题名称进行设置和获取",
     "User:": "用户",
     "WARNING! Check README.md!": "警告！检查 README.md！",
+    "External MQTT broker": "外部MQTT代理",
+    "Use external MQTT broker": "使用外部MQTT代理",
+    "Disables the built-in MQTT server and connects as client to an external broker": "禁用内置MQTT服务器，作为客户端连接到外部代理",
+    "External broker URL": "外部代理URL",
+    "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "例如 mqtt://192.168.1.100:1883 或 mqtts://broker:8883",
+    "External broker user": "外部代理用户",
+    "External broker password": "外部代理密码",
     "chars": "字符",
     "connected": "连接的",
     "ms": "毫秒"

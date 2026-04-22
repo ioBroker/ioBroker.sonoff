@@ -60,6 +60,13 @@
     "Use different topic names for set and get:": "Utilisez différents noms de sujet pour définir et obtenir",
     "User:": "Utilisateur",
     "WARNING! Check README.md!": "AVERTISSEMENT! Vérifiez README.md!",
+    "External MQTT broker": "Broker MQTT externe",
+    "Use external MQTT broker": "Utiliser un broker MQTT externe",
+    "Disables the built-in MQTT server and connects as client to an external broker": "Désactive le serveur MQTT intégré et se connecte en tant que client à un broker externe",
+    "External broker URL": "URL du broker externe",
+    "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "ex. mqtt://192.168.1.100:1883 ou mqtts://broker:8883",
+    "External broker user": "Utilisateur du broker externe",
+    "External broker password": "Mot de passe du broker externe",
     "chars": "chars",
     "connected": "connecté",
     "ms": "Mme"
