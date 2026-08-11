@@ -106,14 +106,16 @@ Optionally you can set the **Client ID** used at the broker (default `iobroker_s
 
 ### Full topic structures
 
-Both usual Tasmota `FullTopic` settings are supported and detected automatically per device, commands are sent back in the same structure:
+The usual Tasmota `FullTopic` settings are supported and detected automatically per device, commands are sent back in the same structure:
 
 | FullTopic | Example | Command |
 |---|---|---|
 | `%prefix%/%topic%/` (default) | `tele/lamp/STATE` | `cmnd/lamp/POWER` |
 | `%topic%/%prefix%/` | `lamp/tele/STATE` | `lamp/cmnd/POWER` |
+| `gateway/%prefix%/%topic%/` | `gateway/tele/lamp/STATE` | `gateway/cmnd/lamp/POWER` |
+| `gateway/%topic%/%prefix%/` | `gateway/lamp/tele/STATE` | `gateway/lamp/cmnd/POWER` |
 
-Nested topics like `tele/house/floor1/lamp/STATE` work as well. Devices with the `%topic%/%prefix%/` structure are only received if the subscriptions cover them (`+/tele/+, +/stat/+` by default).
+Nested topics like `tele/house/floor1/lamp/STATE` work as well. A fix prefix in front of the full topic (last two lines, e.g. for several gateways on one broker) is only recognized if the subscriptions cover it, so add e.g. `gateway/tele/#, gateway/stat/#` to **Topics to subscribe**. The same is true for the `%topic%/%prefix%/` structure, which is covered by `+/tele/+, +/stat/+` by default.
 
 ### Encrypted connections
 
@@ -176,6 +178,7 @@ States:
 * (bluefox) `info.connection` contains the list of the connected clients again (server mode), in bridge mode the URL of the broker
 * (bluefox/patricknitsch) Bridge mode: support for the full topic structure `%topic%/%prefix%/` (device first), detected automatically per device
 * (bluefox/patricknitsch) Bridge mode: encrypted connections with CA/client certificates and optional certificate check, configurable client ID, keepalive and clean session
+* (bluefox/patricknitsch) Bridge mode: a fix prefix in front of the full topic (e.g. `gateway/tele/device/STATE`) is recognized and used for the commands
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 

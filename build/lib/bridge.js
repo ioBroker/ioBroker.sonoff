@@ -67,7 +67,7 @@ class MQTTBridge extends mqttBase_1.default {
     pendingMessages = {};
     pendingTimers = {};
     tasmotaTopics = new Set();
-    topicStructures = {};
+    topicFormats = {};
     reportedConflicts = new Set();
     /** All messages are processed strictly one after another */
     queue = Promise.resolve();
@@ -189,18 +189,22 @@ class MQTTBridge extends mqttBase_1.default {
     }
     /**
      * Determine which device a topic belongs to and how the full topic is built:
-     * - tele/device/STATE            => device, standard
-     * - tele/house/floor/dev/STATE   => house/floor/dev, standard (nested full topics)
-     * - device/tele/STATE            => device, device-first (full topic %topic%/%prefix%/)
-     * - device/led_enableAll/get     => device, no tasmota structure (OpenBeken)
+     * - tele/device/STATE                 => device, standard
+     * - tele/house/floor/dev/STATE        => house/floor/dev, standard (nested full topics)
+     * - device/tele/STATE                 => device, device-first (full topic %topic%/%prefix%/)
+     * - gateway/tele/device/STATE         => device, standard with the prefix "gateway"
+     * - device/led_enableAll/get          => device, no tasmota structure (OpenBeken)
      */
     analyzeTopic(topic) {
         const parts = topic.split('/');
         const index = parts.findIndex(part => TASMOTA_PREFIXES.includes(part));
+        const command = parts[parts.length - 1];
+        // the prefix is the first part: tele/device/STATE
         if (index === 0) {
             return {
                 device: parts.length > 2 ? parts.slice(1, -1).join('/') : '',
                 structure: 'standard',
+                prefix: '',
                 standardTopic: topic,
             };
         }
@@ -210,22 +214,38 @@ class MQTTBridge extends mqttBase_1.default {
             return {
                 device,
                 structure: 'device-first',
-                standardTopic: `${parts[index]}/${device}/${parts[parts.length - 1]}`,
+                prefix: '',
+                standardTopic: `${parts[index]}/${device}/${command}`,
             };
         }
-        return { device: parts[0] || '', structure: null, standardTopic: topic };
+        // something stands in front of the full topic: gateway/tele/device/STATE
+        if (index > 0) {
+            const device = parts.slice(index + 1, -1).join('/');
+            return {
+                device,
+                structure: 'standard',
+                prefix: parts.slice(0, index).join('/'),
+                standardTopic: `${parts[index]}/${device}/${command}`,
+            };
+        }
+        return { device: parts[0] || '', standardTopic: topic };
     }
-    /** Convert a standard topic (cmnd/device/POWER) into the structure the device uses */
+    /** Convert a standard topic (cmnd/device/POWER) into the structure and prefix the device uses */
     toBrokerTopic(topic) {
         const parts = topic.split('/');
         if (parts.length < 3 || !TASMOTA_PREFIXES.includes(parts[0])) {
             return topic;
         }
         const device = parts.slice(1, -1).join('/');
-        if (this.topicStructures[device] !== 'device-first') {
+        const format = this.topicFormats[device];
+        if (!format) {
             return topic;
         }
-        return `${device}/${parts[0]}/${parts[parts.length - 1]}`;
+        const command = parts[parts.length - 1];
+        const fullTopic = format.structure === 'device-first'
+            ? `${device}/${parts[0]}/${command}`
+            : `${parts[0]}/${device}/${command}`;
+        return format.prefix ? `${format.prefix}/${fullTopic}` : fullTopic;
     }
     publishCommand(device, command, payload) {
         this.mqttClient?.publish(this.toBrokerTopic(`cmnd/${device}/${command}`), payload);
@@ -429,7 +449,7 @@ class MQTTBridge extends mqttBase_1.default {
         }
         if (info.structure) {
             this.tasmotaTopics.add(topicPrefix);
-            this.topicStructures[topicPrefix] = info.structure;
+            this.topicFormats[topicPrefix] = { structure: info.structure, prefix: info.prefix || '' };
         }
         // process the message like it would come with the standard full topic
         topic = info.standardTopic;

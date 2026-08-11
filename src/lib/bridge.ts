@@ -9,17 +9,25 @@ interface PublishPacket {
 
 /**
  * How the tasmota full topic is built:
- * - standard:     %prefix%/%topic%/   => tele/device/STATE
- * - device-first: %topic%/%prefix%/   => device/tele/STATE
+ * - standard:     %prefix%/%topic%/            => tele/device/STATE
+ * - device-first: %topic%/%prefix%/            => device/tele/STATE
+ * Both can have a fix prefix in front of it: gateway/%prefix%/%topic%/ => gateway/tele/device/STATE
  */
 type TopicStructure = 'standard' | 'device-first';
 
-interface TopicInfo {
+/** How the topics of one device look like */
+interface TopicFormat {
+    structure: TopicStructure;
+    /** Fix prefix in front of the full topic, e.g. for multiple gateways on one broker */
+    prefix: string;
+}
+
+interface TopicInfo extends Partial<TopicFormat> {
     /** The device part of the topic, empty if the topic cannot be assigned to a device */
     device: string;
-    /** null for topics without tasmota prefix, e.g. OpenBeken */
-    structure: TopicStructure | null;
-    /** The topic in the standard structure, so it can be processed like with the built-in broker */
+    /** undefined for topics without tasmota prefix, e.g. OpenBeken */
+    structure?: TopicStructure;
+    /** The topic in the standard structure without prefix, so it is processed like with the built-in broker */
     standardTopic: string;
 }
 
@@ -64,7 +72,7 @@ export default class MQTTBridge extends MQTTBase {
     private pendingMessages: Record<string, PendingMessage[]> = {};
     private pendingTimers: Record<string, ReturnType<typeof setTimeout>> = {};
     private tasmotaTopics: Set<string> = new Set();
-    private topicStructures: Record<string, TopicStructure> = {};
+    private topicFormats: Record<string, TopicFormat> = {};
     private reportedConflicts: Set<string> = new Set();
     /** All messages are processed strictly one after another */
     private queue: Promise<void> = Promise.resolve();
@@ -210,19 +218,23 @@ export default class MQTTBridge extends MQTTBase {
 
     /**
      * Determine which device a topic belongs to and how the full topic is built:
-     * - tele/device/STATE            => device, standard
-     * - tele/house/floor/dev/STATE   => house/floor/dev, standard (nested full topics)
-     * - device/tele/STATE            => device, device-first (full topic %topic%/%prefix%/)
-     * - device/led_enableAll/get     => device, no tasmota structure (OpenBeken)
+     * - tele/device/STATE                 => device, standard
+     * - tele/house/floor/dev/STATE        => house/floor/dev, standard (nested full topics)
+     * - device/tele/STATE                 => device, device-first (full topic %topic%/%prefix%/)
+     * - gateway/tele/device/STATE         => device, standard with the prefix "gateway"
+     * - device/led_enableAll/get          => device, no tasmota structure (OpenBeken)
      */
     private analyzeTopic(topic: string): TopicInfo {
         const parts = topic.split('/');
         const index = parts.findIndex(part => TASMOTA_PREFIXES.includes(part));
+        const command = parts[parts.length - 1];
 
+        // the prefix is the first part: tele/device/STATE
         if (index === 0) {
             return {
                 device: parts.length > 2 ? parts.slice(1, -1).join('/') : '',
                 structure: 'standard',
+                prefix: '',
                 standardTopic: topic,
             };
         }
@@ -233,24 +245,44 @@ export default class MQTTBridge extends MQTTBase {
             return {
                 device,
                 structure: 'device-first',
-                standardTopic: `${parts[index]}/${device}/${parts[parts.length - 1]}`,
+                prefix: '',
+                standardTopic: `${parts[index]}/${device}/${command}`,
             };
         }
 
-        return { device: parts[0] || '', structure: null, standardTopic: topic };
+        // something stands in front of the full topic: gateway/tele/device/STATE
+        if (index > 0) {
+            const device = parts.slice(index + 1, -1).join('/');
+            return {
+                device,
+                structure: 'standard',
+                prefix: parts.slice(0, index).join('/'),
+                standardTopic: `${parts[index]}/${device}/${command}`,
+            };
+        }
+
+        return { device: parts[0] || '', standardTopic: topic };
     }
 
-    /** Convert a standard topic (cmnd/device/POWER) into the structure the device uses */
+    /** Convert a standard topic (cmnd/device/POWER) into the structure and prefix the device uses */
     private toBrokerTopic(topic: string): string {
         const parts = topic.split('/');
         if (parts.length < 3 || !TASMOTA_PREFIXES.includes(parts[0])) {
             return topic;
         }
         const device = parts.slice(1, -1).join('/');
-        if (this.topicStructures[device] !== 'device-first') {
+        const format = this.topicFormats[device];
+        if (!format) {
             return topic;
         }
-        return `${device}/${parts[0]}/${parts[parts.length - 1]}`;
+
+        const command = parts[parts.length - 1];
+        const fullTopic =
+            format.structure === 'device-first'
+                ? `${device}/${parts[0]}/${command}`
+                : `${parts[0]}/${device}/${command}`;
+
+        return format.prefix ? `${format.prefix}/${fullTopic}` : fullTopic;
     }
 
     private publishCommand(device: string, command: string, payload: string): void {
@@ -491,7 +523,7 @@ export default class MQTTBridge extends MQTTBase {
 
         if (info.structure) {
             this.tasmotaTopics.add(topicPrefix);
-            this.topicStructures[topicPrefix] = info.structure;
+            this.topicFormats[topicPrefix] = { structure: info.structure, prefix: info.prefix || '' };
         }
 
         // process the message like it would come with the standard full topic

@@ -292,6 +292,27 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    it('supports a fix prefix in front of the full topic', async () => {
+        const { adapter, bridge, client, send } = setup();
+
+        await send('gateway/tele/lamp/STATE', '{"Time":"2026-08-11T10:00:00","POWER":"ON"}');
+        assert.ok(
+            client.published.find(p => p.topic === 'gateway/cmnd/lamp/Status' && p.payload === '6'),
+            'the status request must keep the prefix',
+        );
+
+        await send('gateway/stat/lamp/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_BBBBBB"}}');
+        assert.ok(adapter.objects['sonoff.0.DVES_BBBBBB'], 'the device must be created');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_BBBBBB.POWER']?.val, true);
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.DVES_BBBBBB.POWER', { val: false, ack: false });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [{ topic: 'gateway/cmnd/lamp/POWER', payload: 'OFF' }]);
+
+        await bridge.destroy();
+    });
+
     it('does not mix up the structures of different devices', async () => {
         const { bridge, client, send } = setup();
 
