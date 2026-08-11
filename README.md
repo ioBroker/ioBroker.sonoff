@@ -19,7 +19,7 @@ For other scenarios, consider the different options:
 |-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
 | Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
 | Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | unsupported      | unsupported                                                                   | required                                                                     | required                                                               |
+| External MQTT broker                          | optional (bridge mode) | unsupported                                                              | required                                                                     | required                                                               |
 | Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
@@ -92,6 +92,34 @@ The following topics are expected:
 
 **Note**: The list could be easily extended. Please send `Pull Requests` or *debug data* for unknown states to the developer (via issue).
 
+## Bridge mode
+
+By default the adapter runs a built-in TCP broker that Tasmota devices connect to directly. If you already run a dedicated MQTT broker (e.g. Mosquitto) you can use bridge mode instead — the adapter connects to your existing broker as a client.
+
+### Configuration
+
+In the adapter settings, activate **Use external MQTT broker** and set **External broker URL** to your broker address, e.g. `mqtt://192.168.1.10:1883` or just `192.168.1.10:1883`. Optionally set username and password. If the option is deactivated (or no URL is entered), the built-in broker is started as before.
+
+**Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#`. Extend this list if your devices use other full topics or if you use OpenBeken devices, which publish to `<devicename>/...`.
+
+Encrypted connections (`mqtts://`) are supported with valid certificates. Self-signed certificates are currently not supported.
+
+### Device naming
+
+In bridge mode the adapter cannot see the MQTT CONNECT packets of the devices (MQTT protocol limitation), so the name of a device is taken from its messages:
+
+1. `MqttClient` from `stat/<topic>/STATUS6` - this is the MQTT client ID, so the devices get the same names as with the built-in broker. The adapter requests this information (`cmnd/<topic>/Status 6`) as soon as an unknown device appears.
+2. `Hostname` from `tele/<topic>/STATE`, `tele/<topic>/INFO2` or `stat/<topic>/STATUS5`, if the device does not answer the status request.
+3. The topic itself, if nothing arrives within 30 seconds (e.g. devices with custom firmware).
+
+A device is only renamed if the new name comes from the same or a better source, so the objects do not change back and forth. If a device is renamed in Tasmota, the adapter renames the corresponding ioBroker objects, but references in other adapters (history, VIS, ...) must be adjusted manually.
+
+Because the external broker keeps running while the adapter restarts, the devices do not repeat their boot messages. To fill `INFO.Hostname`, `INFO.IPAddress` and `INFO.Version`, the adapter requests them (`cmnd/<topic>/Status 5` and `cmnd/<topic>/Status 2`) when a device is seen the first time. `Module` (from INFO1) cannot be requested and stays empty.
+
+### Availability
+
+With the built-in broker the `alive` state follows the TCP connection of the device. In bridge mode the last will topic (`tele/<topic>/LWT`) is used instead: `Online` sets `alive` to true, `Offline` to false.
+
 ## Auto-creation of objects
 In the web config, you can determine which MQTT telegrams create the new objects not in default data points:
 
@@ -124,6 +152,12 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (stony2k) Add bridge mode to connect to an external MQTT broker instead of running a built-in broker
+* (stony2k) Fix alive state object not being created (warning "has no existing object")
+* (bluefox) Bridge mode: the topics to subscribe are configurable now and nested full topics as well as OpenBeken topics are supported
+* (bluefox) Bridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources
+* (bluefox) Bridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline
+* (bluefox) Commands for auto-created states are sent to `cmnd/...` again, also for nested full topics
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 

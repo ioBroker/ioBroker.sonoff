@@ -6,12 +6,14 @@
  *      MIT License
  */
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core'; // Get common this utils
-import Server from './lib/server';
+import MQTTServer from './lib/server';
+import MQTTBridge from './lib/bridge';
+import type MQTTBase from './lib/mqttBase';
 import type { SonoffAdapterConfig } from './types';
 
 export class SonoffAdapter extends Adapter {
     declare config: SonoffAdapterConfig;
-    server: Server | null = null;
+    server: MQTTBase | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -53,7 +55,14 @@ export class SonoffAdapter extends Adapter {
             }
         }
 
-        this.server = new Server(this as ioBroker.Adapter);
+        if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
+            this.server = new MQTTBridge(this as ioBroker.Adapter);
+        } else {
+            if (this.config.useExternalBroker) {
+                this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
+            }
+            this.server = new MQTTServer(this as ioBroker.Adapter);
+        }
     }
 }
 

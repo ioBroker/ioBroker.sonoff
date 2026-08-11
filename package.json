@@ -16,20 +16,20 @@
         "esp"
     ],
     "dependencies": {
-        "@iobroker/adapter-core": "^3.3.2",
+        "@iobroker/adapter-core": "^3.4.3",
+        "mqtt": "^5.15.2",
         "mqtt-connection": "^4.1.0"
     },
     "devDependencies": {
-        "@alcalzone/release-script": "^5.0.0",
-        "@alcalzone/release-script-plugin-iobroker": "^4.0.0",
-        "@alcalzone/release-script-plugin-license": "^4.0.0",
-        "@alcalzone/release-script-plugin-manual-review": "^4.0.0",
+        "@alcalzone/release-script": "^5.2.1",
+        "@alcalzone/release-script-plugin-iobroker": "^5.2.0",
+        "@alcalzone/release-script-plugin-license": "^5.2.2",
+        "@alcalzone/release-script-plugin-manual-review": "^5.2.0",
         "@iobroker/adapter-dev": "^1.5.0",
-        "@iobroker/eslint-config": "^2.2.0",
-        "@iobroker/testing": "^5.2.2",
-        "@iobroker/types": "^7.1.0",
-        "mqtt": "^5.14.1",
-        "typescript": "^5.9.3"
+        "@iobroker/eslint-config": "^2.3.4",
+        "@iobroker/testing": "^5.3.0",
+        "@iobroker/types": "^7.2.2",
+        "typescript": "~6.0.3"
     },
     "bugs": {
         "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
@@ -42,9 +42,10 @@
         "LICENSE"
     ],
     "scripts": {
+        "test:unit": "mocha test/bridge.js --exit",
         "test:integration": "mocha test/integration.js --exit",
         "test:package": "mocha test/testPackageFiles.js --exit",
-        "test": "npm run test:integration",
+        "test": "npm run test:unit && npm run test:integration",
         "lint": "eslint -c eslint.config.mjs",
         "build": "tsc -p tsconfig.build.json",
         "release": "release-script",
