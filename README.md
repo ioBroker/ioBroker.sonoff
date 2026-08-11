@@ -100,9 +100,24 @@ By default the adapter runs a built-in TCP broker that Tasmota devices connect t
 
 In the adapter settings, activate **Use external MQTT broker** and set **External broker URL** to your broker address, e.g. `mqtt://192.168.1.10:1883` or just `192.168.1.10:1883`. Optionally set username and password. If the option is deactivated (or no URL is entered), the built-in broker is started as before.
 
-**Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#`. Extend this list if your devices use other full topics or if you use OpenBeken devices, which publish to `<devicename>/...`.
+**Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#, +/tele/+, +/stat/+`. Extend this list if your devices use other topics, e.g. OpenBeken devices, which publish to `<devicename>/...`, or a global prefix in the full topic (`myPrefix/tele/#`).
 
-Encrypted connections (`mqtts://`) are supported with valid certificates. Self-signed certificates are currently not supported.
+Optionally you can set the **Client ID** used at the broker (default `iobroker_sonoff_<instance>`), the **Keepalive** interval and **Clean session**. Deactivate the clean session if the broker should store the messages of the devices while the adapter is not running.
+
+### Full topic structures
+
+Both usual Tasmota `FullTopic` settings are supported and detected automatically per device, commands are sent back in the same structure:
+
+| FullTopic | Example | Command |
+|---|---|---|
+| `%prefix%/%topic%/` (default) | `tele/lamp/STATE` | `cmnd/lamp/POWER` |
+| `%topic%/%prefix%/` | `lamp/tele/STATE` | `lamp/cmnd/POWER` |
+
+Nested topics like `tele/house/floor1/lamp/STATE` work as well. Devices with the `%topic%/%prefix%/` structure are only received if the subscriptions cover them (`+/tele/+, +/stat/+` by default).
+
+### Encrypted connections
+
+Use `mqtts://broker:8883` (or `wss://`) as URL. For self-signed certificates deactivate **Check the certificate of the broker**, or enter the path to your **CA certificate**. If the broker requires client certificates, the paths to the **client certificate** and the **client key** can be entered too. The files are read from the file system of the ioBroker host.
 
 ### Device naming
 
@@ -158,6 +173,8 @@ States:
 * (bluefox) Bridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources
 * (bluefox) Bridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline
 * (bluefox) Commands for auto-created states are sent to `cmnd/...` again, also for nested full topics
+* (bluefox/patricknitsch) Bridge mode: support for the full topic structure `%topic%/%prefix%/` (device first), detected automatically per device
+* (bluefox/patricknitsch) Bridge mode: encrypted connections with CA/client certificates and optional certificate check, configurable client ID, keepalive and clean session
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 

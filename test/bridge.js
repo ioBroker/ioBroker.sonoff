@@ -38,14 +38,20 @@ class FakeMqttClient extends EventEmitter {
 
 let currentClient = null;
 
+const fakeConnect = (url, options) => {
+    currentClient.url = url;
+    currentClient.options = options;
+    return currentClient;
+};
+
 const mqttPath = require.resolve('mqtt');
 require.cache[mqttPath] = {
     id: mqttPath,
     filename: mqttPath,
     loaded: true,
     exports: {
-        connect: () => currentClient,
-        default: { connect: () => currentClient },
+        connect: fakeConnect,
+        default: { connect: fakeConnect },
     },
 };
 
@@ -117,7 +123,7 @@ function setup(configOverrides) {
         externalBrokerUrl: 'mqtt://localhost:1883',
         externalBrokerUser: '',
         externalBrokerPassword: '',
-        externalBrokerTopics: 'tele/#, stat/#, +/led_+/get',
+        externalBrokerTopics: 'tele/#, stat/#, +/tele/+, +/stat/+, +/led_+/get',
         defaultQoS: 0,
         TELE_SENSOR: true,
         TELE_STATE: true,
@@ -145,7 +151,37 @@ describe('MQTT bridge (external broker)', function () {
 
     it('subscribes to the configured topics', async () => {
         const { client, bridge } = setup();
-        assert.deepStrictEqual(client.subscriptions, ['tele/#', 'stat/#', '+/led_+/get']);
+        assert.deepStrictEqual(client.subscriptions, [
+            'tele/#',
+            'stat/#',
+            '+/tele/+',
+            '+/stat/+',
+            '+/led_+/get',
+        ]);
+        await bridge.destroy();
+    });
+
+    it('uses the configured connection options', async () => {
+        const { client, bridge } = setup({
+            externalBrokerClientId: 'my_client',
+            externalBrokerKeepalive: '30',
+            externalBrokerCleanSession: false,
+        });
+        assert.strictEqual(client.url, 'mqtt://localhost:1883');
+        assert.strictEqual(client.options.clientId, 'my_client');
+        assert.strictEqual(client.options.keepalive, 30);
+        assert.strictEqual(client.options.clean, false);
+        assert.strictEqual(client.options.rejectUnauthorized, undefined, 'no TLS options without an encrypted URL');
+        await bridge.destroy();
+    });
+
+    it('adds the TLS options for encrypted connections', async () => {
+        const { client, bridge } = setup({
+            externalBrokerUrl: 'mqtts://broker:8883',
+            externalBrokerRejectUnauthorized: false,
+        });
+        assert.strictEqual(client.url, 'mqtts://broker:8883');
+        assert.strictEqual(client.options.rejectUnauthorized, false);
         await bridge.destroy();
     });
 
@@ -223,6 +259,56 @@ describe('MQTT bridge (external broker)', function () {
         await send('stat/house/floor1/lamp/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_ABCDEF"}}');
         await send('stat/house/floor1/lamp/POWER', 'ON');
         assert.strictEqual(bridge.clients.DVES_ABCDEF?._map?.POWER, 'cmnd/house/floor1/lamp/POWER');
+
+        await bridge.destroy();
+    });
+
+    it('supports the device-first full topic (%topic%/%prefix%/)', async () => {
+        const { adapter, bridge, client, send } = setup();
+
+        await send('lamp/tele/STATE', '{"Time":"2026-08-11T10:00:00","POWER":"ON"}');
+        assert.ok(
+            client.published.find(p => p.topic === 'lamp/cmnd/Status' && p.payload === '6'),
+            'the status request must use the structure of the device',
+        );
+
+        await send('lamp/stat/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_AAAAAA"}}');
+        assert.ok(adapter.objects['sonoff.0.DVES_AAAAAA'], 'the device must be created');
+        assert.strictEqual(
+            adapter.states['sonoff.0.DVES_AAAAAA.POWER']?.val,
+            true,
+            'the buffered STATE must be processed like a standard topic',
+        );
+
+        await send('lamp/stat/POWER', 'ON');
+        assert.strictEqual(bridge.clients.DVES_AAAAAA?._map?.POWER, 'cmnd/lamp/POWER');
+
+        // a command must be published in the structure of the device
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.DVES_AAAAAA.POWER', { val: false, ack: false });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [{ topic: 'lamp/cmnd/POWER', payload: 'OFF' }]);
+
+        await bridge.destroy();
+    });
+
+    it('does not mix up the structures of different devices', async () => {
+        const { bridge, client, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"standard_device"}}');
+        await send('stat/kitchen/POWER', 'ON');
+        await send('lamp/stat/STATUS6', '{"StatusMQT":{"MqttClient":"first_device"}}');
+        await send('lamp/stat/POWER', 'ON');
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.standard_device.POWER', { val: true, ack: false });
+        await bridge.onStateChange('sonoff.0.first_device.POWER', { val: true, ack: false });
+        await delay(50);
+
+        assert.deepStrictEqual(client.published, [
+            { topic: 'cmnd/kitchen/POWER', payload: 'ON' },
+            { topic: 'lamp/cmnd/POWER', payload: 'ON' },
+        ]);
 
         await bridge.destroy();
     });

@@ -56,12 +56,12 @@ export class SonoffAdapter extends Adapter {
         }
 
         if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
-            this.server = new MQTTBridge(this as ioBroker.Adapter);
+            this.server = new MQTTBridge(this);
         } else {
             if (this.config.useExternalBroker) {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
-            this.server = new MQTTServer(this as ioBroker.Adapter);
+            this.server = new MQTTServer(this);
         }
     }
 }

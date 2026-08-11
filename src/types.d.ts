@@ -21,4 +21,11 @@ export interface SonoffAdapterConfig {
     externalBrokerUser: string;
     externalBrokerPassword: string;
     externalBrokerTopics: string;
+    externalBrokerClientId: string;
+    externalBrokerKeepalive: number | string;
+    externalBrokerCleanSession: boolean;
+    externalBrokerRejectUnauthorized: boolean;
+    externalBrokerCaPath: string;
+    externalBrokerCertPath: string;
+    externalBrokerKeyPath: string;
 }
