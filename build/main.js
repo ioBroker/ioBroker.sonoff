@@ -13,6 +13,7 @@ exports.SonoffAdapter = void 0;
  */
 const adapter_core_1 = require("@iobroker/adapter-core"); // Get common this utils
 const server_1 = __importDefault(require("./lib/server"));
+const bridge_1 = __importDefault(require("./lib/bridge"));
 class SonoffAdapter extends adapter_core_1.Adapter {
     server = null;
     constructor(options = {}) {
@@ -52,7 +53,15 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 }
             }
         }
-        this.server = new server_1.default(this);
+        if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
+            this.server = new bridge_1.default(this);
+        }
+        else {
+            if (this.config.useExternalBroker) {
+                this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
+            }
+            this.server = new server_1.default(this);
+        }
     }
 }
 exports.SonoffAdapter = SonoffAdapter;
