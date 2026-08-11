@@ -1302,6 +1302,16 @@ export default abstract class MQTTBase {
             return;
         }
 
+        // Last will topic: "Online" is published by the device itself, "Offline" by the broker
+        // if the device is gone. With the built-in broker the connection state is used instead,
+        // but in bridge mode this is the only way to detect that a device disappeared.
+        if (packet.topic.endsWith('/LWT')) {
+            const lwt = packet.payload.toString('utf8').trim().toLowerCase();
+            this.adapter.log.debug(`Client [${client.id}] received: ${packet.topic} = ${lwt}`);
+            await this.updateAlive(client, lwt !== 'offline');
+            return;
+        }
+
         // update alive state
         await this.updateAlive(client, true);
 
@@ -1328,10 +1338,6 @@ export default abstract class MQTTBase {
             if (possibleStateId && possibleStateId.startsWith('led_') && types[possibleStateId]) {
                 stateId = parts.pop() || ''; // Use led_enableAll instead of get/set
             }
-        }
-
-        if (stateId === 'LWT') {
-            return;
         }
 
         if (val.includes('nan')) {
@@ -1482,8 +1488,10 @@ export default abstract class MQTTBase {
                         // OpenBeken: devicename/led_enableAll/get -> devicename/led_enableAll/set
                         mappedTopic = mappedTopic.replace(/\/get$/, '/set');
                     } else if (parts[0] === 'stat' || parts[0] === 'tele') {
-                        // Convert stat/tele topics to cmnd for outgoing commands
-                        mappedTopic = `cmnd/${parts[1]}/${stateId}`;
+                        // Convert stat/tele topics to cmnd for outgoing commands.
+                        // Only the first and the last part are replaced, so nested full topics
+                        // like tele/house/floor/device/POWER stay intact
+                        mappedTopic = mappedTopic.replace(/^\w+\//, 'cmnd/').replace(/\/[^/]+$/, `/${stateId}`);
                     } else if (stateId.startsWith('led_')) {
                         // OpenBeken without suffix: devicename/led_enableAll -> devicename/led_enableAll/set
                         mappedTopic = `${packet.topic}/set`;

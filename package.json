@@ -1,7 +1,7 @@
 {
     "name": "iobroker.sonoff",
     "description": "The adapter allows to send and receive MQTT messages from ioBroker and to be a broker.",
-    "version": "3.4.0",
+    "version": "3.3.0",
     "author": "bluefox <dogafox@gmail.com>",
     "homepage": "https://github.com/ioBroker/ioBroker.sonoff",
     "repository": {
@@ -42,9 +42,10 @@
         "LICENSE"
     ],
     "scripts": {
+        "test:unit": "mocha test/bridge.js --exit",
         "test:integration": "mocha test/integration.js --exit",
         "test:package": "mocha test/testPackageFiles.js --exit",
-        "test": "npm run test:integration",
+        "test": "npm run test:unit && npm run test:integration",
         "lint": "eslint -c eslint.config.mjs",
         "build": "tsc -p tsconfig.build.json",
         "release": "release-script",

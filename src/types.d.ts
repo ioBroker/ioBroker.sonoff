@@ -20,4 +20,5 @@ export interface SonoffAdapterConfig {
     externalBrokerUrl: string;
     externalBrokerUser: string;
     externalBrokerPassword: string;
+    externalBrokerTopics: string;
 }

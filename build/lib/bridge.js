@@ -38,11 +38,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mqtt_1 = __importDefault(require("mqtt"));
 const mqttBase_1 = __importStar(require("./mqttBase"));
+/**
+ * Where the name of a device comes from. A name from a less reliable source never overwrites
+ * a name from a better one, so devices are not renamed back and forth with every message.
+ */
+const NAME_PRIORITY = {
+    /** Fallback: the topic itself */
+    topic: 0,
+    /** "Hostname" from tele/.../STATE, tele/.../INFO2 or stat/.../STATUS5 */
+    hostname: 1,
+    /** "MqttClient" from stat/.../STATUS6 - the same name as with the built-in broker */
+    mqttClient: 2,
+};
+const TASMOTA_PREFIXES = ['tele', 'stat', 'cmnd'];
+const DEFAULT_TOPICS = ['tele/#', 'stat/#'];
+const NAME_TIMEOUT_MS = 30_000;
+const MAX_PENDING_MESSAGES = 100;
+/**
+ * MQTT bridge: connects as a client to an existing (external) MQTT broker
+ * instead of starting an own broker. All message processing is shared with the
+ * server implementation via MQTTBase.
+ */
 class MQTTBridge extends mqttBase_1.default {
     mqttClient = null;
-    topicToHostname = {};
+    deviceNames = {};
     pendingMessages = {};
     pendingTimers = {};
+    tasmotaTopics = new Set();
+    reportedConflicts = new Set();
+    /** All messages are processed strictly one after another */
+    queue = Promise.resolve();
     constructor(adapter) {
         super(adapter);
         if (!this.config.externalBrokerUrl) {
@@ -57,6 +82,8 @@ class MQTTBridge extends mqttBase_1.default {
         }
         this.pendingTimers = {};
         this.pendingMessages = {};
+        // wait till the currently processed message is done
+        await this.queue.catch(() => { });
         if (this.mqttClient) {
             for (const id in this.clients) {
                 await this.adapter.setForeignStateAsync(`${this.adapter.namespace}.${this.clients[id].iobId}.alive`, false, true);
@@ -76,8 +103,17 @@ class MQTTBridge extends mqttBase_1.default {
         }
         return url;
     }
+    /** Topics to subscribe to. Can be configured, e.g. to support other full topics or OpenBeken devices */
+    getSubscriptions() {
+        const topics = (this.config.externalBrokerTopics || '')
+            .split(/[,;\s]+/)
+            .map(topic => topic.trim())
+            .filter(topic => topic);
+        return topics.length ? topics : DEFAULT_TOPICS;
+    }
     connect() {
         const url = this.normalizeUrl(this.config.externalBrokerUrl);
+        const subscriptions = this.getSubscriptions();
         this.adapter.log.info(`Connecting to external MQTT broker: ${url}`);
         this.mqttClient = mqtt_1.default.connect(url, {
             username: this.config.externalBrokerUser || undefined,
@@ -90,15 +126,21 @@ class MQTTBridge extends mqttBase_1.default {
             this.adapter
                 .setStateAsync('info.connection', url, true)
                 .catch(err => this.adapter.log.error(`Cannot set connection state: ${err}`));
-            this.mqttClient.subscribe(['tele/#', 'stat/#'], { qos: this.config.defaultQoS }, err => {
+            this.mqttClient.subscribe(subscriptions, { qos: this.config.defaultQoS }, err => {
                 if (err) {
                     this.adapter.log.error(`Cannot subscribe to external broker: ${err.message}`);
+                }
+                else {
+                    this.adapter.log.info(`Subscribed to ${subscriptions.join(', ')}`);
                 }
             });
             this.updateClients().catch(err => this.adapter.log.error(`Cannot update clients: ${err.message}`));
         });
-        this.mqttClient.on('message', async (topic, payload, packet) => {
-            await this.handleExternalMessage(topic, payload, packet).catch(err => this.adapter.log.error(`Cannot handle external message: ${err.message}`));
+        this.mqttClient.on('message', (topic, payload, packet) => {
+            // Devices are created and renamed asynchronously, so the messages must not overlap
+            this.queue = this.queue
+                .then(() => this.handleExternalMessage(topic, payload, packet))
+                .catch(err => this.adapter.log.error(`Cannot handle external message: ${err.message}`));
         });
         this.mqttClient.on('error', err => this.adapter.log.error(`External MQTT broker error: ${err.message}`));
         this.mqttClient.on('close', () => {
@@ -111,21 +153,84 @@ class MQTTBridge extends mqttBase_1.default {
             this.adapter.log.debug('Reconnecting to external MQTT broker...');
         });
     }
+    /**
+     * Extract the device part of a topic:
+     * - tele/device/STATE            => device
+     * - tele/house/floor/dev/STATE   => house/floor/dev (nested full topics)
+     * - device/led_enableAll/get     => device (OpenBeken)
+     */
+    getTopicPrefix(parts) {
+        if (TASMOTA_PREFIXES.includes(parts[0])) {
+            return parts.length > 2 ? parts.slice(1, -1).join('/') : '';
+        }
+        return parts[0] || '';
+    }
+    toPacket(topic, payload, packet) {
+        return {
+            topic,
+            payload,
+            qos: packet.qos,
+            retain: packet.retain,
+            messageId: 0,
+        };
+    }
+    /** Find the name of the device in the payload of a message */
+    detectDeviceName(payload) {
+        const text = payload.toString('utf8');
+        if (!text.startsWith('{')) {
+            return null;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        }
+        catch {
+            return null;
+        }
+        // stat/device/STATUS6 = {"StatusMQT":{"MqttClient":"DVES_123456", ...}}
+        const mqttClient = data.StatusMQT?.MqttClient;
+        if (typeof mqttClient === 'string' && mqttClient) {
+            return { name: mqttClient, priority: NAME_PRIORITY.mqttClient };
+        }
+        // stat/device/STATUS5 = {"StatusNET":{"Hostname":"tasmota-1234", ...}}
+        const netHostname = data.StatusNET?.Hostname;
+        if (typeof netHostname === 'string' && netHostname) {
+            return { name: netHostname, priority: NAME_PRIORITY.hostname };
+        }
+        // tele/device/STATE or tele/device/INFO2 = {..., "Hostname":"tasmota-1234", ...}
+        if (typeof data.Hostname === 'string' && data.Hostname) {
+            return { name: data.Hostname, priority: NAME_PRIORITY.hostname };
+        }
+        return null;
+    }
     async createClientForDevice(topicPrefix, deviceName) {
         const client = this.createPseudoClient(deviceName, topicPrefix);
         this.clients[client.id] = client;
         this.mappingClients[client.iobId] = client.id;
         this.createClient(client, () => { });
         await this.updateClients();
-        this.adapter.log.debug(`Created device "${deviceName}" for topic prefix "${topicPrefix}"`);
-        if (this.mqttClient) {
+        this.adapter.log.debug(`Created device "${deviceName}" for topic "${topicPrefix}"`);
+        // The external broker keeps running while the adapter restarts, so the devices do not
+        // repeat their boot messages. Ask them for the information which is normally sent in INFO2/INFO3
+        if (this.mqttClient && this.tasmotaTopics.has(topicPrefix)) {
             this.mqttClient.publish(`cmnd/${topicPrefix}/Status`, '5');
             this.mqttClient.publish(`cmnd/${topicPrefix}/Status`, '2');
         }
         return client;
     }
-    async renameDevice(oldName, newName, topicPrefix) {
-        this.adapter.log.info(`Renaming device "${oldName}" → "${newName}" (topic: "${topicPrefix}")`);
+    async renameDevice(oldName, newName, topicPrefix, priority) {
+        if (oldName === newName) {
+            return;
+        }
+        if (this.clients[newName]) {
+            const conflict = `${topicPrefix}=>${newName}`;
+            if (!this.reportedConflicts.has(conflict)) {
+                this.reportedConflicts.add(conflict);
+                this.adapter.log.warn(`Cannot rename device "${oldName}" (topic: "${topicPrefix}") to "${newName}": another device with this name already exists`);
+            }
+            return;
+        }
+        this.adapter.log.info(`Renaming device "${oldName}" => "${newName}" (topic: "${topicPrefix}")`);
         const oldIobId = oldName.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
         const newIobId = newName.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
         const oldPrefix = `${this.adapter.namespace}.${oldIobId}`;
@@ -143,7 +248,7 @@ class MQTTBridge extends mqttBase_1.default {
         delete this.mappingClients[oldIobId];
         this.clients[newName] = newClient;
         this.mappingClients[newIobId] = newName;
-        this.topicToHostname[topicPrefix] = newName;
+        this.deviceNames[topicPrefix] = { name: newName, priority };
         const objects = await this.adapter.getForeignObjectsAsync(`${oldPrefix}.*`);
         for (const [oldId, obj] of Object.entries(objects)) {
             const suffix = oldId.slice(oldPrefix.length);
@@ -162,134 +267,127 @@ class MQTTBridge extends mqttBase_1.default {
         await this.adapter.delForeignObjectAsync(oldPrefix);
         await this.updateClients();
     }
-    async processPending(topicPrefix, client) {
-        const pending = this.pendingMessages[topicPrefix];
-        if (!pending?.length) {
+    /** Assign the detected name to a topic: create the device or rename an existing one */
+    async applyDeviceName(topicPrefix, name, priority) {
+        const current = this.deviceNames[topicPrefix];
+        if (current) {
+            if (current.name === name) {
+                if (priority > current.priority) {
+                    current.priority = priority;
+                }
+                return;
+            }
+            if (priority < current.priority) {
+                // do not rename the device because of a less reliable source
+                return;
+            }
+            await this.renameDevice(current.name, name, topicPrefix, priority);
             return;
         }
+        if (this.pendingTimers[topicPrefix]) {
+            clearTimeout(this.pendingTimers[topicPrefix]);
+            delete this.pendingTimers[topicPrefix];
+        }
+        const topicIobId = topicPrefix.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
+        if (topicIobId !== name.replace(mqttBase_1.FORBIDDEN_CHARS, '_')) {
+            const existingObj = await this.adapter.getForeignObjectAsync(`${this.adapter.namespace}.${topicIobId}`);
+            if (existingObj) {
+                // The objects were created with the topic as fallback name => migrate them
+                this.deviceNames[topicPrefix] = { name: topicPrefix, priority: NAME_PRIORITY.topic };
+                await this.renameDevice(topicPrefix, name, topicPrefix, priority);
+                // if the renaming was not possible, the device must exist with its old name
+                await this.ensureClient(topicPrefix);
+                await this.processPending(topicPrefix);
+                return;
+            }
+        }
+        this.deviceNames[topicPrefix] = { name, priority };
+        await this.createClientForDevice(topicPrefix, name);
+        await this.processPending(topicPrefix);
+    }
+    /** Make sure that a client exists for the current name of a topic */
+    async ensureClient(topicPrefix) {
+        const device = this.deviceNames[topicPrefix];
+        if (device && !this.clients[device.name]) {
+            await this.createClientForDevice(topicPrefix, device.name);
+        }
+    }
+    /** Process the messages which arrived before the name of the device was known */
+    async processPending(topicPrefix) {
+        const pending = this.pendingMessages[topicPrefix];
         delete this.pendingMessages[topicPrefix];
+        const device = this.deviceNames[topicPrefix];
+        const client = device ? this.clients[device.name] : null;
+        if (!pending?.length || !client) {
+            return;
+        }
         for (const msg of pending) {
-            const mqttPacket = {
-                topic: msg.topic,
-                payload: msg.payload,
-                qos: msg.packet.qos,
-                retain: msg.packet.retain,
-                messageId: 0,
-            };
-            await this.receivedTopic(mqttPacket, client).catch(err => this.adapter.log.error(`Error processing buffered message: ${err.message}`));
+            await this.receivedTopic(this.toPacket(msg.topic, msg.payload, msg.packet), client).catch(err => this.adapter.log.error(`Error processing buffered message: ${err.message}`));
         }
     }
     async fallbackToTopicPrefix(topicPrefix) {
         delete this.pendingTimers[topicPrefix];
-        if (this.topicToHostname[topicPrefix]) {
+        if (this.deviceNames[topicPrefix]) {
             return;
         }
-        this.adapter.log.debug(`No STATE/Hostname received for "${topicPrefix}" within 30s, using topic prefix as device name`);
-        this.topicToHostname[topicPrefix] = topicPrefix;
-        const client = await this.createClientForDevice(topicPrefix, topicPrefix);
-        await this.processPending(topicPrefix, client);
+        this.adapter.log.debug(`No device name received for "${topicPrefix}" within ${NAME_TIMEOUT_MS / 1000}s, using the topic as device name`);
+        this.deviceNames[topicPrefix] = { name: topicPrefix, priority: NAME_PRIORITY.topic };
+        await this.createClientForDevice(topicPrefix, topicPrefix);
+        await this.processPending(topicPrefix);
     }
-    async resolveDeviceHostname(topicPrefix, newHostname, topic, payload, packet) {
-        const existingHostname = this.topicToHostname[topicPrefix];
-        if (existingHostname === undefined) {
-            if (this.pendingTimers[topicPrefix]) {
-                clearTimeout(this.pendingTimers[topicPrefix]);
-                delete this.pendingTimers[topicPrefix];
-            }
-            let client;
-            const topicIobId = topicPrefix.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
-            const newIobId = newHostname.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
-            const existingObj = await this.adapter.getForeignObjectAsync(`${this.adapter.namespace}.${topicIobId}`);
-            if (existingObj && topicIobId !== newIobId) {
-                await this.renameDevice(topicPrefix, newHostname, topicPrefix);
-                client = this.clients[newHostname];
-            }
-            else {
-                this.topicToHostname[topicPrefix] = newHostname;
-                client = await this.createClientForDevice(topicPrefix, newHostname);
-            }
-            await this.processPending(topicPrefix, client);
-            if (topic && payload && packet) {
-                const mqttPacket = {
-                    topic,
-                    payload,
-                    qos: packet.qos,
-                    retain: packet.retain,
-                    messageId: 0,
-                };
-                await this.receivedTopic(mqttPacket, client);
+    /** Store a message till the name of the device is known */
+    bufferMessage(topicPrefix, topic, payload, packet) {
+        if (!this.pendingMessages[topicPrefix]) {
+            this.pendingMessages[topicPrefix] = [];
+            // ask the device how its MQTT client is called
+            if (this.tasmotaTopics.has(topicPrefix)) {
+                this.mqttClient?.publish(`cmnd/${topicPrefix}/Status`, '6');
             }
         }
-        else if (existingHostname !== newHostname) {
-            await this.renameDevice(existingHostname, newHostname, topicPrefix);
-            const client = this.clients[newHostname];
-            if (client && topic && payload && packet) {
-                const mqttPacket = {
-                    topic,
-                    payload,
-                    qos: packet.qos,
-                    retain: packet.retain,
-                    messageId: 0,
-                };
-                await this.receivedTopic(mqttPacket, client);
-            }
+        const pending = this.pendingMessages[topicPrefix];
+        if (pending.length >= MAX_PENDING_MESSAGES) {
+            pending.shift();
         }
+        pending.push({ topic, payload, packet });
+        this.pendingTimers[topicPrefix] ||= setTimeout(() => {
+            this.queue = this.queue
+                .then(() => this.fallbackToTopicPrefix(topicPrefix))
+                .catch(err => this.adapter.log.error(`Cannot create device "${topicPrefix}": ${err.message}`));
+        }, NAME_TIMEOUT_MS);
     }
     async handleExternalMessage(topic, payload, packet) {
         const parts = topic.split('/');
-        const topicPrefix = parts[1] || 'unknown';
-        if (parts[0] === 'tele') {
-            try {
-                const data = JSON.parse(payload.toString());
-                if (typeof data.Hostname === 'string' && data.Hostname) {
-                    await this.resolveDeviceHostname(topicPrefix, data.Hostname, topic, payload, packet);
-                    return;
-                }
-            }
-            catch {
-                // not valid JSON, fall through
-            }
-        }
-        if (parts[0] === 'stat' && parts[2] === 'STATUS6') {
-            try {
-                const data = JSON.parse(payload.toString());
-                const statusMqtt = data.StatusMQT;
-                if (statusMqtt && typeof statusMqtt.MqttClient === 'string' && statusMqtt.MqttClient) {
-                    await this.resolveDeviceHostname(topicPrefix, statusMqtt.MqttClient);
-                    // fall through to normal routing so STATUS6 is also stored as ioBroker state
-                }
-            }
-            catch {
-                // not valid JSON, fall through
-            }
-        }
-        const hostname = this.topicToHostname[topicPrefix];
-        if (hostname !== undefined) {
-            const client = this.clients[hostname];
-            if (!client) {
-                return;
-            }
-            const mqttPacket = {
-                topic,
-                payload,
-                qos: packet.qos,
-                retain: packet.retain,
-                messageId: 0,
-            };
-            await this.receivedTopic(mqttPacket, client);
+        const topicPrefix = this.getTopicPrefix(parts);
+        if (!topicPrefix) {
+            this.adapter.log.debug(`Ignore message with unexpected topic: ${topic}`);
             return;
         }
-        if (!this.pendingMessages[topicPrefix]) {
-            this.pendingMessages[topicPrefix] = [];
-            this.mqttClient?.publish(`cmnd/${topicPrefix}/Status`, '6');
+        if (TASMOTA_PREFIXES.includes(parts[0])) {
+            this.tasmotaTopics.add(topicPrefix);
         }
-        this.pendingMessages[topicPrefix].push({ topic, payload, packet });
-        if (!this.pendingTimers[topicPrefix]) {
-            this.pendingTimers[topicPrefix] = setTimeout(() => this.fallbackToTopicPrefix(topicPrefix).catch(err => this.adapter.log.error(err.message)), 30000);
+        // The name of the device can be part of this message
+        const detected = this.detectDeviceName(payload);
+        if (detected) {
+            await this.applyDeviceName(topicPrefix, detected.name, detected.priority);
         }
+        else if (!this.deviceNames[topicPrefix] && !this.tasmotaTopics.has(topicPrefix)) {
+            // Devices which do not use the tasmota topics (e.g. OpenBeken) cannot be asked
+            // for their name, so the topic is used immediately
+            this.deviceNames[topicPrefix] = { name: topicPrefix, priority: NAME_PRIORITY.topic };
+            await this.createClientForDevice(topicPrefix, topicPrefix);
+            await this.processPending(topicPrefix);
+        }
+        const device = this.deviceNames[topicPrefix];
+        if (device) {
+            const client = this.clients[device.name];
+            if (client) {
+                await this.receivedTopic(this.toPacket(topic, payload, packet), client);
+            }
+            return;
+        }
+        this.bufferMessage(topicPrefix, topic, payload, packet);
     }
     createPseudoClient(id, fallBackName) {
-        const mqttClientRef = this.mqttClient;
         return {
             __secret: `${Date.now()}_${Math.round(Math.random() * 10000)}`,
             id,
@@ -303,7 +401,7 @@ class MQTTBridge extends mqttBase_1.default {
             _fallBackName: fallBackName,
             publish: (packet) => {
                 const pkts = Array.isArray(packet) ? packet : [packet];
-                pkts.forEach(p => mqttClientRef?.publish(p.topic, p.payload, {
+                pkts.forEach(p => this.mqttClient?.publish(p.topic, p.payload, {
                     qos: p.qos || 0,
                     retain: p.retain || false,
                 }));

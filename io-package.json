@@ -1,21 +1,8 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "3.4.0",
+    "version": "3.3.0",
     "news": {
-      "3.4.0": {
-        "en": "Added optional external MQTT broker mode: connect to existing brokers instead of running the built-in server",
-        "de": "Optionaler externer MQTT-Broker-Modus hinzugefügt: Verbindung mit vorhandenen Brokern statt Betrieb des eingebauten Servers",
-        "ru": "Добавлен опциональный режим внешнего MQTT-брокера: подключение к существующим брокерам вместо запуска встроенного сервера",
-        "pt": "Adicionado modo opcional de broker MQTT externo: conecte-se a brokers existentes em vez de executar o servidor integrado",
-        "nl": "Optionele externe MQTT-broker modus toegevoegd: verbinding maken met bestaande brokers in plaats van de ingebouwde server te starten",
-        "fr": "Ajout du mode broker MQTT externe optionnel : connectez-vous aux brokers existants au lieu d'exécuter le serveur intégré",
-        "it": "Aggiunta modalità broker MQTT esterno opzionale: connetti a broker esistenti invece di eseguire il server integrato",
-        "es": "Añadido modo de broker MQTT externo opcional: conéctese a brokers existentes en lugar de ejecutar el servidor integrado",
-        "pl": "Dodano opcjonalny tryb zewnętrznego brokera MQTT: połącz z istniejącymi brokerami zamiast uruchamiać wbudowany serwer",
-        "uk": "Додано опціональний режим зовнішнього MQTT-брокера: підключення до існуючих брокерів замість запуску вбудованого сервера",
-        "zh-cn": "新增可选外部MQTT代理模式：连接到现有代理，而不是运行内置服务器"
-      },
       "3.3.0": {
         "en": "**IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix\nAdded configuration for advanced MQTT settings\nEnhanced, Added and Optimized various datapoint definitions and roles, see Changelog",
         "de": "**WICHTIG**: Befehle verwenden jetzt korrekterweise das Präfix cmnd/ anstelle von tele/\nErweiterte Konfiguration für MQTT-Einstellungen hinzugefügt.\nVerbesserte, hinzugefügte und optimierte verschiedene Datenpunktdefinitionen und Rollen, siehe Changelog.",
@@ -179,16 +166,23 @@
     }
   },
   "encryptedNative": [
-    "password"
+    "password",
+    "externalBrokerPassword"
   ],
   "protectedNative": [
-    "password"
+    "password",
+    "externalBrokerPassword"
   ],
   "native": {
     "port": 1883,
     "bind": "0.0.0.0",
     "user": "",
     "password": "",
+    "useExternalBroker": false,
+    "externalBrokerUrl": "",
+    "externalBrokerUser": "",
+    "externalBrokerPassword": "",
+    "externalBrokerTopics": "tele/#, stat/#",
     "timeout": 300,
     "TELE_SENSOR": true,
     "TELE_MARGINS": false,

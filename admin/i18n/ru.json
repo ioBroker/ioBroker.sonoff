@@ -67,6 +67,9 @@
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "например mqtt://192.168.1.100:1883 или mqtts://broker:8883",
     "External broker user": "Пользователь внешнего брокера",
     "External broker password": "Пароль внешнего брокера",
+    "Topics to subscribe": "Топики для подписки",
+    "Comma separated list, e.g. tele/#, stat/#": "Список через запятую, например tele/#, stat/#",
+    "Without URL the built-in MQTT server will be started": "Без URL будет запущен встроенный MQTT-сервер",
     "chars": "символов",
     "connected": "успешно",
     "ms": "мс"

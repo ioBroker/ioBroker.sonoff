@@ -67,6 +67,9 @@
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "ex. mqtt://192.168.1.100:1883 ou mqtts://broker:8883",
     "External broker user": "Usuário do broker externo",
     "External broker password": "Senha do broker externo",
+    "Topics to subscribe": "Tópicos para assinar",
+    "Comma separated list, e.g. tele/#, stat/#": "Lista separada por vírgulas, por exemplo tele/#, stat/#",
+    "Without URL the built-in MQTT server will be started": "Sem URL, o servidor MQTT integrado será iniciado",
     "chars": "caracteres",
     "connected": "conectado",
     "ms": "Senhora"

@@ -42,19 +42,6 @@ export class SonoffAdapter extends Adapter {
     }
 
     private async main(): Promise<void> {
-        // Reset any pending (ack=false) states before subscribing and starting the server.
-        // On restart, ioBroker may re-deliver unacknowledged states to the adapter, which
-        // would cause the server to send commands to devices (e.g. opening a garage door).
-        // Acknowledging them here ensures they are treated as read-only current values.
-        const currentStates = await this.getStatesAsync('*');
-        if (currentStates) {
-            for (const [id, state] of Object.entries(currentStates)) {
-                if (state && !state.ack) {
-                    await this.setForeignStateAsync(id, state.val, true);
-                }
-            }
-        }
-
         // subscribe for all own variables
         this.subscribeStates('*');
 
@@ -68,9 +55,12 @@ export class SonoffAdapter extends Adapter {
             }
         }
 
-        if (this.config.useExternalBroker) {
+        if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
             this.server = new MQTTBridge(this as ioBroker.Adapter);
         } else {
+            if (this.config.useExternalBroker) {
+                this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
+            }
             this.server = new MQTTServer(this as ioBroker.Adapter);
         }
     }
