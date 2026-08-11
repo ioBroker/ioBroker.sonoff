@@ -173,6 +173,7 @@ States:
 * (bluefox) Bridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources
 * (bluefox) Bridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline
 * (bluefox) Commands for auto-created states are sent to `cmnd/...` again, also for nested full topics
+* (bluefox) `info.connection` contains the list of the connected clients again (server mode), in bridge mode the URL of the broker
 * (bluefox/patricknitsch) Bridge mode: support for the full topic structure `%topic%/%prefix%/` (device first), detected automatically per device
 * (bluefox/patricknitsch) Bridge mode: encrypted connections with CA/client certificates and optional certificate check, configurable client ID, keepalive and clean session
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes

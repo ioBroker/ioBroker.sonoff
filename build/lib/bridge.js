@@ -96,6 +96,10 @@ class MQTTBridge extends mqttBase_1.default {
             this.mqttClient = null;
         }
     }
+    /** In bridge mode info.connection shows the URL of the external broker, not the devices */
+    async updateConnectionState() {
+        // nothing to do, the state is set when the connection to the broker is established or lost
+    }
     sendState2Client(client, topic, state, qos) {
         const brokerTopic = this.toBrokerTopic(topic);
         this.adapter.log.debug(`Send to external broker "${client.id}": ${brokerTopic} = ${state}`);

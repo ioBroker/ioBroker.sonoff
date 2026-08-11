@@ -392,9 +392,7 @@ export default class MQTTServer extends MQTTBase {
             this.adapter.log.info(
                 `Starting MQTT ${this.config.user ? 'authenticated ' : ''} server on port ${this.config.port}`,
             );
-            this.adapter
-                .setStateAsync('info.connection', `port:${this.config.port}`, true)
-                .catch(err => this.adapter.log.error(`Cannot set connection state: ${err}`));
+            // info.connection is filled with the list of the connected clients
             this.updateClients().catch(err => this.adapter.log.error(`Cannot update clients: ${err}`));
 
             this.resendTimer = setInterval(

@@ -873,10 +873,12 @@ export default abstract class MQTTBase {
 
     protected async updateClients(): Promise<void> {
         const clientIds = [];
+        const clientNames = [];
         if (this.clients) {
             for (const id in this.clients) {
                 const oid = `info.clients.${id.replace(/[.\s]+/g, '_').replace(FORBIDDEN_CHARS, '_')}`;
                 clientIds.push(oid);
+                clientNames.push(id);
                 const clientObj = await this.adapter.getObjectAsync(oid);
                 if (!clientObj?.native) {
                     await this.adapter.setObjectAsync(oid, {
@@ -914,6 +916,16 @@ export default abstract class MQTTBase {
                 await this.adapter.setStateAsync(id, { val: false, ack: true });
             }
         }
+
+        await this.updateConnectionState(clientNames);
+    }
+
+    /**
+     * Update info.connection: the server writes the list of the connected clients there,
+     * the bridge the URL of the external broker
+     */
+    protected async updateConnectionState(clientNames: string[]): Promise<void> {
+        await this.adapter.setStateAsync('info.connection', clientNames.join(','), true);
     }
 
     protected async updateAlive(client: MQTTClient, alive: boolean): Promise<void> {

@@ -104,6 +104,11 @@ export default class MQTTBridge extends MQTTBase {
         }
     }
 
+    /** In bridge mode info.connection shows the URL of the external broker, not the devices */
+    protected async updateConnectionState(): Promise<void> {
+        // nothing to do, the state is set when the connection to the broker is established or lost
+    }
+
     protected sendState2Client(client: MQTTClient, topic: string, state: ioBroker.StateValue, qos: 0 | 1 | 2): void {
         const brokerTopic = this.toBrokerTopic(topic);
         this.adapter.log.debug(`Send to external broker "${client.id}": ${brokerTopic} = ${state}`);
