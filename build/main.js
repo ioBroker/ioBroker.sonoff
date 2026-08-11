@@ -13,6 +13,7 @@ exports.SonoffAdapter = void 0;
  */
 const adapter_core_1 = require("@iobroker/adapter-core"); // Get common this utils
 const server_1 = __importDefault(require("./lib/server"));
+const bridge_1 = __importDefault(require("./lib/bridge"));
 class SonoffAdapter extends adapter_core_1.Adapter {
     server = null;
     constructor(options = {}) {
@@ -41,6 +42,18 @@ class SonoffAdapter extends adapter_core_1.Adapter {
         });
     }
     async main() {
+        // Reset any pending (ack=false) states before subscribing and starting the server.
+        // On restart, ioBroker may re-deliver unacknowledged states to the adapter, which
+        // would cause the server to send commands to devices (e.g. opening a garage door).
+        // Acknowledging them here ensures they are treated as read-only current values.
+        const currentStates = await this.getStatesAsync('*');
+        if (currentStates) {
+            for (const [id, state] of Object.entries(currentStates)) {
+                if (state && !state.ack) {
+                    await this.setForeignStateAsync(id, state.val, true);
+                }
+            }
+        }
         // subscribe for all own variables
         this.subscribeStates('*');
         // read all states and set alive to false
@@ -52,7 +65,12 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 }
             }
         }
-        this.server = new server_1.default(this);
+        if (this.config.useExternalBroker) {
+            this.server = new bridge_1.default(this);
+        }
+        else {
+            this.server = new server_1.default(this);
+        }
     }
 }
 exports.SonoffAdapter = SonoffAdapter;

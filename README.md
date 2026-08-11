@@ -19,7 +19,7 @@ For other scenarios, consider the different options:
 |-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
 | Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
 | Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | unsupported      | unsupported                                                                   | required                                                                     | required                                                               |
+| External MQTT broker                          | optional (bridge mode) | unsupported                                                              | required                                                                     | required                                                               |
 | Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
 | publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
@@ -92,6 +92,20 @@ The following topics are expected:
 
 **Note**: The list could be easily extended. Please send `Pull Requests` or *debug data* for unknown states to the developer (via issue).
 
+## Bridge mode
+
+By default the adapter runs a built-in TCP broker that Tasmota devices connect to directly. If you already run a dedicated MQTT broker (e.g. Mosquitto) you can use bridge mode instead — the adapter connects to your existing broker as a client.
+
+### Configuration
+
+In the adapter settings, set **External broker URL** to your broker address, e.g. `mqtt://192.168.1.10:1883` or just `192.168.1.10:1883`. Optionally set username and password. Leave the field empty to use the built-in broker.
+
+### Device naming
+
+In bridge mode the adapter cannot see the MQTT CONNECT packets of Tasmota devices (MQTT protocol limitation). Instead it reads the `Hostname` field from incoming `tele/<topic>/STATE` messages to determine the device name — the same name Tasmota would use as MQTT client ID.
+
+If no `Hostname` field arrives within 30 seconds (e.g. devices with custom firmware), the MQTT topic prefix is used as a fallback name (e.g. `tasmota_F39C94`). To avoid this, set the Tasmota **Topic** to the desired device name in the Tasmota web UI, or add a `Hostname` field to your Berry script's MQTT publications.
+
 ## Auto-creation of objects
 In the web config, you can determine which MQTT telegrams create the new objects not in default data points:
 
@@ -124,6 +138,8 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (stony2k) Add bridge mode to connect to an external MQTT broker instead of running a built-in broker
+* (stony2k) Fix alive state object not being created (warning "has no existing object")
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 

@@ -1,7 +1,7 @@
 {
     "name": "iobroker.sonoff",
     "description": "The adapter allows to send and receive MQTT messages from ioBroker and to be a broker.",
-    "version": "3.3.0",
+    "version": "3.4.0",
     "author": "bluefox <dogafox@gmail.com>",
     "homepage": "https://github.com/ioBroker/ioBroker.sonoff",
     "repository": {
@@ -17,6 +17,7 @@
     ],
     "dependencies": {
         "@iobroker/adapter-core": "^3.3.2",
+        "mqtt": "^5.14.1",
         "mqtt-connection": "^4.1.0"
     },
     "devDependencies": {
@@ -28,7 +29,6 @@
         "@iobroker/eslint-config": "^2.2.0",
         "@iobroker/testing": "^5.2.2",
         "@iobroker/types": "^7.1.0",
-        "mqtt": "^5.14.1",
         "typescript": "^5.9.3"
     },
     "bugs": {

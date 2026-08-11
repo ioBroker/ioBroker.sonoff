@@ -16,4 +16,8 @@ export interface SonoffAdapterConfig {
     ignorePings: boolean;
     ignoreNotConnectedWarnings: boolean;
     sendInterval: number;
+    useExternalBroker: boolean;
+    externalBrokerUrl: string;
+    externalBrokerUser: string;
+    externalBrokerPassword: string;
 }

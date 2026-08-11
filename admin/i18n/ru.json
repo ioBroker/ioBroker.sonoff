@@ -60,6 +60,13 @@
     "Use different topic names for set and get:": "Использовать разные имена для чтения и записи",
     "User:": "Имя пользователя",
     "WARNING! Check README.md!": "ПРЕДУПРЕЖДЕНИЕ! Проверьте README.md!",
+    "External MQTT broker": "Внешний MQTT-брокер",
+    "Use external MQTT broker": "Использовать внешний MQTT-брокер",
+    "Disables the built-in MQTT server and connects as client to an external broker": "Отключает встроенный MQTT-сервер и подключается как клиент к внешнему брокеру",
+    "External broker URL": "URL внешнего брокера",
+    "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "например mqtt://192.168.1.100:1883 или mqtts://broker:8883",
+    "External broker user": "Пользователь внешнего брокера",
+    "External broker password": "Пароль внешнего брокера",
     "chars": "символов",
     "connected": "успешно",
     "ms": "мс"
