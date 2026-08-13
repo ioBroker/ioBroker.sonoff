@@ -366,6 +366,30 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/489
+    it('keeps the complete name of a data point in a group', async () => {
+        const { adapter, bridge, send } = setup();
+
+        await send('stat/meter/STATUS6', '{"StatusMQT":{"MqttClient":"meter"}}');
+        await send(
+            'tele/meter/SENSOR',
+            '{"Time":"2026-08-11T10:00:00","SML":{"Total_in":1234.5,"Total_out":11.1,"Volt":230},"VEML6075":{"UvIndex":2.5}}',
+        );
+
+        assert.ok(
+            adapter.states['sonoff.0.meter.SML_Total_in'],
+            `SML_Total_in is missing: ${Object.keys(adapter.states).join(', ')}`,
+        );
+        assert.strictEqual(adapter.states['sonoff.0.meter.SML_Total_in'].val, 1234.5);
+        assert.strictEqual(adapter.states['sonoff.0.meter.SML_Total_out']?.val, 11.1);
+        assert.ok(!adapter.states['sonoff.0.meter.SML_in'], 'the name must not be stripped to "in"');
+
+        // the path must still be removed if the key of the data point starts with it
+        assert.strictEqual(adapter.states['sonoff.0.meter.VEML6075_UvIndex']?.val, 2.5);
+
+        await bridge.destroy();
+    });
+
     it('uses the topic as name if the device does not answer', async () => {
         const { adapter, bridge, send } = setup();
 

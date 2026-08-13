@@ -938,8 +938,15 @@ export default abstract class MQTTBase {
     }
 
     private addObject(typeKey: string, client: MQTTClient, prefix: string, path: string[]): Task {
-        // Extract the actual attribute name for the state ID construction
-        const attr = typeKey.includes('_') && path.length > 0 ? typeKey.split('_').pop() || '' : typeKey;
+        // Extract the actual attribute name for the state ID construction.
+        // The path is added to the ID anyway, so it must be removed from the key of the
+        // data point, but only if the key really starts with it: "VEML6075_UvIndex" in the
+        // path "VEML6075" is "UvIndex", but "Total_in" in the path "SML" stays "Total_in"
+        let attr = typeKey;
+        const pathPrefix = path.length ? `${path.join('_')}_` : '';
+        if (pathPrefix && typeKey.startsWith(pathPrefix)) {
+            attr = typeKey.substring(pathPrefix.length);
+        }
         const replaceAttr = types[typeKey].replace || attr;
         const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr.replace(FORBIDDEN_CHARS, '_')}`;
         return {
