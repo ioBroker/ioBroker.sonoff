@@ -128,6 +128,8 @@ export interface MQTTClient {
     _resendonStart: ReturnType<typeof setTimeout> | null;
     _map: { [key: string]: string };
     _fallBackName: string;
+    /** True as soon as the information of the device (Status 5 and Status 2) was requested */
+    _infoRequested?: boolean;
 
     on: (event: string, callback: (args: any) => void) => void;
     connack: (options: { returnCode: number; sessionPresent?: boolean }) => void;

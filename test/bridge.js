@@ -236,6 +236,37 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    // https://github.com/ioBroker/ioBroker.sonoff/pull/513
+    it('stores the network and firmware information of a device', async () => {
+        const { adapter, bridge, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send(
+            'stat/kitchen/STATUS5',
+            '{"StatusNET":{"Hostname":"tasmota-1234","IPAddress":"192.168.1.55","Gateway":"192.168.1.1","Subnetmask":"255.255.255.0","DNSServer1":"192.168.1.1","Mac":"AB:CD:EF:01:23:45","Webserver":2,"HTTP_API":1,"WifiConfig":4,"WifiPower":17}}',
+        );
+        await send(
+            'stat/kitchen/STATUS2',
+            '{"StatusFWR":{"Version":"14.2.0(tasmota)","BuildDateTime":"2026-01-01T10:00:00","Core":"2_7_4_9","SDK":"2.2.2","CpuFrequency":80,"Hardware":"ESP8266EX"}}',
+        );
+
+        const states = adapter.states;
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.Mac']?.val, 'AB:CD:EF:01:23:45');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.IPAddress']?.val, '192.168.1.55');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.Gateway']?.val, '192.168.1.1');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.Subnetmask']?.val, '255.255.255.0');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.WifiPower']?.val, 17);
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.Version']?.val, '14.2.0(tasmota)');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.Hardware']?.val, 'ESP8266EX');
+        assert.strictEqual(states['sonoff.0.DVES_123456.INFO.CpuFrequency']?.val, 80);
+
+        const mac = adapter.objects['sonoff.0.DVES_123456.INFO.Mac'];
+        assert.strictEqual(mac?.common.type, 'string');
+        assert.strictEqual(mac?.common.role, 'info.mac');
+
+        await bridge.destroy();
+    });
+
     it('sets alive from the last will topic', async () => {
         const { adapter, bridge, send } = setup();
 

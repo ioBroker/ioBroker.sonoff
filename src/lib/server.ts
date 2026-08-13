@@ -423,6 +423,23 @@ export default class MQTTServer extends MQTTBase {
         }
     }
 
+    protected async receivedTopic(packet: MQTTPacket, client: MQTTClient): Promise<void> {
+        await super.receivedTopic(packet, client);
+
+        // Tasmota sends INFO1 - INFO3 only while booting, so the adapter does not know the MAC
+        // address, the IP address or the firmware version of a device which is already running.
+        // Ask for them once per connection, the answers are processed as STATUS5 and STATUS2
+        if (!client._infoRequested) {
+            const parts = packet.topic.split('/');
+            if ((parts[0] === 'tele' || parts[0] === 'stat') && parts.length > 2) {
+                client._infoRequested = true;
+                const topic = `cmnd/${parts.slice(1, -1).join('/')}/Status`;
+                this.sendState2Client(client, topic, 5, this.config.defaultQoS);
+                this.sendState2Client(client, topic, 2, this.config.defaultQoS);
+            }
+        }
+    }
+
     protected sendState2Client(
         client: MQTTClient,
         topic: string,
