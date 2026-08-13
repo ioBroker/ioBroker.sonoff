@@ -169,6 +169,7 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
 * (stony2k) Add bridge mode to connect to an external MQTT broker instead of running a built-in broker
 * (stony2k) Fix alive state object not being created (warning "has no existing object")
 * (bluefox/GreatSUN) Fixed the names of data points inside a group: since 3.3.0 e.g. `SML_Total_in` was created as `SML_in` (#489)
@@ -355,6 +356,8 @@ States:
 
 ### 0.1.0 (2017-10-01)
 * (bluefox) initial commit
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ## License
 
