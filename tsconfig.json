@@ -1,5 +1,6 @@
 // Root tsconfig to set the settings and power editor support for all TS files
 {
+    "extends": "@tsconfig/node22/tsconfig.json",
     "compileOnSave": true,
     "compilerOptions": {
         "noEmit": true,
@@ -8,6 +9,7 @@
 
         "skipLibCheck": true, // Don't report errors in 3rd party definitions
         "noEmitOnError": true,
+        "rootDir": "./src", // typescript 6 requires it explicitly
         "outDir": "./build",
         "esModuleInterop": true,
         "resolveJsonModule": true,
