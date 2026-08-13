@@ -9,7 +9,11 @@ import { Adapter, type AdapterOptions } from '@iobroker/adapter-core'; // Get co
 import MQTTServer from './lib/server';
 import MQTTBridge from './lib/bridge';
 import type MQTTBase from './lib/mqttBase';
+import { findShortenedStates } from './lib/checkStates';
 import type { SonoffAdapterConfig } from './types';
+
+/** How many shortened states are written into the log */
+const MAX_REPORTED_STATES = 20;
 
 export class SonoffAdapter extends Adapter {
     declare config: SonoffAdapterConfig;
@@ -55,13 +59,41 @@ export class SonoffAdapter extends Adapter {
             }
         }
 
+        await this.reportShortenedStates();
+
         if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
-            this.server = new MQTTBridge(this as ioBroker.Adapter);
+            this.server = new MQTTBridge(this);
         } else {
             if (this.config.useExternalBroker) {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
-            this.server = new MQTTServer(this as ioBroker.Adapter);
+            this.server = new MQTTServer(this);
+        }
+    }
+
+    /**
+     * The versions 3.3.x created states inside a group with a shortened name (issue #489),
+     * e.g. "SML_in" instead of "SML_Total_in". They are not updated anymore, so the user is
+     * informed about them. They are not deleted, because they can contain the history.
+     */
+    private async reportShortenedStates(): Promise<void> {
+        try {
+            const states = await findShortenedStates(this);
+            if (!states.length) {
+                return;
+            }
+
+            this.log.warn(
+                `${states.length} state(s) were created with a shortened name by the versions 3.3.x and are not updated anymore. Check them and delete them if they are not required:`,
+            );
+            for (const state of states.slice(0, MAX_REPORTED_STATES)) {
+                this.log.warn(`  ${state.id} => is now ${state.expected}`);
+            }
+            if (states.length > MAX_REPORTED_STATES) {
+                this.log.warn(`  ... and ${states.length - MAX_REPORTED_STATES} more`);
+            }
+        } catch (err: unknown) {
+            this.log.debug(`Cannot check the names of the states: ${(err as Error).message}`);
         }
     }
 }

@@ -151,7 +151,7 @@
     "type": "lighting",
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
@@ -182,7 +182,14 @@
     "externalBrokerUrl": "",
     "externalBrokerUser": "",
     "externalBrokerPassword": "",
-    "externalBrokerTopics": "tele/#, stat/#",
+    "externalBrokerTopics": "tele/#, stat/#, +/tele/+, +/stat/+",
+    "externalBrokerClientId": "",
+    "externalBrokerKeepalive": 60,
+    "externalBrokerCleanSession": true,
+    "externalBrokerRejectUnauthorized": true,
+    "externalBrokerCaPath": "",
+    "externalBrokerCertPath": "",
+    "externalBrokerKeyPath": "",
     "timeout": 300,
     "TELE_SENSOR": true,
     "TELE_MARGINS": false,

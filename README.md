@@ -15,14 +15,14 @@
 If you only have Tasmotas speaking MQTT protocol go for `ioBroker.sonoff`.
 For other scenarios, consider the different options:
 
-| Feature                                       | ioBroker.sonoff  | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in broker mode)  | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in client mode) | [ioBroker.mqtt-client](https://github.com/Pmant/ioBroker.mqtt-client/) |
-|-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
-| Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | optional (bridge mode) | unsupported                                                              | required                                                                     | required                                                               |
-| Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
-| non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
-| publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
+| Feature                                       | ioBroker.sonoff        | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in broker mode)   | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in client mode) | [ioBroker.mqtt-client](https://github.com/Pmant/ioBroker.mqtt-client/) |
+|-----------------------------------------------|------------------------|--------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| Has a built-in MQTT broker                    | yes                    | yes                                                                            | no                                                                           | no                                                                     |
+| Relays messages to other MQTT subscribers     | NO!!!                  | yes                                                                            | not applicable                                                               | not applicable                                                         |
+| External MQTT broker                          | optional (bridge mode) | unsupported                                                                    | required                                                                     | required                                                               |
+| Tasmota MQTT messages to ioBroker Objects     | smart processing       | 1:1 processing of all messages                                                 | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
+| non-Tasmota MQTT messages to ioBroker Objects | no processing          | 1:1 processing of all messages                                                 | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
+| publish ioBroker values as MQTT messages      | none                   | configured subtrees                                                            | configured subtrees                                                          | individually configured values                                         |
 
 ## Usage
 
@@ -100,9 +100,26 @@ By default the adapter runs a built-in TCP broker that Tasmota devices connect t
 
 In the adapter settings, activate **Use external MQTT broker** and set **External broker URL** to your broker address, e.g. `mqtt://192.168.1.10:1883` or just `192.168.1.10:1883`. Optionally set username and password. If the option is deactivated (or no URL is entered), the built-in broker is started as before.
 
-**Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#`. Extend this list if your devices use other full topics or if you use OpenBeken devices, which publish to `<devicename>/...`.
+**Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#, +/tele/+, +/stat/+`. Extend this list if your devices use other topics, e.g. OpenBeken devices, which publish to `<devicename>/...`, or a global prefix in the full topic (`myPrefix/tele/#`).
 
-Encrypted connections (`mqtts://`) are supported with valid certificates. Self-signed certificates are currently not supported.
+Optionally you can set the **Client ID** used at the broker (default `iobroker_sonoff_<instance>`), the **Keepalive** interval and **Clean session**. Deactivate the clean session if the broker should store the messages of the devices while the adapter is not running.
+
+### Full topic structures
+
+The usual Tasmota `FullTopic` settings are supported and detected automatically per device, commands are sent back in the same structure:
+
+| FullTopic | Example | Command |
+|---|---|---|
+| `%prefix%/%topic%/` (default) | `tele/lamp/STATE` | `cmnd/lamp/POWER` |
+| `%topic%/%prefix%/` | `lamp/tele/STATE` | `lamp/cmnd/POWER` |
+| `gateway/%prefix%/%topic%/` | `gateway/tele/lamp/STATE` | `gateway/cmnd/lamp/POWER` |
+| `gateway/%topic%/%prefix%/` | `gateway/lamp/tele/STATE` | `gateway/lamp/cmnd/POWER` |
+
+Nested topics like `tele/house/floor1/lamp/STATE` work as well. A fix prefix in front of the full topic (last two lines, e.g. for several gateways on one broker) is only recognized if the subscriptions cover it, so add e.g. `gateway/tele/#, gateway/stat/#` to **Topics to subscribe**. The same is true for the `%topic%/%prefix%/` structure, which is covered by `+/tele/+, +/stat/+` by default.
+
+### Encrypted connections
+
+Use `mqtts://broker:8883` (or `wss://`) as URL. For self-signed certificates deactivate **Check the certificate of the broker**, or enter the path to your **CA certificate**. If the broker requires client certificates, the paths to the **client certificate** and the **client key** can be entered too. The files are read from the file system of the ioBroker host.
 
 ### Device naming
 
@@ -152,14 +169,22 @@ States:
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
 * (stony2k) Add bridge mode to connect to an external MQTT broker instead of running a built-in broker
 * (stony2k) Fix alive state object not being created (warning "has no existing object")
+* (bluefox/GreatSUN) Fixed the names of data points inside a group: since 3.3.0 e.g. `SML_Total_in` was created as `SML_in` (#489)
+* (bluefox) The states which were created with a shortened name by 3.3.x are listed in the log on start, so they can be deleted (#489)
 * (bluefox) Bridge mode: the topics to subscribe are configurable now and nested full topics as well as OpenBeken topics are supported
 * (bluefox) Bridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources
 * (bluefox) Bridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline
 * (bluefox) Commands for auto-created states are sent to `cmnd/...` again, also for nested full topics
+* (bluefox) `info.connection` contains the list of the connected clients again (server mode), in bridge mode the URL of the broker
+* (bluefox/patricknitsch) Bridge mode: support for the full topic structure `%topic%/%prefix%/` (device first), detected automatically per device
+* (bluefox/patricknitsch) Bridge mode: encrypted connections with CA/client certificates and optional certificate check, configurable client ID, keepalive and clean session
+* (bluefox/patricknitsch) Bridge mode: a fix prefix in front of the full topic (e.g. `gateway/tele/device/STATE`) is recognized and used for the commands
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
+* (@GermanBluefox) Breaking: minimal supported Node.js version is now 22
 
 ### 3.3.0 (2025-09-20)
 * (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
@@ -331,6 +356,8 @@ States:
 
 ### 0.1.0 (2017-10-01)
 * (bluefox) initial commit
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ## License
 

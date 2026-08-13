@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const node_fs_1 = require("node:fs");
 const mqtt_1 = __importDefault(require("mqtt"));
 const mqttBase_1 = __importStar(require("./mqttBase"));
 /**
@@ -51,7 +52,8 @@ const NAME_PRIORITY = {
     mqttClient: 2,
 };
 const TASMOTA_PREFIXES = ['tele', 'stat', 'cmnd'];
-const DEFAULT_TOPICS = ['tele/#', 'stat/#'];
+// "tele/#" and "stat/#" are the standard full topics, "+/tele/+" and "+/stat/+" the device-first ones
+const DEFAULT_TOPICS = ['tele/#', 'stat/#', '+/tele/+', '+/stat/+'];
 const NAME_TIMEOUT_MS = 30_000;
 const MAX_PENDING_MESSAGES = 100;
 /**
@@ -65,6 +67,7 @@ class MQTTBridge extends mqttBase_1.default {
     pendingMessages = {};
     pendingTimers = {};
     tasmotaTopics = new Set();
+    topicFormats = {};
     reportedConflicts = new Set();
     /** All messages are processed strictly one after another */
     queue = Promise.resolve();
@@ -93,9 +96,14 @@ class MQTTBridge extends mqttBase_1.default {
             this.mqttClient = null;
         }
     }
+    /** In bridge mode info.connection shows the URL of the external broker, not the devices */
+    async updateConnectionState() {
+        // nothing to do, the state is set when the connection to the broker is established or lost
+    }
     sendState2Client(client, topic, state, qos) {
-        this.adapter.log.debug(`Send to external broker "${client.id}": ${topic} = ${state}`);
-        this.mqttClient?.publish(topic, state === null ? 'null' : (state?.toString() ?? ''), { qos });
+        const brokerTopic = this.toBrokerTopic(topic);
+        this.adapter.log.debug(`Send to external broker "${client.id}": ${brokerTopic} = ${state}`);
+        this.mqttClient?.publish(brokerTopic, state === null ? 'null' : (state?.toString() ?? ''), { qos });
     }
     normalizeUrl(url) {
         if (!url.includes('://')) {
@@ -111,16 +119,42 @@ class MQTTBridge extends mqttBase_1.default {
             .filter(topic => topic);
         return topics.length ? topics : DEFAULT_TOPICS;
     }
+    /** Read an optional certificate file for encrypted connections */
+    readCertificate(path, name) {
+        if (!path) {
+            return undefined;
+        }
+        try {
+            return (0, node_fs_1.readFileSync)(path);
+        }
+        catch (err) {
+            this.adapter.log.error(`Cannot read ${name} "${path}": ${err.message}`);
+            return undefined;
+        }
+    }
+    getConnectOptions() {
+        const options = {
+            username: this.config.externalBrokerUser || undefined,
+            password: this.config.externalBrokerPassword || undefined,
+            clientId: this.config.externalBrokerClientId || `iobroker_sonoff_${this.adapter.namespace}`,
+            keepalive: parseInt(this.config.externalBrokerKeepalive, 10) || 60,
+            clean: this.config.externalBrokerCleanSession !== false,
+            reconnectPeriod: 5000,
+        };
+        // Certificates are only used for encrypted connections: mqtts://, ssl://, tls://, wss://
+        if (this.normalizeUrl(this.config.externalBrokerUrl).includes('s://')) {
+            options.rejectUnauthorized = this.config.externalBrokerRejectUnauthorized !== false;
+            options.ca = this.readCertificate(this.config.externalBrokerCaPath, 'CA certificate');
+            options.cert = this.readCertificate(this.config.externalBrokerCertPath, 'client certificate');
+            options.key = this.readCertificate(this.config.externalBrokerKeyPath, 'client key');
+        }
+        return options;
+    }
     connect() {
         const url = this.normalizeUrl(this.config.externalBrokerUrl);
         const subscriptions = this.getSubscriptions();
         this.adapter.log.info(`Connecting to external MQTT broker: ${url}`);
-        this.mqttClient = mqtt_1.default.connect(url, {
-            username: this.config.externalBrokerUser || undefined,
-            password: this.config.externalBrokerPassword || undefined,
-            clientId: `iobroker_sonoff_${this.adapter.namespace}`,
-            reconnectPeriod: 5000,
-        });
+        this.mqttClient = mqtt_1.default.connect(url, this.getConnectOptions());
         this.mqttClient.on('connect', () => {
             this.adapter.log.info(`Connected to external MQTT broker ${url}`);
             this.adapter
@@ -154,16 +188,67 @@ class MQTTBridge extends mqttBase_1.default {
         });
     }
     /**
-     * Extract the device part of a topic:
-     * - tele/device/STATE            => device
-     * - tele/house/floor/dev/STATE   => house/floor/dev (nested full topics)
-     * - device/led_enableAll/get     => device (OpenBeken)
+     * Determine which device a topic belongs to and how the full topic is built:
+     * - tele/device/STATE                 => device, standard
+     * - tele/house/floor/dev/STATE        => house/floor/dev, standard (nested full topics)
+     * - device/tele/STATE                 => device, device-first (full topic %topic%/%prefix%/)
+     * - gateway/tele/device/STATE         => device, standard with the prefix "gateway"
+     * - device/led_enableAll/get          => device, no tasmota structure (OpenBeken)
      */
-    getTopicPrefix(parts) {
-        if (TASMOTA_PREFIXES.includes(parts[0])) {
-            return parts.length > 2 ? parts.slice(1, -1).join('/') : '';
+    analyzeTopic(topic) {
+        const parts = topic.split('/');
+        const index = parts.findIndex(part => TASMOTA_PREFIXES.includes(part));
+        const command = parts[parts.length - 1];
+        // the prefix is the first part: tele/device/STATE
+        if (index === 0) {
+            return {
+                device: parts.length > 2 ? parts.slice(1, -1).join('/') : '',
+                structure: 'standard',
+                prefix: '',
+                standardTopic: topic,
+            };
         }
-        return parts[0] || '';
+        // the prefix stands directly before the command: device/tele/STATE
+        if (index > 0 && index === parts.length - 2) {
+            const device = parts.slice(0, index).join('/');
+            return {
+                device,
+                structure: 'device-first',
+                prefix: '',
+                standardTopic: `${parts[index]}/${device}/${command}`,
+            };
+        }
+        // something stands in front of the full topic: gateway/tele/device/STATE
+        if (index > 0) {
+            const device = parts.slice(index + 1, -1).join('/');
+            return {
+                device,
+                structure: 'standard',
+                prefix: parts.slice(0, index).join('/'),
+                standardTopic: `${parts[index]}/${device}/${command}`,
+            };
+        }
+        return { device: parts[0] || '', standardTopic: topic };
+    }
+    /** Convert a standard topic (cmnd/device/POWER) into the structure and prefix the device uses */
+    toBrokerTopic(topic) {
+        const parts = topic.split('/');
+        if (parts.length < 3 || !TASMOTA_PREFIXES.includes(parts[0])) {
+            return topic;
+        }
+        const device = parts.slice(1, -1).join('/');
+        const format = this.topicFormats[device];
+        if (!format) {
+            return topic;
+        }
+        const command = parts[parts.length - 1];
+        const fullTopic = format.structure === 'device-first'
+            ? `${device}/${parts[0]}/${command}`
+            : `${parts[0]}/${device}/${command}`;
+        return format.prefix ? `${format.prefix}/${fullTopic}` : fullTopic;
+    }
+    publishCommand(device, command, payload) {
+        this.mqttClient?.publish(this.toBrokerTopic(`cmnd/${device}/${command}`), payload);
     }
     toPacket(topic, payload, packet) {
         return {
@@ -212,9 +297,9 @@ class MQTTBridge extends mqttBase_1.default {
         this.adapter.log.debug(`Created device "${deviceName}" for topic "${topicPrefix}"`);
         // The external broker keeps running while the adapter restarts, so the devices do not
         // repeat their boot messages. Ask them for the information which is normally sent in INFO2/INFO3
-        if (this.mqttClient && this.tasmotaTopics.has(topicPrefix)) {
-            this.mqttClient.publish(`cmnd/${topicPrefix}/Status`, '5');
-            this.mqttClient.publish(`cmnd/${topicPrefix}/Status`, '2');
+        if (this.tasmotaTopics.has(topicPrefix)) {
+            this.publishCommand(topicPrefix, 'Status', '5');
+            this.publishCommand(topicPrefix, 'Status', '2');
         }
         return client;
     }
@@ -341,7 +426,7 @@ class MQTTBridge extends mqttBase_1.default {
             this.pendingMessages[topicPrefix] = [];
             // ask the device how its MQTT client is called
             if (this.tasmotaTopics.has(topicPrefix)) {
-                this.mqttClient?.publish(`cmnd/${topicPrefix}/Status`, '6');
+                this.publishCommand(topicPrefix, 'Status', '6');
             }
         }
         const pending = this.pendingMessages[topicPrefix];
@@ -356,15 +441,18 @@ class MQTTBridge extends mqttBase_1.default {
         }, NAME_TIMEOUT_MS);
     }
     async handleExternalMessage(topic, payload, packet) {
-        const parts = topic.split('/');
-        const topicPrefix = this.getTopicPrefix(parts);
+        const info = this.analyzeTopic(topic);
+        const topicPrefix = info.device;
         if (!topicPrefix) {
             this.adapter.log.debug(`Ignore message with unexpected topic: ${topic}`);
             return;
         }
-        if (TASMOTA_PREFIXES.includes(parts[0])) {
+        if (info.structure) {
             this.tasmotaTopics.add(topicPrefix);
+            this.topicFormats[topicPrefix] = { structure: info.structure, prefix: info.prefix || '' };
         }
+        // process the message like it would come with the standard full topic
+        topic = info.standardTopic;
         // The name of the device can be part of this message
         const detected = this.detectDeviceName(payload);
         if (detected) {
@@ -401,7 +489,7 @@ class MQTTBridge extends mqttBase_1.default {
             _fallBackName: fallBackName,
             publish: (packet) => {
                 const pkts = Array.isArray(packet) ? packet : [packet];
-                pkts.forEach(p => this.mqttClient?.publish(p.topic, p.payload, {
+                pkts.forEach(p => this.mqttClient?.publish(this.toBrokerTopic(p.topic), p.payload, {
                     qos: p.qos || 0,
                     retain: p.retain || false,
                 }));

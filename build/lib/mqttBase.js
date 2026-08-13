@@ -691,10 +691,12 @@ class MQTTBase {
     }
     async updateClients() {
         const clientIds = [];
+        const clientNames = [];
         if (this.clients) {
             for (const id in this.clients) {
                 const oid = `info.clients.${id.replace(/[.\s]+/g, '_').replace(exports.FORBIDDEN_CHARS, '_')}`;
                 clientIds.push(oid);
+                clientNames.push(id);
                 const clientObj = await this.adapter.getObjectAsync(oid);
                 if (!clientObj?.native) {
                     await this.adapter.setObjectAsync(oid, {
@@ -731,6 +733,14 @@ class MQTTBase {
                 await this.adapter.setStateAsync(id, { val: false, ack: true });
             }
         }
+        await this.updateConnectionState(clientNames);
+    }
+    /**
+     * Update info.connection: the server writes the list of the connected clients there,
+     * the bridge the URL of the external broker
+     */
+    async updateConnectionState(clientNames) {
+        await this.adapter.setStateAsync('info.connection', clientNames.join(','), true);
     }
     async updateAlive(client, alive) {
         const idAlive = `${this.adapter.namespace}.${client.iobId}.alive`;
@@ -740,8 +750,15 @@ class MQTTBase {
         }
     }
     addObject(typeKey, client, prefix, path) {
-        // Extract the actual attribute name for the state ID construction
-        const attr = typeKey.includes('_') && path.length > 0 ? typeKey.split('_').pop() || '' : typeKey;
+        // Extract the actual attribute name for the state ID construction.
+        // The path is added to the ID anyway, so it must be removed from the key of the
+        // data point, but only if the key really starts with it: "VEML6075_UvIndex" in the
+        // path "VEML6075" is "UvIndex", but "Total_in" in the path "SML" stays "Total_in"
+        let attr = typeKey;
+        const pathPrefix = path.length ? `${path.join('_')}_` : '';
+        if (pathPrefix && typeKey.startsWith(pathPrefix)) {
+            attr = typeKey.substring(pathPrefix.length);
+        }
         const replaceAttr = datapoints_1.default[typeKey].replace || attr;
         const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr.replace(exports.FORBIDDEN_CHARS, '_')}`;
         return {
