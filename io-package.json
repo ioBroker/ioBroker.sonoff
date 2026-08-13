@@ -151,7 +151,7 @@
     "type": "lighting",
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
@@ -166,16 +166,30 @@
     }
   },
   "encryptedNative": [
-    "password"
+    "password",
+    "externalBrokerPassword"
   ],
   "protectedNative": [
-    "password"
+    "password",
+    "externalBrokerPassword"
   ],
   "native": {
     "port": 1883,
     "bind": "0.0.0.0",
     "user": "",
     "password": "",
+    "useExternalBroker": false,
+    "externalBrokerUrl": "",
+    "externalBrokerUser": "",
+    "externalBrokerPassword": "",
+    "externalBrokerTopics": "tele/#, stat/#, +/tele/+, +/stat/+",
+    "externalBrokerClientId": "",
+    "externalBrokerKeepalive": 60,
+    "externalBrokerCleanSession": true,
+    "externalBrokerRejectUnauthorized": true,
+    "externalBrokerCaPath": "",
+    "externalBrokerCertPath": "",
+    "externalBrokerKeyPath": "",
     "timeout": 300,
     "TELE_SENSOR": true,
     "TELE_MARGINS": false,
