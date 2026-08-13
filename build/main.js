@@ -14,6 +14,9 @@ exports.SonoffAdapter = void 0;
 const adapter_core_1 = require("@iobroker/adapter-core"); // Get common this utils
 const server_1 = __importDefault(require("./lib/server"));
 const bridge_1 = __importDefault(require("./lib/bridge"));
+const checkStates_1 = require("./lib/checkStates");
+/** How many shortened states are written into the log */
+const MAX_REPORTED_STATES = 20;
 class SonoffAdapter extends adapter_core_1.Adapter {
     server = null;
     constructor(options = {}) {
@@ -53,6 +56,7 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 }
             }
         }
+        await this.reportShortenedStates();
         if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
             this.server = new bridge_1.default(this);
         }
@@ -61,6 +65,29 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
             this.server = new server_1.default(this);
+        }
+    }
+    /**
+     * The versions 3.3.x created states inside a group with a shortened name (issue #489),
+     * e.g. "SML_in" instead of "SML_Total_in". They are not updated anymore, so the user is
+     * informed about them. They are not deleted, because they can contain the history.
+     */
+    async reportShortenedStates() {
+        try {
+            const states = await (0, checkStates_1.findShortenedStates)(this);
+            if (!states.length) {
+                return;
+            }
+            this.log.warn(`${states.length} state(s) were created with a shortened name by the versions 3.3.x and are not updated anymore. Check them and delete them if they are not required:`);
+            for (const state of states.slice(0, MAX_REPORTED_STATES)) {
+                this.log.warn(`  ${state.id} => is now ${state.expected}`);
+            }
+            if (states.length > MAX_REPORTED_STATES) {
+                this.log.warn(`  ... and ${states.length - MAX_REPORTED_STATES} more`);
+            }
+        }
+        catch (err) {
+            this.log.debug(`Cannot check the names of the states: ${err.message}`);
         }
     }
 }

@@ -172,6 +172,7 @@ States:
 * (stony2k) Add bridge mode to connect to an external MQTT broker instead of running a built-in broker
 * (stony2k) Fix alive state object not being created (warning "has no existing object")
 * (bluefox/GreatSUN) Fixed the names of data points inside a group: since 3.3.0 e.g. `SML_Total_in` was created as `SML_in` (#489)
+* (bluefox) The states which were created with a shortened name by 3.3.x are listed in the log on start, so they can be deleted (#489)
 * (bluefox) Bridge mode: the topics to subscribe are configurable now and nested full topics as well as OpenBeken topics are supported
 * (bluefox) Bridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources
 * (bluefox) Bridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline
