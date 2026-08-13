@@ -15,14 +15,14 @@
 If you only have Tasmotas speaking MQTT protocol go for `ioBroker.sonoff`.
 For other scenarios, consider the different options:
 
-| Feature                                       | ioBroker.sonoff  | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in broker mode)  | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in client mode) | [ioBroker.mqtt-client](https://github.com/Pmant/ioBroker.mqtt-client/) |
-|-----------------------------------------------|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| Has a built-in MQTT broker                    | yes              | yes                                                                           | no                                                                           | no                                                                     |
-| Relays messages to other MQTT subscribers     | NO!!!            | yes                                                                           | not applicable                                                               | not applicable                                                         |
-| External MQTT broker                          | optional (bridge mode) | unsupported                                                              | required                                                                     | required                                                               |
-| Tasmota MQTT messages to ioBroker Objects     | smart processing | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
-| non-Tasmota MQTT messages to ioBroker Objects | no processing    | 1:1 processing of all messages                                                | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
-| publish ioBroker values as MQTT messages      | none             | configured subtrees                                                           | configured subtrees                                                          | individually configured values                                         |
+| Feature                                       | ioBroker.sonoff        | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in broker mode)   | [ioBroker.mqtt](https://github.com/ioBroker/ioBroker.mqtt/) (in client mode) | [ioBroker.mqtt-client](https://github.com/Pmant/ioBroker.mqtt-client/) |
+|-----------------------------------------------|------------------------|--------------------------------------------------------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| Has a built-in MQTT broker                    | yes                    | yes                                                                            | no                                                                           | no                                                                     |
+| Relays messages to other MQTT subscribers     | NO!!!                  | yes                                                                            | not applicable                                                               | not applicable                                                         |
+| External MQTT broker                          | optional (bridge mode) | unsupported                                                                    | required                                                                     | required                                                               |
+| Tasmota MQTT messages to ioBroker Objects     | smart processing       | 1:1 processing of all messages                                                 | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
+| non-Tasmota MQTT messages to ioBroker Objects | no processing          | 1:1 processing of all messages                                                 | 1:1 processing of subscribed messages                                        | 1:1 processing of subscribed messages                                  |
+| publish ioBroker values as MQTT messages      | none                   | configured subtrees                                                            | configured subtrees                                                          | individually configured values                                         |
 
 ## Usage
 
@@ -183,6 +183,7 @@ States:
 * (bluefox/patricknitsch) Bridge mode: a fix prefix in front of the full topic (e.g. `gateway/tele/device/STATE`) is recognized and used for the commands
 * (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
+* (@GermanBluefox) Breaking: minimal supported Node.js version is now 22
 
 ### 3.3.0 (2025-09-20)
 * (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use cmnd/ prefix instead of tele/ prefix
