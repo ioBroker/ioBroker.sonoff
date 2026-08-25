@@ -15,10 +15,12 @@ const adapter_core_1 = require("@iobroker/adapter-core"); // Get common this uti
 const server_1 = __importDefault(require("./lib/server"));
 const bridge_1 = __importDefault(require("./lib/bridge"));
 const checkStates_1 = require("./lib/checkStates");
+const deviceManager_1 = __importDefault(require("./lib/deviceManager"));
 /** How many shortened states are written into the log */
 const MAX_REPORTED_STATES = 20;
 class SonoffAdapter extends adapter_core_1.Adapter {
     server = null;
+    deviceManagement = null;
     constructor(options = {}) {
         super({
             ...options,
@@ -33,8 +35,12 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                     cb();
                 }
             },
+            objectChange: (id, obj) => {
+                this.deviceManagement?.onObjectChange(id, obj);
+            },
             stateChange: (id, state) => {
                 this.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
+                this.deviceManagement?.onStateChange(id, state ?? null);
                 // you can use the ack flag to detect if state is desired or acknowledged
                 if (state && !state.ack) {
                     this.server
@@ -45,6 +51,7 @@ class SonoffAdapter extends adapter_core_1.Adapter {
         });
     }
     async main() {
+        this.deviceManagement = new deviceManager_1.default(this);
         // subscribe for all own variables
         this.subscribeStates('*');
         // read all states and set alive to false

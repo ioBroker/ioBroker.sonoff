@@ -146,6 +146,9 @@
     ],
     "connectionType": "local",
     "dataSource": "push",
+    "supportedMessages": {
+      "deviceManager": true
+    },
     "tier": 2,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.sonoff/master/admin/sonoff.png",
     "type": "lighting",
