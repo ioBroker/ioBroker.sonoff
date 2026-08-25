@@ -148,18 +148,42 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         return suffixes;
     }
     /**
+     * Finds a state whose data point name (its last path segment) is `key`, regardless of which group
+     * it is nested under - a data point can end up at very different state IDs depending on the
+     * "Create object tree" (OBJ_TREE) adapter option and on which MQTT topic published it, e.g. RSSI is
+     * "Wifi_RSSI" with OBJ_TREE off but "STATE.Wifi.RSSI" with it on. Returns the matching suffix (state
+     * ID without the device prefix), or `undefined` if the device has no such data point.
+     *
+     * @param prefix `<namespace>.<deviceId>.`
+     * @param key data point name, e.g. "RSSI" or "Temperature"
+     */
+    findDataPointSuffix(prefix, key) {
+        for (const stateId of Object.keys(this.states)) {
+            if (!stateId.startsWith(prefix)) {
+                continue;
+            }
+            const suffix = stateId.substring(prefix.length);
+            if (suffix === key || suffix.endsWith(`.${key}`) || suffix.endsWith(`_${key}`)) {
+                return suffix;
+            }
+        }
+        return undefined;
+    }
+    /**
      * Splits a state suffix into the group it belongs to and the data point name, e.g.
-     * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" } and "SML_Total_in" (a bridged external
-     * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }. A bare data point
-     * without any group, e.g. "Voltage", resolves to `{ channel: "", key: "Voltage" }`.
+     * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" }, "SML_Total_in" (a bridged external
+     * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }, and
+     * "SENSOR.ENERGY.Power" (nested two levels deep with the "Create object tree" option enabled) ->
+     * { channel: "SENSOR.ENERGY", key: "Power" }. A bare data point without any group, e.g. "Voltage",
+     * resolves to `{ channel: "", key: "Voltage" }`.
      *
      * @param suffix state ID without the device prefix
      */
     splitPowerSuffix(suffix) {
-        const dotIdx = suffix.indexOf('.');
-        if (dotIdx > -1) {
-            const key = suffix.substring(dotIdx + 1);
-            return POWER_METRIC_LABELS[key] ? { channel: suffix.substring(0, dotIdx), key } : undefined;
+        const lastDotIdx = suffix.lastIndexOf('.');
+        if (lastDotIdx > -1) {
+            const key = suffix.substring(lastDotIdx + 1);
+            return POWER_METRIC_LABELS[key] ? { channel: suffix.substring(0, lastDotIdx), key } : undefined;
         }
         if (POWER_METRIC_LABELS[suffix]) {
             return { channel: '', key: suffix };
@@ -229,8 +253,12 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             const hostname = this.states[`${prefix}INFO.Hostname`]?.val;
             const ip = this.states[`${prefix}INFO.IPAddress`]?.val;
             const model = this.states[`${prefix}INFO.Module`]?.val || undefined;
-            const rssi = this.states[`${prefix}Wifi_RSSI`]?.val;
-            const battery = this.states[`${prefix}BatteryPercentage`]?.val;
+            const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
+            const rssi = rssiSuffix ? this.states[`${prefix}${rssiSuffix}`]?.val : undefined;
+            const batterySuffix = this.findDataPointSuffix(prefix, 'BatteryPercentage');
+            const battery = batterySuffix
+                ? this.states[`${prefix}${batterySuffix}`]?.val
+                : undefined;
             const clientId = device.native?.clientId;
             const group = this.getDeviceGroup(suffixes);
             const res = {
@@ -315,7 +343,8 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 copyToClipboard: info.copy,
             };
         }
-        const rssi = this.states[`${prefix}Wifi_RSSI`]?.val;
+        const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
+        const rssi = rssiSuffix ? this.states[`${prefix}${rssiSuffix}`]?.val : undefined;
         if (rssi !== undefined) {
             items._rssi = {
                 type: 'staticInfo',
@@ -325,7 +354,8 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 addColon: true,
             };
         }
-        const uptime = this.states[`${prefix}Uptime`]?.val;
+        const uptimeSuffix = this.findDataPointSuffix(prefix, 'Uptime');
+        const uptime = uptimeSuffix ? this.states[`${prefix}${uptimeSuffix}`]?.val : undefined;
         if (uptime !== undefined && uptime !== null && uptime !== '') {
             items._uptime = {
                 type: 'staticInfo',
@@ -348,9 +378,9 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             const multiChannel = channels.length > 1;
             for (const channel of channels) {
                 if (multiChannel && channel) {
-                    items[`energy_ch_${channel}`] = {
+                    items[`energy_ch_${channel.replace(/[.:]/g, '_')}`] = {
                         type: 'staticInfo',
-                        label: channel.replace(/_/g, ' '),
+                        label: channel.replace(/[._]/g, ' '),
                         data: '',
                         newLine: true,
                     };
@@ -374,7 +404,9 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 continue;
             }
             const suffix = stateId.substring(prefix.length);
-            const match = suffix.match(/^(Switch|Button)(\d+)$/);
+            // Only the last path segment is the actual data point name (may be nested, e.g. "STATE.Switch1")
+            const lastSegment = suffix.substring(suffix.lastIndexOf('.') + 1);
+            const match = lastSegment.match(/^(Switch|Button)(\d+)$/);
             if (match) {
                 inputEntries.push({ suffix, label: `${match[1]} ${match[2]}` });
             }
@@ -434,10 +466,11 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         const shortDeviceId = deviceId.substring(this.adapter.namespace.length + 1);
         const items = {};
         for (const sensor of SENSOR_ITEMS) {
-            if (this.states[`${prefix}${sensor.stateId}`] !== undefined) {
+            const suffix = this.findDataPointSuffix(prefix, sensor.stateId);
+            if (suffix !== undefined) {
                 items[sensor.stateId] = {
                     type: 'state',
-                    oid: `${shortDeviceId}.${sensor.stateId}`,
+                    oid: `${shortDeviceId}.${suffix}`,
                     control: 'text',
                     unit: sensor.unit,
                     digits: sensor.digits,
@@ -452,7 +485,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         const multiPower = powerItems.length > 1;
         for (const entry of powerItems) {
             const label = multiPower
-                ? entry.channel.replace(/_/g, ' ')
+                ? entry.channel.replace(/[._]/g, ' ')
                 : adapter_core_1.I18n.getTranslatedObject('Power');
             items[`power_${entry.suffix.replace(/[.:]/g, '_')}`] = {
                 type: 'state',
