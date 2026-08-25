@@ -275,7 +275,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
                 color: !alive ? '#fff' : undefined,
                 backgroundColor: !alive ? '#f44336' : undefined,
                 group,
-                model: model || I18n.getTranslatedObject('Tasmota device'),
+                model,
                 status: {
                     connection: alive ? 'connected' : 'disconnected',
                     rssi,
