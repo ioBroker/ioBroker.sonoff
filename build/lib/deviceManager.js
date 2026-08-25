@@ -206,14 +206,30 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
     }
     /**
+     * Human-readable label for a (canonicalized) power-metering channel, used when a device has more
+     * than one meter and each one needs to be told apart. The built-in Tasmota group is translated
+     * ("ENERGY" -> "Power"/"Leistung"/...); a bridged external meter has no fixed translation - its
+     * group name comes directly from the MQTT payload (e.g. "SML", "PZEM"), so it is shown as-is.
+     */
+    channelLabel(channel) {
+        if (channel === 'ENERGY' || channel === 'MARGINS') {
+            return adapter_core_1.I18n.getTranslatedObject('Power');
+        }
+        return channel.replace(/[._]/g, ' ');
+    }
+    /**
      * Finds all power-metering data points of a device, wherever they are: in the built-in `ENERGY.*`
      * group, in a custom group of a bridged external meter, or as a bare top-level data point.
      *
      * Toggling the "Create object tree" option changes the state IDs data points are created under
-     * (see `splitPowerSuffix`), but old states are never removed. The same reading can also exist under
-     * two different data point names at once (e.g. the English "Power" and a German-named "Leistung"
-     * alias). Either way this is one meter reporting the same thing twice, so only one entry - the one
-     * matching the adapter's current OBJ_TREE setting - is kept per meter and metric (channel + label).
+     * (see `splitPowerSuffix`), and old states are never removed - so a leftover, no-longer-updated
+     * state from before the option was changed can exist next to the live one for the very same meter
+     * and metric. Guessing which of the two is "the current one" from the adapter's OBJ_TREE setting
+     * alone turned out unreliable (Tasmota can report the same value under more than one data point
+     * name, e.g. a German-named alias, independently of OBJ_TREE). Instead, only the entry whose state
+     * was updated most recently is kept per meter and metric (channel + label) - the leftover state
+     * simply stops receiving updates once its topic is no longer published, so its timestamp falls
+     * behind.
      *
      * @param prefix `<namespace>.<deviceId>.`
      */
@@ -242,8 +258,6 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 order: meta.order,
             });
         }
-        const objTreeEnabled = !!this.adapter.config.OBJ_TREE;
-        const isObjTreeStyle = (channel) => /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
         const byMeter = new Map();
         for (const entry of entries) {
             const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.label}`;
@@ -257,7 +271,11 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         }
         const deduped = [];
         for (const group of byMeter.values()) {
-            const preferred = group.find(e => isObjTreeStyle(e.channel) === objTreeEnabled) || group[0];
+            const preferred = group.reduce((newest, entry) => {
+                const newestTs = this.states[`${prefix}${newest.suffix}`]?.ts ?? 0;
+                const entryTs = this.states[`${prefix}${entry.suffix}`]?.ts ?? 0;
+                return entryTs > newestTs ? entry : newest;
+            });
             deduped.push({ ...preferred, channel: this.canonicalizeChannel(preferred.channel) });
         }
         return deduped.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
@@ -414,7 +432,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 if (multiChannel && channel) {
                     items[`energy_ch_${channel.replace(/[.:]/g, '_')}`] = {
                         type: 'staticInfo',
-                        label: channel.replace(/[._]/g, ' '),
+                        label: this.channelLabel(channel),
                         data: '',
                         newLine: true,
                     };
@@ -518,9 +536,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         const powerItems = this.getPowerEntries(prefix).filter(e => e.label === 'Power');
         const multiPower = powerItems.length > 1;
         for (const entry of powerItems) {
-            const label = multiPower
-                ? entry.channel.replace(/[._]/g, ' ')
-                : adapter_core_1.I18n.getTranslatedObject('Power');
+            const label = multiPower ? this.channelLabel(entry.channel) : adapter_core_1.I18n.getTranslatedObject('Power');
             items[`power_${entry.suffix.replace(/[.:]/g, '_')}`] = {
                 type: 'state',
                 oid: `${shortDeviceId}.${entry.suffix}`,
