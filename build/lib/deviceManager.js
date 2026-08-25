@@ -24,19 +24,44 @@ const SENSOR_ITEMS = [
     { stateId: 'TVOC', label: 'TVOC', unit: 'ppb', digits: 0 },
     { stateId: 'DewPoint', label: 'Dew point', unit: '°C', digits: 1 },
 ];
-/** Data points forming the energy metering section of the details panel */
-const ENERGY_ITEMS = [
-    { stateId: 'Voltage', label: 'Voltage', unit: 'V' },
-    { stateId: 'Current', label: 'Current', unit: 'A' },
-    { stateId: 'Power', label: 'Power', unit: 'W' },
-    { stateId: 'ApparentPower', label: 'Apparent power', unit: 'VA' },
-    { stateId: 'ReactivePower', label: 'Reactive power', unit: 'var' },
-    { stateId: 'Factor', label: 'Power factor', unit: '' },
-    { stateId: 'Frequency', label: 'Frequency', unit: 'Hz' },
-    { stateId: 'Today', label: 'Today', unit: 'kWh' },
-    { stateId: 'Yesterday', label: 'Yesterday', unit: 'kWh' },
-    { stateId: 'Total', label: 'Total', unit: 'kWh' },
-];
+/**
+ * Power-metering data points, keyed by their data point name (see `lib/datapoints.js`). Sonoff/Tasmota
+ * devices have no fixed "model" that tells us which power values to expect, and unlike the built-in
+ * `ENERGY.*` group, bridged external meters (SML smart-meter heads, PZEM sensors, ...) publish the same
+ * data points nested under their own custom group name, e.g. `SML_Total_in`. So instead of only looking
+ * at one fixed state ID, every state belonging to a device is matched against this table by its data
+ * point name (the last path segment) - wherever it is found, the same way ioBroker.shelly reads its
+ * power values from whichever states actually exist on a device (see shelly PR #1562).
+ */
+const POWER_METRIC_LABELS = {
+    Power: { label: 'Power', unit: 'W', order: 0 },
+    Power_curr: { label: 'Power', unit: 'W', order: 0 },
+    Leistung: { label: 'Power', unit: 'W', order: 0 },
+    ApparentPower: { label: 'Apparent power', unit: 'VA', order: 1 },
+    ReactivePower: { label: 'Reactive power', unit: 'var', order: 2 },
+    Voltage: { label: 'Voltage', unit: 'V', order: 3 },
+    Spannung: { label: 'Voltage', unit: 'V', order: 3 },
+    Current: { label: 'Current', unit: 'A', order: 4 },
+    Strom: { label: 'Current', unit: 'A', order: 4 },
+    CurrentNeutral: { label: 'Neutral current', unit: 'A', order: 5 },
+    Factor: { label: 'Power factor', unit: '', order: 6 },
+    Frequency: { label: 'Frequency', unit: 'Hz', order: 7 },
+    Frequenz: { label: 'Frequency', unit: 'Hz', order: 7 },
+    Today: { label: 'Today', unit: 'kWh', order: 8 },
+    heute: { label: 'Today', unit: 'kWh', order: 8 },
+    TodaySumImport: { label: 'Today (import)', unit: 'kWh', order: 8 },
+    TodaySumExport: { label: 'Today (export)', unit: 'kWh', order: 9 },
+    Yesterday: { label: 'Yesterday', unit: 'kWh', order: 10 },
+    gestern: { label: 'Yesterday', unit: 'kWh', order: 10 },
+    Total: { label: 'Total', unit: 'kWh', order: 11 },
+    Total_in: { label: 'Total (import)', unit: 'kWh', order: 11 },
+    Total_out: { label: 'Total (export)', unit: 'kWh', order: 12 },
+    ExportActive: { label: 'Returned energy', unit: 'kWh', order: 12 },
+    Period: { label: 'Period', unit: 'W', order: 13 },
+    PowerLow: { label: 'Power low threshold', unit: 'W', order: 14 },
+    PowerHigh: { label: 'Power high threshold', unit: 'W', order: 15 },
+    PowerDelta: { label: 'Power delta threshold', unit: 'W', order: 16 },
+};
 /** Fields taken from `INFO.*` (filled from Tasmota's `StatusNET`/`StatusFWR`) for the details panel */
 const INFO_ITEMS = [
     { stateId: 'Module', label: 'Model' },
@@ -121,6 +146,63 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             }
         }
         return suffixes;
+    }
+    /**
+     * Splits a state suffix into the group it belongs to and the data point name, e.g.
+     * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" } and "SML_Total_in" (a bridged external
+     * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }. A bare data point
+     * without any group, e.g. "Voltage", resolves to `{ channel: "", key: "Voltage" }`.
+     *
+     * @param suffix state ID without the device prefix
+     */
+    splitPowerSuffix(suffix) {
+        const dotIdx = suffix.indexOf('.');
+        if (dotIdx > -1) {
+            const key = suffix.substring(dotIdx + 1);
+            return POWER_METRIC_LABELS[key] ? { channel: suffix.substring(0, dotIdx), key } : undefined;
+        }
+        if (POWER_METRIC_LABELS[suffix]) {
+            return { channel: '', key: suffix };
+        }
+        for (const key of Object.keys(POWER_METRIC_LABELS)) {
+            if (suffix.endsWith(`_${key}`)) {
+                return { channel: suffix.substring(0, suffix.length - key.length - 1), key };
+            }
+        }
+        return undefined;
+    }
+    /**
+     * Finds all power-metering data points of a device, wherever they are: in the built-in `ENERGY.*`
+     * group, in a custom group of a bridged external meter, or as a bare top-level data point.
+     *
+     * @param prefix `<namespace>.<deviceId>.`
+     */
+    getPowerEntries(prefix) {
+        const entries = [];
+        for (const stateId of Object.keys(this.states)) {
+            if (!stateId.startsWith(prefix)) {
+                continue;
+            }
+            const suffix = stateId.substring(prefix.length);
+            const common = this.objects[stateId]?.common;
+            if (!common || common.write === true) {
+                continue;
+            }
+            const split = this.splitPowerSuffix(suffix);
+            if (!split) {
+                continue;
+            }
+            const meta = POWER_METRIC_LABELS[split.key];
+            entries.push({
+                suffix,
+                channel: split.channel,
+                key: split.key,
+                label: meta.label,
+                unit: meta.unit,
+                order: meta.order,
+            });
+        }
+        return entries.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
     }
     /**
      * Load all sonoff/Tasmota devices
@@ -252,24 +334,37 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 addColon: true,
             };
         }
-        // Energy metering section – only shown when energy data points exist
-        const energyEntries = ENERGY_ITEMS.filter(e => this.states[`${prefix}ENERGY.${e.stateId}`] !== undefined);
-        if (energyEntries.length) {
+        // Power metering section – only shown when power data points exist. Bridged external meters
+        // (SML, PZEM, ...) are shown as their own sub-section when a device has more than one meter.
+        const powerEntries = this.getPowerEntries(prefix);
+        if (powerEntries.length) {
             items._energyHeader = {
                 type: 'header',
                 text: adapter_core_1.I18n.getTranslatedObject('Power metering'),
                 size: 4,
                 newLine: true,
             };
-            for (const entry of energyEntries) {
-                const val = this.states[`${prefix}ENERGY.${entry.stateId}`]?.val;
-                items[`energy_${entry.stateId}`] = {
-                    type: 'staticInfo',
-                    label: adapter_core_1.I18n.getTranslatedObject(entry.label),
-                    data: typeof val === 'number' ? Math.round(val * 100) / 100 : String(val ?? '—'),
-                    unit: entry.unit || undefined,
-                    addColon: true,
-                };
+            const channels = [...new Set(powerEntries.map(e => e.channel))];
+            const multiChannel = channels.length > 1;
+            for (const channel of channels) {
+                if (multiChannel && channel) {
+                    items[`energy_ch_${channel}`] = {
+                        type: 'staticInfo',
+                        label: channel.replace(/_/g, ' '),
+                        data: '',
+                        newLine: true,
+                    };
+                }
+                for (const entry of powerEntries.filter(e => e.channel === channel)) {
+                    const val = this.states[`${prefix}${entry.suffix}`]?.val;
+                    items[`energy_${entry.suffix.replace(/[.:]/g, '_')}`] = {
+                        type: 'staticInfo',
+                        label: adapter_core_1.I18n.getTranslatedObject(entry.label),
+                        data: typeof val === 'number' ? Math.round(val * 100) / 100 : String(val ?? '—'),
+                        unit: entry.unit || undefined,
+                        addColon: true,
+                    };
+                }
             }
         }
         // Digital inputs (physical switches/buttons wired to the device)
@@ -326,7 +421,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         else if (test(/^(ZbReceived_|ZbPower)/)) {
             key = 'zigbee';
         }
-        else if (test(/^ENERGY\./)) {
+        else if (list.some(s => this.splitPowerSuffix(s) !== undefined)) {
             key = 'meter';
         }
         else if (test(/^(Temperature|Humidity|Pressure|Illuminance|CarbonDioxide|TVOC|eCO2|DewPoint|AirQuality|PM2\.5|PM10|UvIndex|Distance|Noise)/)) {
@@ -352,17 +447,25 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 };
             }
         }
-        if (this.states[`${prefix}ENERGY.Power`] !== undefined) {
-            items._power = {
+        // Power on the main tile: only the actual "Power" (W) readings, never voltage/current/energy
+        const powerItems = this.getPowerEntries(prefix).filter(e => e.label === 'Power');
+        const multiPower = powerItems.length > 1;
+        for (const entry of powerItems) {
+            const label = multiPower
+                ? entry.channel.replace(/_/g, ' ')
+                : adapter_core_1.I18n.getTranslatedObject('Power');
+            items[`power_${entry.suffix.replace(/[.:]/g, '_')}`] = {
                 type: 'state',
-                oid: `${shortDeviceId}.ENERGY.Power`,
+                oid: `${shortDeviceId}.${entry.suffix}`,
                 control: 'text',
                 unit: 'W',
                 digits: 1,
-                label: adapter_core_1.I18n.getTranslatedObject('Power'),
+                label,
                 addColon: true,
                 style: { fontWeight: 'bold' },
             };
+        }
+        if (powerItems.length) {
             items._powerSpacer = {
                 type: 'divider',
                 color: 'transparent',
