@@ -210,9 +210,10 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
      * group, in a custom group of a bridged external meter, or as a bare top-level data point.
      *
      * Toggling the "Create object tree" option changes the state IDs data points are created under
-     * (see `splitPowerSuffix`), but old states are never removed, so both the old and the new state can
-     * exist for the same meter at once. Only one of them - the one matching the adapter's current
-     * OBJ_TREE setting - is kept per meter/data point so values aren't shown twice.
+     * (see `splitPowerSuffix`), but old states are never removed. The same reading can also exist under
+     * two different data point names at once (e.g. the English "Power" and a German-named "Leistung"
+     * alias). Either way this is one meter reporting the same thing twice, so only one entry - the one
+     * matching the adapter's current OBJ_TREE setting - is kept per meter and metric (channel + label).
      *
      * @param prefix `<namespace>.<deviceId>.`
      */
@@ -245,7 +246,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         const isObjTreeStyle = (channel) => /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
         const byMeter = new Map();
         for (const entry of entries) {
-            const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.key}`;
+            const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.label}`;
             const group = byMeter.get(groupKey);
             if (group) {
                 group.push(entry);
@@ -528,7 +529,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 digits: 1,
                 label,
                 addColon: true,
-                style: { fontWeight: 'bold' },
+                style: { opacity: 0.7 },
             };
         }
         if (powerItems.length) {
