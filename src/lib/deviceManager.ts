@@ -12,6 +12,7 @@ import {
 } from '@iobroker/dm-utils';
 // It must be exported to index in dm-utils
 import type { ControlState } from '@iobroker/dm-utils/build/types/base';
+import type { SonoffAdapterConfig } from '../types';
 
 /** Icon shown for every device, since the adapter does not ship per-model icons */
 const DEVICE_ICON = 'adapter/sonoff/admin/sonoff.png';
@@ -222,8 +223,24 @@ export default class SonoffDeviceManagement extends DeviceManagement {
     }
 
     /**
+     * A channel's leading "SENSOR."/"STATE."/"RESULT."/"WAKEUP." segment is only there because the
+     * "Create object tree" (OBJ_TREE) option is/was enabled - it does not identify a different meter.
+     * Stripping it gives the channel identity that is stable across that setting, so the same physical
+     * meter (e.g. the built-in ENERGY group) is recognized as one meter even if its states exist twice,
+     * once from before and once from after the option was toggled.
+     */
+    private canonicalizeChannel(channel: string): string {
+        return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
+    }
+
+    /**
      * Finds all power-metering data points of a device, wherever they are: in the built-in `ENERGY.*`
      * group, in a custom group of a bridged external meter, or as a bare top-level data point.
+     *
+     * Toggling the "Create object tree" option changes the state IDs data points are created under
+     * (see `splitPowerSuffix`), but old states are never removed, so both the old and the new state can
+     * exist for the same meter at once. Only one of them - the one matching the adapter's current
+     * OBJ_TREE setting - is kept per meter/data point so values aren't shown twice.
      *
      * @param prefix `<namespace>.<deviceId>.`
      */
@@ -255,7 +272,27 @@ export default class SonoffDeviceManagement extends DeviceManagement {
                 order: meta.order,
             });
         }
-        return entries.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
+
+        const objTreeEnabled = !!(this.adapter.config as SonoffAdapterConfig).OBJ_TREE;
+        const isObjTreeStyle = (channel: string): boolean => /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
+        const byMeter = new Map<string, typeof entries>();
+        for (const entry of entries) {
+            const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.key}`;
+            const group = byMeter.get(groupKey);
+            if (group) {
+                group.push(entry);
+            } else {
+                byMeter.set(groupKey, [entry]);
+            }
+        }
+
+        const deduped: typeof entries = [];
+        for (const group of byMeter.values()) {
+            const preferred = group.find(e => isObjTreeStyle(e.channel) === objTreeEnabled) || group[0];
+            deduped.push({ ...preferred, channel: this.canonicalizeChannel(preferred.channel) });
+        }
+
+        return deduped.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
     }
 
     /**
@@ -418,7 +455,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
             items._energyHeader = {
                 type: 'header',
                 text: I18n.getTranslatedObject('Power metering'),
-                size: 4,
+                size: 6,
                 newLine: true,
             };
 
@@ -465,7 +502,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
             items._inputsHeader = {
                 type: 'header',
                 text: I18n.getTranslatedObject('Digital inputs'),
-                size: 4,
+                size: 6,
                 newLine: true,
             };
             inputEntries.sort((a, b) => a.suffix.localeCompare(b.suffix));
@@ -530,7 +567,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
                     unit: sensor.unit,
                     digits: sensor.digits,
                     label: I18n.getTranslatedObject(sensor.label),
-                    size: 12,
+                    addColon: true,
                     style: { opacity: 0.7 },
                 };
             }

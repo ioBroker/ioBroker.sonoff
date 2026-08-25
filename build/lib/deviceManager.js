@@ -196,8 +196,23 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         return undefined;
     }
     /**
+     * A channel's leading "SENSOR."/"STATE."/"RESULT."/"WAKEUP." segment is only there because the
+     * "Create object tree" (OBJ_TREE) option is/was enabled - it does not identify a different meter.
+     * Stripping it gives the channel identity that is stable across that setting, so the same physical
+     * meter (e.g. the built-in ENERGY group) is recognized as one meter even if its states exist twice,
+     * once from before and once from after the option was toggled.
+     */
+    canonicalizeChannel(channel) {
+        return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
+    }
+    /**
      * Finds all power-metering data points of a device, wherever they are: in the built-in `ENERGY.*`
      * group, in a custom group of a bridged external meter, or as a bare top-level data point.
+     *
+     * Toggling the "Create object tree" option changes the state IDs data points are created under
+     * (see `splitPowerSuffix`), but old states are never removed, so both the old and the new state can
+     * exist for the same meter at once. Only one of them - the one matching the adapter's current
+     * OBJ_TREE setting - is kept per meter/data point so values aren't shown twice.
      *
      * @param prefix `<namespace>.<deviceId>.`
      */
@@ -226,7 +241,25 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 order: meta.order,
             });
         }
-        return entries.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
+        const objTreeEnabled = !!this.adapter.config.OBJ_TREE;
+        const isObjTreeStyle = (channel) => /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
+        const byMeter = new Map();
+        for (const entry of entries) {
+            const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.key}`;
+            const group = byMeter.get(groupKey);
+            if (group) {
+                group.push(entry);
+            }
+            else {
+                byMeter.set(groupKey, [entry]);
+            }
+        }
+        const deduped = [];
+        for (const group of byMeter.values()) {
+            const preferred = group.find(e => isObjTreeStyle(e.channel) === objTreeEnabled) || group[0];
+            deduped.push({ ...preferred, channel: this.canonicalizeChannel(preferred.channel) });
+        }
+        return deduped.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);
     }
     /**
      * Load all sonoff/Tasmota devices
@@ -371,7 +404,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             items._energyHeader = {
                 type: 'header',
                 text: adapter_core_1.I18n.getTranslatedObject('Power metering'),
-                size: 4,
+                size: 6,
                 newLine: true,
             };
             const channels = [...new Set(powerEntries.map(e => e.channel))];
@@ -415,7 +448,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             items._inputsHeader = {
                 type: 'header',
                 text: adapter_core_1.I18n.getTranslatedObject('Digital inputs'),
-                size: 4,
+                size: 6,
                 newLine: true,
             };
             inputEntries.sort((a, b) => a.suffix.localeCompare(b.suffix));
@@ -475,7 +508,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                     unit: sensor.unit,
                     digits: sensor.digits,
                     label: adapter_core_1.I18n.getTranslatedObject(sensor.label),
-                    size: 12,
+                    addColon: true,
                     style: { opacity: 0.7 },
                 };
             }
