@@ -12,6 +12,10 @@ import {
 } from '@iobroker/dm-utils';
 // It must be exported to index in dm-utils
 import type { ControlState } from '@iobroker/dm-utils/build/types/base';
+import type { SonoffAdapterConfig } from '../types';
+
+/** How often the periodic cleanup of superseded data points runs, see `cleanupObsoleteDataPoints` */
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 
 /** Icon shown for every device, since the adapter does not ship per-model icons */
 const DEVICE_ICON = 'adapter/sonoff/admin/sonoff.png';
@@ -93,12 +97,72 @@ const INFO_ITEMS: { stateId: string; label: string; copy?: boolean }[] = [
 ];
 
 /**
+ * Data points that are cheap to identify by a fixed name (the keys of `POWER_METRIC_LABELS` plus a
+ * few well-known status values) and therefore candidates for the "superseded duplicate" cleanup in
+ * `cleanupObsoleteDataPoints` - not just the power-metering ones, since RSSI, Uptime and the sensor
+ * readouts move around the object tree the exact same way when "Create object tree" is toggled.
+ */
+const CLEANUP_KEYS: string[] = [
+    ...Object.keys(POWER_METRIC_LABELS),
+    'RSSI',
+    'Uptime',
+    'BatteryPercentage',
+    ...SENSOR_ITEMS.map(s => s.stateId),
+];
+
+/**
+ * Splits a state suffix into the group it belongs to and the data point name, e.g.
+ * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" }, "SML_Total_in" (a bridged external
+ * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }, and
+ * "SENSOR.ENERGY.Power" (nested two levels deep with the "Create object tree" option enabled) ->
+ * { channel: "SENSOR.ENERGY", key: "Power" }. A bare data point without any group, e.g. "Voltage",
+ * resolves to `{ channel: "", key: "Voltage" }`. Returns `undefined` if the suffix's data point name
+ * (last path segment, or underscore-joined tail) isn't one of `knownKeys`.
+ *
+ * @param suffix state ID without the device prefix
+ * @param knownKeys data point names to match against, e.g. the keys of `POWER_METRIC_LABELS`
+ */
+function splitDataPoint(suffix: string, knownKeys: readonly string[]): { channel: string; key: string } | undefined {
+    const lastDotIdx = suffix.lastIndexOf('.');
+    if (lastDotIdx > -1) {
+        const key = suffix.substring(lastDotIdx + 1);
+        return knownKeys.includes(key) ? { channel: suffix.substring(0, lastDotIdx), key } : undefined;
+    }
+    if (knownKeys.includes(suffix)) {
+        return { channel: '', key: suffix };
+    }
+    for (const key of knownKeys) {
+        if (suffix.endsWith(`_${key}`)) {
+            return { channel: suffix.substring(0, suffix.length - key.length - 1), key };
+        }
+    }
+    return undefined;
+}
+
+/**
+ * A channel's leading "SENSOR."/"STATE."/"RESULT."/"WAKEUP." segment is only there because the
+ * "Create object tree" (OBJ_TREE) option is/was enabled - it does not identify a different meter.
+ * Stripping it gives the channel identity that is stable across that setting, so the same physical
+ * meter (e.g. the built-in ENERGY group) is recognized as one meter even if its states exist twice,
+ * once from before and once from after the option was toggled.
+ */
+function canonicalizeChannel(channel: string): string {
+    return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
+}
+
+/** Whether a (raw, non-canonicalized) channel was created under the "Create object tree" naming. */
+function isObjTreeStyleChannel(channel: string): boolean {
+    return /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
+}
+
+/**
  * DeviceManager Class
  */
 export default class SonoffDeviceManagement extends DeviceManagement {
     private readonly ready: Promise<void>;
     private readonly states: { [id: string]: ioBroker.State } = {};
     private readonly objects: { [id: string]: ioBroker.ChannelObject | ioBroker.StateObject } = {};
+    private cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
     constructor(adapter: AdapterInstance) {
         super(adapter);
@@ -126,6 +190,102 @@ export default class SonoffDeviceManagement extends DeviceManagement {
 
         await this.adapter.subscribeStatesAsync('*');
         await this.adapter.subscribeObjectsAsync('*');
+
+        await this.cleanupObsoleteDataPoints().catch(error =>
+            this.adapter.log.warn(`Cannot clean up obsolete data points: ${error}`),
+        );
+        this.cleanupTimer = setInterval(() => {
+            this.cleanupObsoleteDataPoints().catch(error =>
+                this.adapter.log.warn(`Cannot clean up obsolete data points: ${error}`),
+            );
+        }, CLEANUP_INTERVAL_MS);
+    }
+
+    /** Stops the periodic cleanup timer. Must be called from the adapter's `unload` handler. */
+    public destroy(): void {
+        if (this.cleanupTimer) {
+            clearInterval(this.cleanupTimer);
+            this.cleanupTimer = null;
+        }
+    }
+
+    /**
+     * Toggling the "Create object tree" (OBJ_TREE) adapter option changes the state ID a data point is
+     * created under (see `splitDataPoint`), e.g. RSSI moves from "Wifi_RSSI" to "STATE.Wifi.RSSI". The
+     * old state is never deleted by the MQTT handling itself, so it keeps existing side by side with the
+     * new one - showing every such value twice (most noticeably power metering, where every match is
+     * listed). This removes the leftover: for every data point that exists more than once for the same
+     * device and meter, the copy(s) that don't match the *current* OBJ_TREE setting are deleted, but only
+     * once a copy that does match already exists - so nothing is ever deleted before its replacement is
+     * confirmed to be there.
+     */
+    private async cleanupObsoleteDataPoints(): Promise<void> {
+        const ns = this.adapter.namespace;
+        const objTreeEnabled = !!(this.adapter.config as SonoffAdapterConfig).OBJ_TREE;
+        let removed = 0;
+
+        for (const deviceId in this.objects) {
+            const device = this.objects[deviceId];
+            if (device.type !== 'channel') {
+                continue;
+            }
+            const shortDeviceId = device._id.substring(ns.length + 1);
+            if (!shortDeviceId || shortDeviceId.includes('.') || shortDeviceId === 'info') {
+                continue;
+            }
+
+            const prefix = `${device._id}.`;
+            const byDataPoint = new Map<string, string[]>();
+            for (const id in this.objects) {
+                if (!id.startsWith(prefix) || this.objects[id].type !== 'state') {
+                    continue;
+                }
+                const suffix = id.substring(prefix.length);
+                const split = splitDataPoint(suffix, CLEANUP_KEYS);
+                if (!split) {
+                    continue;
+                }
+                const groupKey = `${canonicalizeChannel(split.channel)} ${split.key}`;
+                const group = byDataPoint.get(groupKey);
+                if (group) {
+                    group.push(suffix);
+                } else {
+                    byDataPoint.set(groupKey, [suffix]);
+                }
+            }
+
+            for (const suffixes of byDataPoint.values()) {
+                if (suffixes.length < 2) {
+                    continue;
+                }
+                const isCurrent = (suffix: string): boolean =>
+                    isObjTreeStyleChannel(splitDataPoint(suffix, CLEANUP_KEYS)!.channel) === objTreeEnabled;
+                if (!suffixes.some(isCurrent)) {
+                    // None of the duplicates match the current setting yet (the device hasn't reported
+                    // under the new scheme since the option was changed) - keep everything for now.
+                    continue;
+                }
+                for (const suffix of suffixes) {
+                    if (isCurrent(suffix)) {
+                        continue;
+                    }
+                    const id = `${prefix}${suffix}`;
+                    try {
+                        await this.adapter.delForeignStateAsync(id);
+                        await this.adapter.delForeignObjectAsync(id);
+                        removed++;
+                    } catch (error) {
+                        this.adapter.log.warn(`Cannot remove obsolete data point ${id}: ${error}`);
+                    }
+                }
+            }
+        }
+
+        if (removed) {
+            this.adapter.log.info(
+                `Removed ${removed} data point(s) superseded by the current "Create object tree" setting`,
+            );
+        }
     }
 
     protected getInstanceInfo(): InstanceDetails {
@@ -195,41 +355,13 @@ export default class SonoffDeviceManagement extends DeviceManagement {
     }
 
     /**
-     * Splits a state suffix into the group it belongs to and the data point name, e.g.
-     * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" }, "SML_Total_in" (a bridged external
-     * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }, and
-     * "SENSOR.ENERGY.Power" (nested two levels deep with the "Create object tree" option enabled) ->
-     * { channel: "SENSOR.ENERGY", key: "Power" }. A bare data point without any group, e.g. "Voltage",
-     * resolves to `{ channel: "", key: "Voltage" }`.
+     * Splits a state suffix into the group it belongs to and the power-metering data point name.
+     * Thin wrapper around `splitDataPoint` fixed to the keys of `POWER_METRIC_LABELS`, see there.
      *
      * @param suffix state ID without the device prefix
      */
     private splitPowerSuffix(suffix: string): { channel: string; key: string } | undefined {
-        const lastDotIdx = suffix.lastIndexOf('.');
-        if (lastDotIdx > -1) {
-            const key = suffix.substring(lastDotIdx + 1);
-            return POWER_METRIC_LABELS[key] ? { channel: suffix.substring(0, lastDotIdx), key } : undefined;
-        }
-        if (POWER_METRIC_LABELS[suffix]) {
-            return { channel: '', key: suffix };
-        }
-        for (const key of Object.keys(POWER_METRIC_LABELS)) {
-            if (suffix.endsWith(`_${key}`)) {
-                return { channel: suffix.substring(0, suffix.length - key.length - 1), key };
-            }
-        }
-        return undefined;
-    }
-
-    /**
-     * A channel's leading "SENSOR."/"STATE."/"RESULT."/"WAKEUP." segment is only there because the
-     * "Create object tree" (OBJ_TREE) option is/was enabled - it does not identify a different meter.
-     * Stripping it gives the channel identity that is stable across that setting, so the same physical
-     * meter (e.g. the built-in ENERGY group) is recognized as one meter even if its states exist twice,
-     * once from before and once from after the option was toggled.
-     */
-    private canonicalizeChannel(channel: string): string {
-        return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
+        return splitDataPoint(suffix, Object.keys(POWER_METRIC_LABELS));
     }
 
     /**
@@ -292,7 +424,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
 
         const byMeter = new Map<string, typeof entries>();
         for (const entry of entries) {
-            const groupKey = `${this.canonicalizeChannel(entry.channel)} ${entry.label}`;
+            const groupKey = `${canonicalizeChannel(entry.channel)} ${entry.label}`;
             const group = byMeter.get(groupKey);
             if (group) {
                 group.push(entry);
@@ -308,7 +440,7 @@ export default class SonoffDeviceManagement extends DeviceManagement {
                 const entryTs = this.states[`${prefix}${entry.suffix}`]?.ts ?? 0;
                 return entryTs > newestTs ? entry : newest;
             });
-            deduped.push({ ...preferred, channel: this.canonicalizeChannel(preferred.channel) });
+            deduped.push({ ...preferred, channel: canonicalizeChannel(preferred.channel) });
         }
 
         return deduped.sort((a, b) => a.channel.localeCompare(b.channel) || a.order - b.order);

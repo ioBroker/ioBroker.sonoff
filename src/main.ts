@@ -27,6 +27,7 @@ export class SonoffAdapter extends Adapter {
             name: 'sonoff',
             ready: () => this.main(),
             unload: async (cb?: () => void): Promise<void> => {
+                this.deviceManagement?.destroy();
                 if (this.server) {
                     await this.server.destroy();
                     this.server = null;
