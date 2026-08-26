@@ -18,6 +18,7 @@
     "Deactivate it, so the broker stores the messages while the adapter is not running": "Вимкніть, щоб брокер зберігав повідомлення, поки адаптер не працює",
     "Default QoS": "QoS за замовчуванням",
     "Default Quality of Service level (0, 1, or 2)": "Якість рівня обслуговування (0, 1 або 2)",
+    "Device manager": "Менеджер пристроїв",
     "Disables the built-in MQTT server and connects as client to an external broker": "Вимикає вбудований MQTT-сервер і підключається як клієнт до зовнішнього брокера",
     "Divided by comma": "Розділяється комою, напр. 'mqtt/0/#,javascript/#'",
     "Empty: iobroker_sonoff_<instance>": "Порожньо: iobroker_sonoff_<екземпляр>",

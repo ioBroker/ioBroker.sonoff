@@ -121,6 +121,45 @@ function isObjTreeStyleChannel(channel) {
     return /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
 }
 /**
+ * The suffix of a state as it looks with the "Create object tree" (OBJ_TREE) option turned off. That
+ * option changes nothing about which data points a device has, it only moves them into a folder per
+ * MQTT topic group and nests the payload path instead of joining it with "_":
+ *
+ * | OBJ_TREE on                  | OBJ_TREE off           | flatName             |
+ * | ---------------------------- | ---------------------- | -------------------- |
+ * | `RESULT.Dimmer`              | `Dimmer`               | `Dimmer`             |
+ * | `RESULT.Shutter1.Position`   | `Shutter1_Position`    | `Shutter1_Position`  |
+ * | `STATE.Wifi.RSSI`            | `Wifi_RSSI`            | `Wifi_RSSI`          |
+ * | `SENSOR.AM2301.Temperature`  | `AM2301_Temperature`   | `AM2301_Temperature` |
+ *
+ * Both settings therefore end up at the same name, so everything that recognizes a device by its data
+ * points (see `getDeviceGroup` and `buildControls`) works the same with and without the option.
+ */
+function flatName(suffix) {
+    return suffix.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '').replace(/\./g, '_');
+}
+/**
+ * Data point names that make a device a sensor. Matched against the flattened suffix
+ * (see `flatName`) either as the whole name or as its "_"-separated tail, because Tasmota puts the
+ * name of the reporting sensor in front of the reading, e.g. "AM2301_Temperature".
+ */
+const SENSOR_KEYS = [
+    'Temperature',
+    'Humidity',
+    'Pressure',
+    'Illuminance',
+    'CarbonDioxide',
+    'TVOC',
+    'eCO2',
+    'DewPoint',
+    'AirQuality',
+    'PM2_5',
+    'PM10',
+    'UvIndex',
+    'Distance',
+    'Noise',
+];
+/**
  * DeviceManager Class
  */
 class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
@@ -243,8 +282,12 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
      * group name comes directly from the MQTT payload (e.g. "SML", "PZEM"), so it is shown as-is.
      */
     channelLabel(channel) {
-        if (channel === 'ENERGY' || channel === 'MARGINS') {
+        if (channel === 'ENERGY') {
             return adapter_core_1.I18n.getTranslatedObject('Power');
+        }
+        // Not a second meter, but the alarm thresholds Tasmota reports for the built-in one
+        if (channel === 'MARGINS') {
+            return adapter_core_1.I18n.getTranslatedObject('Thresholds');
         }
         return channel.replace(/[._]/g, ' ');
     }
@@ -363,7 +406,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 },
                 hasDetails: true,
                 customInfo: this.buildCustomInfo(device._id, prefix),
-                controls: await this.buildControls(shortDeviceId, prefix),
+                controls: this.buildControls(shortDeviceId, prefix),
                 actions: [
                     {
                         id: 'rename',
@@ -393,7 +436,9 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             context.addDevice(res);
         }
     }
-    getDeviceDetails(deviceId) {
+    async getDeviceDetails(deviceId) {
+        // Wait that i18n is initialized
+        await this.ready;
         const device = this.objects[deviceId];
         if (device?.type !== 'channel') {
             return null;
@@ -531,7 +576,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         };
     }
     getDeviceGroup(suffixes) {
-        const list = [...suffixes];
+        const list = [...suffixes].map(flatName);
         const test = (re) => list.some(s => re.test(s));
         let key = 'other';
         if (test(/^Shutter\d+_Position$/)) {
@@ -549,7 +594,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         else if (list.some(s => this.splitPowerSuffix(s) !== undefined)) {
             key = 'meter';
         }
-        else if (test(/^(Temperature|Humidity|Pressure|Illuminance|CarbonDioxide|TVOC|eCO2|DewPoint|AirQuality|PM2\.5|PM10|UvIndex|Distance|Noise)/)) {
+        else if (list.some(s => SENSOR_KEYS.some(k => s === k || s.endsWith(`_${k}`)))) {
             key = 'sensor';
         }
         const meta = groupMeta[key] || groupMeta.other;
@@ -607,42 +652,54 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             },
         };
     }
-    async buildControls(shortDeviceId, prefix) {
+    /**
+     * Builds the controls of a device from its writable data points. Every data point is matched by its
+     * flattened name (see `flatName`), so the same control shows up with and without the "Create object
+     * tree" option. The current values come from the cached states instead of a request per control -
+     * the cache holds all states of the adapter anyway (see `init`).
+     */
+    buildControls(shortDeviceId, prefix) {
         const controls = [];
-        const usedIds = [];
+        const used = new Set();
         const ownStates = [];
         for (const id in this.objects) {
             if (id.startsWith(prefix) && this.objects[id].type === 'state') {
-                ownStates.push(id);
+                const suffix = id.substring(prefix.length);
+                ownStates.push({
+                    id,
+                    suffix,
+                    name: flatName(suffix),
+                    common: this.objects[id].common,
+                });
             }
         }
         const stateHandler = (fullId) => async (_deviceId, _actionId, state) => {
             await this.adapter.setForeignStateAsync(fullId, state);
             return { val: state, ts: Date.now(), ack: true };
         };
-        const currentState = async (fullId) => (await this.adapter.getForeignStateAsync(fullId)) ||
-            { val: null, ts: Date.now(), ack: true };
+        const currentState = (fullId) => this.states[fullId] || { val: null, ts: Date.now(), ack: true };
+        // A control is named after the data point it belongs to, not after where that data point is
+        // stored, so its ID stays the same when "Create object tree" is toggled
+        const controlId = (name) => name.replace(/[.:]/g, '_');
         // Primary switches: POWER, POWER1..29, Zigbee bridge relays, OpenBeken LED enable
         const switchRe = /^(POWER\d*|ZbReceived_.+_Power|led_enableAll)$/;
-        for (const id of ownStates) {
-            const suffix = id.substring(prefix.length);
-            const common = this.objects[id].common;
-            if (common?.type !== 'boolean' || common.write === false || !switchRe.test(suffix)) {
+        for (const state of ownStates) {
+            if (state.common?.type !== 'boolean' || state.common.write === false || !switchRe.test(state.name)) {
                 continue;
             }
-            usedIds.push(id);
-            const label = suffix === 'POWER'
+            used.add(state.id);
+            const label = state.name === 'POWER'
                 ? 'Power'
-                : suffix.startsWith('POWER')
-                    ? `Power ${suffix.substring(5)}`
-                    : suffix.replace(/_/g, ' ');
+                : state.name.startsWith('POWER')
+                    ? `Power ${state.name.substring(5)}`
+                    : state.name.replace(/_/g, ' ');
             controls.push({
-                id: suffix.replace(/\./g, '_'),
+                id: controlId(state.name),
                 type: 'switch',
-                stateId: `${shortDeviceId}.${suffix}`,
+                stateId: `${shortDeviceId}.${state.suffix}`,
                 label: adapter_core_1.I18n.getTranslatedObject(label),
-                state: await currentState(id),
-                handler: stateHandler(id),
+                state: currentState(state.id),
+                handler: stateHandler(state.id),
             });
         }
         // Sliders: dimmer, color temperature, shutter position/tilt
@@ -654,131 +711,109 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             { re: /^Shutter(\d+)_Position$/, label: m => `Shutter ${m[1]} position`, min: 0, max: 100, unit: '%' },
             { re: /^Shutter(\d+)_Tilt$/, label: m => `Shutter ${m[1]} tilt`, min: 0, max: 100, unit: '%' },
         ];
-        for (const id of ownStates) {
-            if (usedIds.includes(id)) {
-                continue;
-            }
-            const suffix = id.substring(prefix.length);
-            const common = this.objects[id].common;
-            if (common?.type !== 'number' || common.write === false) {
+        for (const state of ownStates) {
+            if (used.has(state.id) || state.common?.type !== 'number' || state.common.write === false) {
                 continue;
             }
             for (const def of sliderDefs) {
-                const match = suffix.match(def.re);
+                const match = state.name.match(def.re);
                 if (!match) {
                     continue;
                 }
-                usedIds.push(id);
+                used.add(state.id);
                 controls.push({
-                    id: suffix.replace(/\./g, '_'),
+                    id: controlId(state.name),
                     type: 'slider',
-                    stateId: `${shortDeviceId}.${suffix}`,
-                    min: common.min ?? def.min,
-                    max: common.max ?? def.max,
-                    unit: common.unit || def.unit,
+                    stateId: `${shortDeviceId}.${state.suffix}`,
+                    min: state.common.min ?? def.min,
+                    max: state.common.max ?? def.max,
+                    unit: state.common.unit || def.unit,
                     label: adapter_core_1.I18n.getTranslatedObject(def.label(match)),
-                    state: await currentState(id),
-                    handler: stateHandler(id),
+                    state: currentState(state.id),
+                    handler: stateHandler(state.id),
                 });
                 break;
             }
         }
         // Color controls
         const colorRe = /^(Color|led_basecolor_rgb|led_basecolor_rgbcw)$/;
-        for (const id of ownStates) {
-            if (usedIds.includes(id)) {
+        for (const state of ownStates) {
+            if (used.has(state.id) ||
+                state.common?.type !== 'string' ||
+                !state.common.write ||
+                !colorRe.test(state.name)) {
                 continue;
             }
-            const suffix = id.substring(prefix.length);
-            const common = this.objects[id].common;
-            if (common?.type !== 'string' || !common.write || !colorRe.test(suffix)) {
-                continue;
-            }
-            usedIds.push(id);
+            used.add(state.id);
             controls.push({
-                id: suffix,
+                id: controlId(state.name),
                 type: 'color',
-                stateId: `${shortDeviceId}.${suffix}`,
+                stateId: `${shortDeviceId}.${state.suffix}`,
                 label: adapter_core_1.I18n.getTranslatedObject('Color'),
-                state: await currentState(id),
-                handler: stateHandler(id),
+                state: currentState(state.id),
+                handler: stateHandler(state.id),
             });
         }
-        // Everything else: writable settings not shown elsewhere (INFO/ENERGY/MARGINS are read-only anyway)
-        const skipRe = /^(INFO\.|ENERGY\.|MARGINS\.|Wifi_|alive$)/;
+        // Everything else: writable settings not shown elsewhere. INFO/ENERGY/MARGINS are read-only
+        // anyway, "Time" is the timestamp of the telemetry message a group of data points came with
+        const skipRe = /^(INFO_|ENERGY_|MARGINS_|Wifi_|Time$|alive$)/;
         let group = {
             id: 'group_settings',
             type: 'group',
             label: adapter_core_1.I18n.getTranslatedObject('Settings'),
         };
-        for (const id of ownStates) {
-            if (usedIds.includes(id)) {
-                continue;
-            }
-            const suffix = id.substring(prefix.length);
-            if (skipRe.test(suffix)) {
-                continue;
-            }
-            const common = this.objects[id].common;
-            if (common?.write === false || (common.type !== 'number' && common.type !== 'string')) {
-                continue;
-            }
-            usedIds.push(id);
-            let options;
-            if (common.states) {
-                options = [];
-                if (Array.isArray(common.states)) {
-                    common.states.forEach((s) => options.push({ value: s, label: s }));
+        // Writable numbers/strings first, then the leftover booleans (toggles like Fade, LED exor
+        // mode, ...) as buttons
+        for (const pass of ['value', 'button']) {
+            for (const state of ownStates) {
+                if (used.has(state.id) || skipRe.test(state.name) || state.common?.write === false) {
+                    continue;
                 }
-                else {
-                    Object.keys(common.states).forEach(k => options.push({ value: k, label: String(common.states[k]) }));
+                const type = state.common.type;
+                if (pass === 'value' ? type !== 'number' && type !== 'string' : type !== 'boolean') {
+                    continue;
                 }
+                used.add(state.id);
+                if (group) {
+                    controls.push(group);
+                    group = null;
+                }
+                if (pass === 'button') {
+                    controls.push({
+                        group: 'group_settings',
+                        id: controlId(state.name),
+                        type: 'button',
+                        stateId: `${shortDeviceId}.${state.suffix}`,
+                        label: state.name.replace(/_/g, ' '),
+                        variant: 'outlined',
+                        handler: stateHandler(state.id),
+                    });
+                    continue;
+                }
+                let options;
+                const commonStates = state.common.states;
+                if (commonStates) {
+                    options = Array.isArray(commonStates)
+                        ? commonStates.map((s) => ({ value: s, label: s }))
+                        : Object.keys(commonStates).map(k => ({
+                            value: k,
+                            label: String(commonStates[k]),
+                        }));
+                }
+                controls.push({
+                    group: 'group_settings',
+                    id: controlId(state.name),
+                    type: options ? 'select' : type === 'number' ? 'number' : 'text',
+                    stateId: `${shortDeviceId}.${state.suffix}`,
+                    min: state.common.min,
+                    max: state.common.max,
+                    unit: state.common.unit,
+                    options,
+                    label: state.name.replace(/_/g, ' '),
+                    state: currentState(state.id),
+                    handler: stateHandler(state.id),
+                });
             }
-            if (group) {
-                controls.push(group);
-                group = null;
-            }
-            controls.push({
-                group: 'group_settings',
-                id: suffix.replace(/\./g, '_'),
-                type: options ? 'select' : common.type === 'number' ? 'number' : 'text',
-                stateId: `${shortDeviceId}.${suffix}`,
-                min: common.min,
-                max: common.max,
-                unit: common.unit,
-                options,
-                label: suffix.replace(/_/g, ' '),
-                state: await currentState(id),
-                handler: stateHandler(id),
-            });
-        }
-        // Leftover writable booleans (toggles like Fade, LED exor mode, ...) as buttons
-        for (const id of ownStates) {
-            if (usedIds.includes(id)) {
-                continue;
-            }
-            const suffix = id.substring(prefix.length);
-            if (skipRe.test(suffix)) {
-                continue;
-            }
-            const common = this.objects[id].common;
-            if (common?.write === false || common.type !== 'boolean') {
-                continue;
-            }
-            usedIds.push(id);
-            if (group) {
-                controls.push(group);
-                group = null;
-            }
-            controls.push({
-                group: 'group_settings',
-                id: suffix.replace(/\./g, '_'),
-                type: 'button',
-                stateId: `${shortDeviceId}.${suffix}`,
-                label: suffix.replace(/_/g, ' '),
-                variant: 'outlined',
-                handler: stateHandler(id),
-            });
         }
         return controls;
     }
@@ -823,6 +858,10 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
      * its state. This is a manual, user-triggered fix for data points stuck in an outdated structure,
      * e.g. leftovers from before the "Create object tree" adapter option was changed.
      *
+     * `alive` is kept as well: it is not reported by the device but written by the adapter when the
+     * MQTT client connects (see `createClient` in `mqttBase.ts`), so a deleted `alive` would only come
+     * back the next time the device reconnects - which can take days for a device that is simply up.
+     *
      * @param id device (channel) ID to recreate
      * @param _context unused - the destructive confirmation is handled declaratively by the action itself
      */
@@ -833,15 +872,24 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             if (!stateId.startsWith(prefix) || this.objects[stateId].type !== 'state') {
                 continue;
             }
+            if (stateId === `${prefix}alive`) {
+                continue;
+            }
             try {
                 await this.adapter.delForeignStateAsync(stateId);
                 await this.adapter.delForeignObjectAsync(stateId);
+                delete this.objects[stateId];
+                delete this.states[stateId];
                 removed++;
             }
             catch (error) {
                 this.adapter.log.warn(`Cannot remove data point ${stateId}: ${error}`);
             }
         }
+        // The server/bridge remembers which objects it has already created and would not create them a
+        // second time within this adapter run, so the deleted data points have to be forgotten there
+        // too - otherwise they only come back after a restart of the adapter
+        this.adapter.server?.forgetObjects(id);
         this.adapter.log.info(`Removed ${removed} data point(s) of ${id}, they will be recreated automatically`);
         return { refresh: 'device' };
     }

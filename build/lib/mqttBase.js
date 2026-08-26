@@ -610,6 +610,31 @@ class MQTTBase {
             }
         }
     }
+    /**
+     * Forgets everything that was cached about the objects of one device, so the next message from it
+     * recreates them. `processTasks` creates every object only once per adapter run
+     * (`cacheAddedObjects`), so data points that were deleted from outside - e.g. by the device
+     * manager's "delete and recreate all data points" action - would otherwise never come back until
+     * the adapter is restarted.
+     *
+     * @param deviceId full ID of the device channel, e.g. "sonoff.0.DVES_123456"
+     */
+    forgetObjects(deviceId) {
+        const prefix = `${deviceId}.`;
+        const caches = [
+            this.cacheAddedObjects,
+            this.cachedModeExor,
+            this.cachedReadColors,
+            this.cachePowerObjects,
+        ];
+        for (const cache of caches) {
+            for (const id of Object.keys(cache)) {
+                if (id === deviceId || id.startsWith(prefix)) {
+                    delete cache[id];
+                }
+            }
+        }
+    }
     async processTasks(callback) {
         if (callback) {
             this.taskCallbacks.push(callback);
