@@ -1437,10 +1437,13 @@ export default abstract class MQTTBase {
             }
         } else if (parts[0] === 'stat' && stateId === 'STATUS10') {
             // stat/device/STATUS10 = {"StatusSNS":{"Time":"...","Switch2":"ON","Switch3":"OFF",...}}
+            // This is the same data as the periodic tele/.../SENSOR telemetry, just requested on demand,
+            // so it must land under the exact same state IDs - using "SENSOR" here too (with OBJ_TREE
+            // on) avoids creating a second, duplicate copy of e.g. the ENERGY reading.
             try {
                 const data = JSON.parse(val) as { StatusSNS?: Record<string, unknown> };
                 if (data.StatusSNS && typeof data.StatusSNS === 'object') {
-                    this.checkData(client, packet.topic, NO_PREFIX, data.StatusSNS);
+                    this.checkData(client, packet.topic, this.config.OBJ_TREE ? 'SENSOR' : NO_PREFIX, data.StatusSNS);
                 }
             } catch (e) {
                 this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);

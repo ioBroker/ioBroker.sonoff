@@ -10,6 +10,7 @@ import MQTTServer from './lib/server';
 import MQTTBridge from './lib/bridge';
 import type MQTTBase from './lib/mqttBase';
 import { findShortenedStates } from './lib/checkStates';
+import SonoffDeviceManagement from './lib/deviceManager';
 import type { SonoffAdapterConfig } from './types';
 
 /** How many shortened states are written into the log */
@@ -18,6 +19,7 @@ const MAX_REPORTED_STATES = 20;
 export class SonoffAdapter extends Adapter {
     declare config: SonoffAdapterConfig;
     server: MQTTBase | null = null;
+    deviceManagement: SonoffDeviceManagement | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -33,8 +35,12 @@ export class SonoffAdapter extends Adapter {
                     cb();
                 }
             },
+            objectChange: (id: string, obj: ioBroker.Object | null | undefined): void => {
+                this.deviceManagement?.onObjectChange(id, obj as ioBroker.ChannelObject | ioBroker.StateObject | null);
+            },
             stateChange: (id: string, state: ioBroker.State | null | undefined): void => {
                 this.log.debug(`stateChange ${id}: ${JSON.stringify(state)}`);
+                this.deviceManagement?.onStateChange(id, state ?? null);
                 // you can use the ack flag to detect if state is desired or acknowledged
                 if (state && !state.ack) {
                     this.server
@@ -46,6 +52,8 @@ export class SonoffAdapter extends Adapter {
     }
 
     private async main(): Promise<void> {
+        this.deviceManagement = new SonoffDeviceManagement(this);
+
         // subscribe for all own variables
         this.subscribeStates('*');
 
