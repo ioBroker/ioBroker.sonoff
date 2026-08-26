@@ -167,7 +167,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 4.1.0 (2026-08-26)
 * (@patricknitsch) Added Device Manager for existing devices
 
 ### 4.0.0 (2026-08-13)
@@ -216,9 +216,6 @@ States:
 
 ### 3.2.0 (2024-08-28)
 * (bluefox) Added information about connected clients in the server mode
-
-### 3.1.2 (2024-08-17)
-* (mattreim) updated packages
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

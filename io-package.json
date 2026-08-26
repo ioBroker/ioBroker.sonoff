@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "4.0.0",
+    "version": "4.1.0",
     "news": {
+      "4.1.0": {
+        "en": "Added Device Manager for existing devices",
+        "de": "Geräte-Manager für bestehende Geräte hinzugefügt",
+        "ru": "Добавлен диспетчер устройств для существующих устройств.",
+        "pt": "Adicionado Gerenciador de Dispositivos para dispositivos existentes.",
+        "nl": "Apparaatbeheer toegevoegd voor bestaande apparaten.",
+        "fr": "Ajout d'un gestionnaire de périphériques pour les périphériques existants",
+        "it": "Aggiunto Gestore dispositivi per i dispositivi esistenti",
+        "es": "Se agregó el Administrador de dispositivos para los dispositivos existentes.",
+        "pl": "Dodano Menedżera urządzeń dla istniejących urządzeń",
+        "uk": "Додано Диспетчер пристроїв для існуючих пристроїв",
+        "zh-cn": "为现有设备添加了设备管理器"
+      },
       "4.0.0": {
         "en": "Adapter requires js-controller >= 6.0.11 now.\nAdd bridge mode to connect to an external MQTT broker instead of running a built-in broker\nFix alive state object not being created (warning \"has no existing object\")\nFixed the names of data points inside a group: since 3.3.0 e.g. `SML_Total_in` was created as `SML_in` (#489)\nThe MAC address and the other network and firmware information of a device are stored as data points (`INFO.Mac`, `INFO.Gateway`, `INFO.Hardware`, ...) (#513)\nServer mode: the adapter requests `Status 5` and `Status 2` from a device with its first message, so the INFO states are filled even if the device did not reboot\nThe states which were created with a shortened name by 3.3.x are listed in the log on start, so they can be deleted (#489)\nBridge mode: the topics to subscribe are configurable now and nested full topics as well as OpenBeken topics are supported\nBridge mode: devices are named after their MQTT client ID like with the built-in broker and are no longer renamed by less reliable sources\nBridge mode: the `alive` state is set from the last will topic (LWT), so devices are recognized as offline\nCommands for auto-created states are sent to `cmnd/...` again, also for nested full topics\n`info.connection` contains the list of the connected clients again (server mode), in bridge mode the URL of the broker\nBridge mode: support for the full topic structure `%topic%/%prefix%/` (device first), detected automatically per device\nBridge mode: encrypted connections with CA/client certificates and optional certificate check, configurable client ID, keepalive and clean session\nBridge mode: a fix prefix in front of the full topic (e.g. `gateway/tele/device/STATE`) is recognized and used for the commands\nAdd support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes\nAdd PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers\nBreaking: minimal supported Node.js version is now 22",
         "de": "Der Adapter benötigt jetzt js-controller >= 6.0.11.\nFügen Sie den Bridge-Modus hinzu, um eine Verbindung zu einem externen MQTT-Broker herzustellen, anstatt einen integrierten Broker zu verwenden.\nBeheben Sie das Problem, dass das Objekt mit dem Status „lebendig“ nicht erstellt wird (Warnung: „Es existiert kein Objekt“).\nDie Namen der Datenpunkte innerhalb einer Gruppe wurden korrigiert: Seit Version 3.3.0 wurde beispielsweise `SML_Total_in` als `SML_in` erstellt (#489).\nDie MAC-Adresse und die übrigen Netzwerk- und Firmware-Informationen eines Geräts werden als Datenpunkte gespeichert (`INFO.Mac`, `INFO.Gateway`, `INFO.Hardware`, ...) (#513)\nServermodus: Der Adapter fordert mit seiner ersten Nachricht die Statuscodes „5“ und „2“ von einem Gerät an, sodass die INFO-Statuscodes auch dann gefüllt werden, wenn das Gerät nicht neu gestartet wurde.\nDie von Version 3.3.x mit einem Kurznamen erstellten Zustände werden beim Start im Protokoll aufgelistet und können daher gelöscht werden (#489).\nBridge-Modus: Die zu abonnierenden Themen sind jetzt konfigurierbar, und sowohl verschachtelte vollständige Themen als auch OpenBeken-Themen werden unterstützt.\nBridge-Modus: Geräte werden wie beim integrierten Broker nach ihrer MQTT-Client-ID benannt und nicht mehr von weniger zuverlässigen Quellen umbenannt.\nBridge-Modus: Der Status „aktiv“ wird anhand des letzten Will-Topics (LWT) gesetzt, daher werden Geräte als offline erkannt.\nBefehle für automatisch erstellte Zustände werden erneut an `cmnd/...` gesendet, auch für verschachtelte vollständige Themen.\n`info.connection` enthält im Servermodus die Liste der verbundenen Clients, im Bridge-Modus die URL des Brokers.\nBridge-Modus: Unterstützung für die vollständige Themenstruktur `%topic%/%prefix%/` (Gerät zuerst), automatische Erkennung pro Gerät\nBridge-Modus: Verschlüsselte Verbindungen mit CA-/Client-Zertifikaten und optionaler Zertifikatsprüfung, konfigurierbare Client-ID, Keepalive und Clean Session\nBridge-Modus: Ein festes Präfix vor dem vollständigen Thema (z. B. `gateway/tele/device/STATE`) wird erkannt und für die Befehle verwendet.\nUnterstützung für OpenBeken-LED-Datenpunkte (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) hinzugefügt – ermöglicht die Steuerung von OpenBeken-LED-Geräten mit automatischer Themenzuordnung für die Suffixe /get und /set.\nUnterstützung für die Datenpunkte PulseTime1-PulseTime16 hinzugefügt – Benutzer können nun PulseTime-Werte direkt von ioBroker lesen und festlegen, um die automatischen Abschalttimer von Relais zu steuern.\nWichtiger Hinweis: Die minimal unterstützte Node.js-Version ist jetzt 22.",
@@ -80,19 +93,6 @@
         "pl": "Ważne: Node.js 18.x i sterownik js- 5.0.19 + jest potrzebny co najmniej\nzaktualizowane stany dla Tasmota 13.4.0.3 20240402\npoprawiła niektóre komunikaty dziennika\nDodano PWM Pozycje\nNaprawiono obsługę QoS, aby zapobiec niepoprawnym ponownym uruchomieniom\nZapobieganie tworzeniu magazynu Map właściwość wspólne i sprzątanie",
         "uk": "Важливо: Node.js 18.x і js-controller 5.0.19+ необхідний мінімум\nоновлені стани для Тасмота 13.4.0.3 20240402\nрозширено деяких повідомлень журналу\nДодано PWM Товари\nВиправлена обробка QoS для запобігання недійсних відповідей\nПрофілактика створення магазину Карта нерухомості в загальному і чистому вигляді",
         "zh-cn": "重要:节点.js 18.x和js控制器 5.0.19+至少需要\n塔斯莫塔州升级\n增强一些日志消息\n已添加的 PWM 项目\n防止重新提交无效的固定QoS处理\n防止创建仓库 共同和清理的映射属性"
-      },
-      "3.0.3": {
-        "en": "Added migration of password on JSON Config",
-        "de": "Migration von Passwort auf JSON Config hinzugefügt",
-        "ru": "Добавлена миграция пароля на JSON Config",
-        "pt": "Adicionado migração de senha em JSON Config",
-        "nl": "Vermelding van wachtwoord op JSON Config",
-        "fr": "Ajout de la migration de mot de passe sur JSON Config",
-        "it": "Aggiunta migrazione di password su JSON Config",
-        "es": "Migración agregada de contraseña en JSON Config",
-        "pl": "Dostęp do migracji haseł JSON Config",
-        "uk": "Додано міграції пароля на JSON Config",
-        "zh-cn": "A. 增加联索行动密码的移徙"
       }
     },
     "titleLang": {
