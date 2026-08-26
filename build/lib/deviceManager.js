@@ -115,6 +115,13 @@ function canonicalizeChannel(channel) {
     return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
 }
 /**
+ * Whether a (raw, non-canonicalized) channel was nested under one of the topic-level groups created
+ * by the "Create object tree" (OBJ_TREE) adapter option, e.g. "SENSOR.ENERGY" or "STATE.Wifi".
+ */
+function isObjTreeStyleChannel(channel) {
+    return /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
+}
+/**
  * DeviceManager Class
  */
 class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
@@ -232,15 +239,16 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
      * Finds all power-metering data points of a device, wherever they are: in the built-in `ENERGY.*`
      * group, in a custom group of a bridged external meter, or as a bare top-level data point.
      *
-     * Toggling the "Create object tree" option changes the state IDs data points are created under
-     * (see `splitPowerSuffix`), and old states are never removed - so a leftover, no-longer-updated
-     * state from before the option was changed can exist next to the live one for the very same meter
-     * and metric. Guessing which of the two is "the current one" from the adapter's OBJ_TREE setting
-     * alone turned out unreliable (Tasmota can report the same value under more than one data point
-     * name, e.g. a German-named alias, independently of OBJ_TREE). Instead, only the entry whose state
-     * was updated most recently is kept per meter and metric (channel + label) - the leftover state
-     * simply stops receiving updates once its topic is no longer published, so its timestamp falls
-     * behind.
+     * The same reading can end up under more than one state ID for the same meter and metric (channel +
+     * label): toggling "Create object tree" moves a data point without deleting the old one, and some
+     * Tasmota firmware reports energy readings both nested inside its periodic "SENSOR" telemetry *and*
+     * via its own dedicated "ENERGY" topic (both handled by `mqttBase.ts`, see there). Whenever a copy
+     * nested under SENSOR/STATE/RESULT/WAKEUP (see `isObjTreeStyleChannel`) exists, it is the
+     * authoritative one - a device that also sends its own dedicated topic still sends the regular
+     * telemetry that ends up nested, so the bare, non-nested copy is always redundant when a nested one
+     * exists. Only as a fallback, when no nested copy exists (or several do, e.g. two aliased data point
+     * names), the entry whose state was updated most recently wins - stale leftovers stop being updated,
+     * so their timestamp falls behind.
      *
      * @param prefix `<namespace>.<deviceId>.`
      */
@@ -282,7 +290,9 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         }
         const deduped = [];
         for (const group of byMeter.values()) {
-            const preferred = group.reduce((newest, entry) => {
+            const nested = group.filter(e => isObjTreeStyleChannel(e.channel));
+            const candidates = nested.length ? nested : group;
+            const preferred = candidates.reduce((newest, entry) => {
                 const newestTs = this.states[`${prefix}${newest.suffix}`]?.ts ?? 0;
                 const entryTs = this.states[`${prefix}${entry.suffix}`]?.ts ?? 0;
                 return entryTs > newestTs ? entry : newest;
