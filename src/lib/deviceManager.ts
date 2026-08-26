@@ -71,7 +71,6 @@ const POWER_METRIC_LABELS: Record<string, { label: string; unit: string; order: 
     Total_in: { label: 'Total (import)', unit: 'kWh', order: 11 },
     Total_out: { label: 'Total (export)', unit: 'kWh', order: 12 },
     ExportActive: { label: 'Returned energy', unit: 'kWh', order: 12 },
-    Period: { label: 'Period', unit: 'W', order: 13 },
     PowerLow: { label: 'Power low threshold', unit: 'W', order: 14 },
     PowerHigh: { label: 'Power high threshold', unit: 'W', order: 15 },
     PowerDelta: { label: 'Power delta threshold', unit: 'W', order: 16 },
@@ -226,20 +225,34 @@ export default class SonoffDeviceManagement extends DeviceManagement {
      * "Wifi_RSSI" with OBJ_TREE off but "STATE.Wifi.RSSI" with it on. Returns the matching suffix (state
      * ID without the device prefix), or `undefined` if the device has no such data point.
      *
+     * A key can exist under more than one group at once, e.g. Tasmota echoes "Uptime" as part of a
+     * one-off command response ("RESULT.Uptime") in addition to reporting it with every regular
+     * "STATE" telemetry message - only the latter keeps being updated, so when both exist, the periodic
+     * telemetry groups (STATE, then SENSOR) are preferred over anything else.
+     *
      * @param prefix `<namespace>.<deviceId>.`
      * @param key data point name, e.g. "RSSI" or "Temperature"
      */
     private findDataPointSuffix(prefix: string, key: string): string | undefined {
+        const matches: string[] = [];
         for (const stateId of Object.keys(this.states)) {
             if (!stateId.startsWith(prefix)) {
                 continue;
             }
             const suffix = stateId.substring(prefix.length);
             if (suffix === key || suffix.endsWith(`.${key}`) || suffix.endsWith(`_${key}`)) {
-                return suffix;
+                matches.push(suffix);
             }
         }
-        return undefined;
+        if (matches.length > 1) {
+            for (const group of ['STATE', 'SENSOR']) {
+                const preferred = matches.find(s => s.startsWith(`${group}.`));
+                if (preferred) {
+                    return preferred;
+                }
+            }
+        }
+        return matches[0];
     }
 
     /**
