@@ -27,7 +27,6 @@ class SonoffAdapter extends adapter_core_1.Adapter {
             name: 'sonoff',
             ready: () => this.main(),
             unload: async (cb) => {
-                this.deviceManagement?.destroy();
                 if (this.server) {
                     await this.server.destroy();
                     this.server = null;

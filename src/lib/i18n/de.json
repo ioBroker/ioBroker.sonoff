@@ -9,6 +9,8 @@
     "Settings": "Einstellungen",
     "Rename this device": "Dieses Gerät umbenennen",
     "Enter new name": "Neuen Namen eingeben",
+    "Delete and recreate all data points of this device": "Alle Datenpunkte dieses Geräts löschen und neu anlegen",
+    "This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?": "Dadurch werden alle Datenpunkte dieses Geräts gelöscht (außer dem Namen). Sie werden automatisch neu angelegt, sobald das Gerät das nächste Mal seinen Status meldet. Fortfahren?",
     "Open device web interface": "Weboberfläche des Geräts öffnen",
     "Device ID": "Geräte-ID",
     "RSSI": "RSSI",

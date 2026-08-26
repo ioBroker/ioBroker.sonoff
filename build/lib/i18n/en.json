@@ -9,6 +9,8 @@
     "Settings": "Settings",
     "Rename this device": "Rename this device",
     "Enter new name": "Enter new name",
+    "Delete and recreate all data points of this device": "Delete and recreate all data points of this device",
+    "This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?": "This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?",
     "Open device web interface": "Open device web interface",
     "Device ID": "Device ID",
     "RSSI": "RSSI",

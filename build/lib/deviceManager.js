@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const adapter_core_1 = require("@iobroker/adapter-core");
 const dm_utils_1 = require("@iobroker/dm-utils");
-/** How often the periodic cleanup of superseded data points runs, see `cleanupObsoleteDataPoints` */
-const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 /** Icon shown for every device, since the adapter does not ship per-model icons */
 const DEVICE_ICON = 'adapter/sonoff/admin/sonoff.png';
 /** Group metadata: display name key (for i18n) */
@@ -79,19 +77,6 @@ const INFO_ITEMS = [
     { stateId: 'SDK', label: 'SDK' },
 ];
 /**
- * Data points that are cheap to identify by a fixed name (the keys of `POWER_METRIC_LABELS` plus a
- * few well-known status values) and therefore candidates for the "superseded duplicate" cleanup in
- * `cleanupObsoleteDataPoints` - not just the power-metering ones, since RSSI, Uptime and the sensor
- * readouts move around the object tree the exact same way when "Create object tree" is toggled.
- */
-const CLEANUP_KEYS = [
-    ...Object.keys(POWER_METRIC_LABELS),
-    'RSSI',
-    'Uptime',
-    'BatteryPercentage',
-    ...SENSOR_ITEMS.map(s => s.stateId),
-];
-/**
  * Splits a state suffix into the group it belongs to and the data point name, e.g.
  * "ENERGY.Voltage" -> { channel: "ENERGY", key: "Voltage" }, "SML_Total_in" (a bridged external
  * meter nested under a custom "SML" group) -> { channel: "SML", key: "Total_in" }, and
@@ -129,10 +114,6 @@ function splitDataPoint(suffix, knownKeys) {
 function canonicalizeChannel(channel) {
     return channel.replace(/^(SENSOR|STATE|RESULT|WAKEUP)\./, '');
 }
-/** Whether a (raw, non-canonicalized) channel was created under the "Create object tree" naming. */
-function isObjTreeStyleChannel(channel) {
-    return /^(SENSOR|STATE|RESULT|WAKEUP)\./.test(channel);
-}
 /**
  * DeviceManager Class
  */
@@ -140,7 +121,6 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
     ready;
     states = {};
     objects = {};
-    cleanupTimer = null;
     constructor(adapter) {
         super(adapter);
         // Initialize i18n
@@ -163,90 +143,6 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         }
         await this.adapter.subscribeStatesAsync('*');
         await this.adapter.subscribeObjectsAsync('*');
-        await this.cleanupObsoleteDataPoints().catch(error => this.adapter.log.warn(`Cannot clean up obsolete data points: ${error}`));
-        this.cleanupTimer = setInterval(() => {
-            this.cleanupObsoleteDataPoints().catch(error => this.adapter.log.warn(`Cannot clean up obsolete data points: ${error}`));
-        }, CLEANUP_INTERVAL_MS);
-    }
-    /** Stops the periodic cleanup timer. Must be called from the adapter's `unload` handler. */
-    destroy() {
-        if (this.cleanupTimer) {
-            clearInterval(this.cleanupTimer);
-            this.cleanupTimer = null;
-        }
-    }
-    /**
-     * Toggling the "Create object tree" (OBJ_TREE) adapter option changes the state ID a data point is
-     * created under (see `splitDataPoint`), e.g. RSSI moves from "Wifi_RSSI" to "STATE.Wifi.RSSI". The
-     * old state is never deleted by the MQTT handling itself, so it keeps existing side by side with the
-     * new one - showing every such value twice (most noticeably power metering, where every match is
-     * listed). This removes the leftover: for every data point that exists more than once for the same
-     * device and meter, the copy(s) that don't match the *current* OBJ_TREE setting are deleted, but only
-     * once a copy that does match already exists - so nothing is ever deleted before its replacement is
-     * confirmed to be there.
-     */
-    async cleanupObsoleteDataPoints() {
-        const ns = this.adapter.namespace;
-        const objTreeEnabled = !!this.adapter.config.OBJ_TREE;
-        let removed = 0;
-        for (const deviceId in this.objects) {
-            const device = this.objects[deviceId];
-            if (device.type !== 'channel') {
-                continue;
-            }
-            const shortDeviceId = device._id.substring(ns.length + 1);
-            if (!shortDeviceId || shortDeviceId.includes('.') || shortDeviceId === 'info') {
-                continue;
-            }
-            const prefix = `${device._id}.`;
-            const byDataPoint = new Map();
-            for (const id in this.objects) {
-                if (!id.startsWith(prefix) || this.objects[id].type !== 'state') {
-                    continue;
-                }
-                const suffix = id.substring(prefix.length);
-                const split = splitDataPoint(suffix, CLEANUP_KEYS);
-                if (!split) {
-                    continue;
-                }
-                const groupKey = `${canonicalizeChannel(split.channel)} ${split.key}`;
-                const group = byDataPoint.get(groupKey);
-                if (group) {
-                    group.push(suffix);
-                }
-                else {
-                    byDataPoint.set(groupKey, [suffix]);
-                }
-            }
-            for (const suffixes of byDataPoint.values()) {
-                if (suffixes.length < 2) {
-                    continue;
-                }
-                const isCurrent = (suffix) => isObjTreeStyleChannel(splitDataPoint(suffix, CLEANUP_KEYS).channel) === objTreeEnabled;
-                if (!suffixes.some(isCurrent)) {
-                    // None of the duplicates match the current setting yet (the device hasn't reported
-                    // under the new scheme since the option was changed) - keep everything for now.
-                    continue;
-                }
-                for (const suffix of suffixes) {
-                    if (isCurrent(suffix)) {
-                        continue;
-                    }
-                    const id = `${prefix}${suffix}`;
-                    try {
-                        await this.adapter.delForeignStateAsync(id);
-                        await this.adapter.delForeignObjectAsync(id);
-                        removed++;
-                    }
-                    catch (error) {
-                        this.adapter.log.warn(`Cannot remove obsolete data point ${id}: ${error}`);
-                    }
-                }
-            }
-        }
-        if (removed) {
-            this.adapter.log.info(`Removed ${removed} data point(s) superseded by the current "Create object tree" setting`);
-        }
     }
     getInstanceInfo() {
         return {
@@ -451,6 +347,13 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                         icon: 'edit',
                         description: adapter_core_1.I18n.getTranslatedObject('Rename this device'),
                         handler: async (deviceId, context) => await this.handleRenameDevice(deviceId, context),
+                    },
+                    {
+                        id: 'recreate',
+                        icon: 'refresh',
+                        description: adapter_core_1.I18n.getTranslatedObject('Delete and recreate all data points of this device'),
+                        confirmation: adapter_core_1.I18n.getTranslatedObject('This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?'),
+                        handler: async (deviceId, context) => await this.handleRecreateDevice(deviceId, context),
                     },
                     ...(hostname || ip
                         ? [
@@ -889,6 +792,34 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             this.adapter.log.warn(`Can not rename device ${id}: ${JSON.stringify(res)}`);
             return { refresh: 'none' };
         }
+        return { refresh: 'device' };
+    }
+    /**
+     * Deletes every data point of a device - its channel object (and therefore a custom name set via
+     * `rename`) is kept, everything else gets recreated automatically the next time the device reports
+     * its state. This is a manual, user-triggered fix for data points stuck in an outdated structure,
+     * e.g. leftovers from before the "Create object tree" adapter option was changed.
+     *
+     * @param id device (channel) ID to recreate
+     * @param _context unused - the destructive confirmation is handled declaratively by the action itself
+     */
+    async handleRecreateDevice(id, _context) {
+        const prefix = `${id}.`;
+        let removed = 0;
+        for (const stateId in this.objects) {
+            if (!stateId.startsWith(prefix) || this.objects[stateId].type !== 'state') {
+                continue;
+            }
+            try {
+                await this.adapter.delForeignStateAsync(stateId);
+                await this.adapter.delForeignObjectAsync(stateId);
+                removed++;
+            }
+            catch (error) {
+                this.adapter.log.warn(`Cannot remove data point ${stateId}: ${error}`);
+            }
+        }
+        this.adapter.log.info(`Removed ${removed} data point(s) of ${id}, they will be recreated automatically`);
         return { refresh: 'device' };
     }
 }
