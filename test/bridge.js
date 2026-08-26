@@ -267,6 +267,26 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    it('nests the on-demand STATUS10 sensor data the same way as regular SENSOR telemetry', async () => {
+        const { adapter, bridge, send } = setup({ OBJ_TREE: true });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send(
+            'stat/kitchen/STATUS10',
+            '{"StatusSNS":{"Time":"2026-08-26T06:53:23","ENERGY":{"Total":83.441,"Today":0,"Power":0,"Voltage":234,"Current":0}}}',
+        );
+
+        const states = adapter.states;
+        assert.strictEqual(states['sonoff.0.DVES_123456.SENSOR.ENERGY.Power']?.val, 0);
+        assert.strictEqual(states['sonoff.0.DVES_123456.SENSOR.ENERGY.Voltage']?.val, 234);
+        assert.ok(
+            !adapter.objects['sonoff.0.DVES_123456.ENERGY.Power'],
+            'STATUS10 must not create a second, non-nested copy of the reading',
+        );
+
+        await bridge.destroy();
+    });
+
     it('sets alive from the last will topic', async () => {
         const { adapter, bridge, send } = setup();
 
