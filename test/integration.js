@@ -342,15 +342,6 @@ const rules = {
     },
 };
 
-// Encrypt helper for password
-function encryptLegacy(key, value) {
-    let result = '';
-    for (let i = 0; i < value.length; i++) {
-        result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-    }
-    return result;
-}
-
 // Run integration tests
 tests.integration(path.join(__dirname, '..'), {
     defineAdditionalTests({ suite }) {
@@ -367,15 +358,13 @@ tests.integration(path.join(__dirname, '..'), {
                 this.timeout(60000);
                 harness = getHarness();
 
-                // Get system.config to encrypt password
-                const systemConfig = await harness.objects.getObjectAsync('system.config');
-                const secret = (systemConfig && systemConfig.native && systemConfig.native.secret) || 'Zgfr56gFe87jJOM';
-
-                // Configure adapter
+                // Configure adapter.
+                // `changeAdapterConfig` encrypts all fields listed in `encryptedNative`
+                // (here: `password`) itself, so the password must be given in plain text.
                 await harness.changeAdapterConfig('sonoff', {
                     native: {
                         user: 'user',
-                        password: encryptLegacy(secret, 'pass1'),
+                        password: 'pass1',
                         TELE_MARGINS: true,
                         STAT_RESULT: true
                     }
@@ -450,7 +439,7 @@ tests.integration(path.join(__dirname, '..'), {
                 const rule = rules[topic];
 
                 it(`Should process MQTT message: ${topic}`, async function() {
-                    this.timeout(3000);
+                    this.timeout(5000);
 
                     // Publish message
                     await new Promise((resolve, reject) => {
@@ -463,36 +452,53 @@ tests.integration(path.join(__dirname, '..'), {
                     // Wait for message to be processed
                     await new Promise(resolve => setTimeout(resolve, 300));
 
-                    // Check expected states
-                    for (const stateId in rule.expect) {
-                        const expectedValue = rule.expect[stateId];
-                        const fullStateId = `sonoff.0.Emitter_1.${stateId}`;
+                    const checkExpectedStates = async () => {
+                        for (const stateId in rule.expect) {
+                            const expectedValue = rule.expect[stateId];
+                            const fullStateId = `sonoff.0.Emitter_1.${stateId}`;
 
-                        if (expectedValue !== null) {
-                            // Object and state should exist
-                            const obj = await harness.objects.getObjectAsync(fullStateId);
-                            if (!obj) {
-                                throw new Error(`Object ${fullStateId} should exist`);
-                            }
-                            if (obj.type !== 'state') {
-                                throw new Error(`Object ${fullStateId} should have type 'state', but has '${obj.type}'`);
-                            }
+                            if (expectedValue !== null) {
+                                // Object and state should exist
+                                const obj = await harness.objects.getObjectAsync(fullStateId);
+                                if (!obj) {
+                                    throw new Error(`Object ${fullStateId} should exist`);
+                                }
+                                if (obj.type !== 'state') {
+                                    throw new Error(`Object ${fullStateId} should have type 'state', but has '${obj.type}'`);
+                                }
 
-                            const state = await harness.states.getStateAsync(fullStateId);
-                            if (!state) {
-                                throw new Error(`State ${fullStateId} should exist`);
+                                const state = await harness.states.getStateAsync(fullStateId);
+                                if (!state) {
+                                    throw new Error(`State ${fullStateId} should exist`);
+                                }
+                                if (state.val !== expectedValue) {
+                                    throw new Error(`State ${fullStateId} should have value '${expectedValue}', but has '${state.val}'`);
+                                }
+                                if (state.ack !== true) {
+                                    throw new Error(`State ${fullStateId} should have ack=true, but has ack=${state.ack}`);
+                                }
+                            } else {
+                                // State should not exist or object should not exist
+                                const obj = await harness.objects.getObjectAsync(fullStateId);
+                                if (obj !== null) {
+                                    throw new Error(`Object ${fullStateId} should not exist`);
+                                }
                             }
-                            if (state.val !== expectedValue) {
-                                throw new Error(`State ${fullStateId} should have value '${expectedValue}', but has '${state.val}'`);
-                            }if (state.ack !== true) {
-                                throw new Error(`State ${fullStateId} should have ack=true, but has ack=${state.ack}`);
+                        }
+                    };
+
+                    // The adapter creates the objects and states asynchronously, so retry
+                    // for a while instead of relying on the fixed delay above
+                    const deadline = Date.now() + 2000;
+                    for (;;) {
+                        try {
+                            await checkExpectedStates();
+                            break;
+                        } catch (error) {
+                            if (Date.now() >= deadline) {
+                                throw error;
                             }
-                        } else {
-                            // State should not exist or object should not exist
-                            const obj = await harness.objects.getObjectAsync(fullStateId);
-                            if (obj !== null) {
-                                throw new Error(`Object ${fullStateId} should not exist`);
-                            }
+                            await new Promise(resolve => setTimeout(resolve, 100));
                         }
                     }
                 });
