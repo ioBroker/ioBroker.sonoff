@@ -167,7 +167,7 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 4.2.0 (2026-09-07)
 * (@patricknitsch) Added Device Manager for existing devices
 
 ### 4.0.0 (2026-08-13)
