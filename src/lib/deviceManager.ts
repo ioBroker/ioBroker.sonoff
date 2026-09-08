@@ -418,75 +418,84 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                 continue;
             }
 
-            const prefix = `${device._id}.`;
-            const suffixes = this.getSuffixes(prefix);
+            try {
+                const prefix = `${device._id}.`;
+                const suffixes = this.getSuffixes(prefix);
 
-            const alive = this.states[`${device._id}.alive`]?.val === true;
-            const hostname = this.states[`${prefix}INFO.Hostname`]?.val as string | undefined;
-            const ip = this.states[`${prefix}INFO.IPAddress`]?.val as string | undefined;
-            const model = (this.states[`${prefix}INFO.Module`]?.val as string) || undefined;
-            const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
-            const rssi = rssiSuffix ? (this.states[`${prefix}${rssiSuffix}`]?.val as number | undefined) : undefined;
-            const batterySuffix = this.findDataPointSuffix(prefix, 'BatteryPercentage');
-            const battery = batterySuffix
-                ? (this.states[`${prefix}${batterySuffix}`]?.val as number | undefined)
-                : undefined;
-            const clientId = (device.native as { clientId?: string } | undefined)?.clientId;
-            const group = this.getDeviceGroup(suffixes);
+                const alive = this.states[`${device._id}.alive`]?.val === true;
+                const hostname = this.states[`${prefix}INFO.Hostname`]?.val as string | undefined;
+                const ip = this.states[`${prefix}INFO.IPAddress`]?.val as string | undefined;
+                const model = (this.states[`${prefix}INFO.Module`]?.val as string) || undefined;
+                const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
+                const rssi = rssiSuffix
+                    ? (this.states[`${prefix}${rssiSuffix}`]?.val as number | undefined)
+                    : undefined;
+                const batterySuffix = this.findDataPointSuffix(prefix, 'BatteryPercentage');
+                const battery = batterySuffix
+                    ? (this.states[`${prefix}${batterySuffix}`]?.val as number | undefined)
+                    : undefined;
+                const clientId = (device.native as { clientId?: string } | undefined)?.clientId;
+                const group = this.getDeviceGroup(suffixes);
 
-            const res: DeviceInfo<string> = {
-                id: device._id,
-                identifier: hostname || ip || clientId || undefined,
-                name: device.common.name,
-                icon: DEVICE_ICON,
-                color: !alive ? '#fff' : undefined,
-                backgroundColor: !alive ? '#f44336' : undefined,
-                group,
-                model,
-                status: {
-                    connection: alive ? 'connected' : 'disconnected',
-                    rssi,
-                    battery,
-                },
-                hasDetails: true,
-                customInfo: this.buildCustomInfo(device._id, prefix),
-                controls: this.buildControls(shortDeviceId, prefix),
-                actions: [
-                    {
-                        id: 'rename',
-                        icon: 'edit',
-                        description: I18n.getTranslatedObject('Rename this device'),
-                        handler: async (
-                            deviceId: string,
-                            context: ActionContext,
-                        ): Promise<{ refresh: DeviceRefresh }> => await this.handleRenameDevice(deviceId, context),
+                const res: DeviceInfo<string> = {
+                    id: device._id,
+                    identifier: hostname || ip || clientId || undefined,
+                    name: device.common?.name || shortDeviceId,
+                    icon: DEVICE_ICON,
+                    color: !alive ? '#fff' : undefined,
+                    backgroundColor: !alive ? '#f44336' : undefined,
+                    group,
+                    model,
+                    status: {
+                        connection: alive ? 'connected' : 'disconnected',
+                        rssi,
+                        battery,
                     },
-                    {
-                        id: 'recreate',
-                        icon: 'refresh',
-                        description: I18n.getTranslatedObject('Delete and recreate all data points of this device'),
-                        confirmation: I18n.getTranslatedObject(
-                            'This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?',
-                        ),
-                        handler: async (
-                            deviceId: string,
-                            context: ActionContext,
-                        ): Promise<{ refresh: DeviceRefresh }> => await this.handleRecreateDevice(deviceId, context),
-                    },
-                    ...(hostname || ip
-                        ? [
-                              {
-                                  id: 'web',
-                                  icon: 'web' as const,
-                                  description: I18n.getTranslatedObject('Open device web interface'),
-                                  url: `http://${hostname || ip}`,
-                              },
-                          ]
-                        : []),
-                ],
-            };
+                    hasDetails: true,
+                    customInfo: this.buildCustomInfo(device._id, prefix),
+                    controls: this.buildControls(shortDeviceId, prefix),
+                    actions: [
+                        {
+                            id: 'rename',
+                            icon: 'edit',
+                            description: I18n.getTranslatedObject('Rename this device'),
+                            handler: async (
+                                deviceId: string,
+                                context: ActionContext,
+                            ): Promise<{ refresh: DeviceRefresh }> => await this.handleRenameDevice(deviceId, context),
+                        },
+                        {
+                            id: 'recreate',
+                            icon: 'refresh',
+                            description: I18n.getTranslatedObject('Delete and recreate all data points of this device'),
+                            confirmation: I18n.getTranslatedObject(
+                                'This deletes all data points of this device (except its name). They will be recreated automatically the next time the device reports its state. Continue?',
+                            ),
+                            handler: async (
+                                deviceId: string,
+                                context: ActionContext,
+                            ): Promise<{ refresh: DeviceRefresh }> =>
+                                await this.handleRecreateDevice(deviceId, context),
+                        },
+                        ...(hostname || ip
+                            ? [
+                                  {
+                                      id: 'web',
+                                      icon: 'web' as const,
+                                      description: I18n.getTranslatedObject('Open device web interface'),
+                                      url: `http://${hostname || ip}`,
+                                  },
+                              ]
+                            : []),
+                    ],
+                };
 
-            context.addDevice(res);
+                context.addDevice(res);
+            } catch (error) {
+                // One malformed/leftover data point (e.g. a state object without "common", as can happen
+                // with data points from a much older adapter version) must not hide every other device
+                this.adapter.log.warn(`Cannot load device ${device._id} into the Device Manager: ${error}`);
+            }
         }
     }
 
@@ -731,12 +740,12 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
     private buildControls(shortDeviceId: string, prefix: string): DeviceControl<string>[] {
         const controls: DeviceControl<string>[] = [];
         const used = new Set<string>();
-        const ownStates: { id: string; suffix: string; name: string; common: ioBroker.StateCommon }[] = [];
+        const rawStates: { id: string; suffix: string; name: string; common: ioBroker.StateCommon }[] = [];
 
         for (const id in this.objects) {
             if (id.startsWith(prefix) && this.objects[id].type === 'state') {
                 const suffix = id.substring(prefix.length);
-                ownStates.push({
+                rawStates.push({
                     id,
                     suffix,
                     name: flatName(suffix),
@@ -744,6 +753,20 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                 });
             }
         }
+
+        // Two state objects can flatten to the same name at once - e.g. a bare "POWER" next to a
+        // leftover "RESULT.POWER" from before "Create object tree" was toggled. Both would end up as
+        // a control with the same ID, which the Device Manager rejects as a duplicate - so only the
+        // most recently updated copy of each name is kept (a leftover stops being updated, so its
+        // timestamp falls behind, the same fallback rule as `getPowerEntries` uses).
+        const byName = new Map<string, (typeof rawStates)[number]>();
+        for (const state of rawStates) {
+            const existing = byName.get(state.name);
+            if (!existing || (this.states[state.id]?.ts ?? 0) > (this.states[existing.id]?.ts ?? 0)) {
+                byName.set(state.name, state);
+            }
+        }
+        const ownStates = [...byName.values()];
 
         const stateHandler =
             (fullId: string) =>
@@ -857,7 +880,7 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
         // mode, ...) as buttons
         for (const pass of ['value', 'button'] as const) {
             for (const state of ownStates) {
-                if (used.has(state.id) || skipRe.test(state.name) || state.common?.write === false) {
+                if (used.has(state.id) || skipRe.test(state.name) || !state.common || state.common.write === false) {
                     continue;
                 }
                 const type = state.common.type;
