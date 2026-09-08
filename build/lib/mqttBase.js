@@ -217,6 +217,9 @@ class MQTTBase {
     async onStateChangedColors(id, state, channelId, stateId) {
         if (!channelId) {
             const parts = id.split('.');
+            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
+            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
+            channelId = parts[2];
             stateId = parts.pop() || '';
             if (stateId === 'level' ||
                 stateId === 'state' ||
@@ -225,7 +228,6 @@ class MQTTBase {
                 stateId === 'green') {
                 stateId = `${parts.pop()}.${stateId}`;
             }
-            channelId = parts.splice(2, parts.length).join('.');
         }
         const ledModeIdExor = `${this.adapter.namespace}.${channelId}.modeLedExor`;
         if (this.cachedModeExor[ledModeIdExor] === undefined) {
@@ -556,8 +558,10 @@ class MQTTBase {
         if (state && !state.ack) {
             // find client.id
             const parts = id.split('.');
+            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
+            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
+            const channelId = parts[2];
             const stateId = parts.pop() || '';
-            const channelId = parts.splice(2, parts.length).join('.');
             // Check if this is a Zigbee device state change
             // Pattern: ZbReceived_DEVICEID_ATTRIBUTE (e.g., ZbReceived_0x0856_Power)
             const zbMatch = stateId.match(/^ZbReceived_([^_]+)_(Power|Dimmer)$/);

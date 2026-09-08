@@ -175,6 +175,24 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    // With "Create object tree" on, a multi-relay data point lives one level deeper
+    // ("STATE.POWER1" instead of bare "POWER1"). Writing to it must still resolve to the right
+    // device - the channel is always "<namespace>.<instance>.<deviceId>", regardless of nesting.
+    it('writes a nested data point (Create object tree on) to the right device', async () => {
+        const { adapter, bridge, client, send } = setup({ OBJ_TREE: true });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER1":"ON","POWER2":"OFF"}');
+        assert.ok(adapter.objects['sonoff.0.DVES_123456.STATE.POWER1'], 'the data point must be nested');
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.DVES_123456.STATE.POWER1', { val: false, ack: false });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [{ topic: 'cmnd/kitchen/POWER1', payload: 'OFF' }]);
+
+        await bridge.destroy();
+    });
+
     it('supports the device-first full topic (%topic%/%prefix%/)', async () => {
         const { adapter, bridge, client, send } = setup();
 
