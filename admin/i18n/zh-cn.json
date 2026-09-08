@@ -18,6 +18,7 @@
     "Deactivate it, so the broker stores the messages while the adapter is not running": "取消勾选后，适配器未运行期间代理会保存消息",
     "Default QoS": "默认QoS",
     "Default Quality of Service level (0, 1, or 2)": "默认服务质量级别（0、1或2）",
+    "Device manager": "设备管理器",
     "Disables the built-in MQTT server and connects as client to an external broker": "禁用内置MQTT服务器，作为客户端连接到外部代理",
     "Divided by comma": "除以逗号，例如 'mqtt/0/#,javascript/#'",
     "Empty: iobroker_sonoff_<instance>": "留空：iobroker_sonoff_<实例>",

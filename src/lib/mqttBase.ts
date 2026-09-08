@@ -356,6 +356,9 @@ export default abstract class MQTTBase {
     ): Promise<void> {
         if (!channelId) {
             const parts = id.split('.');
+            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
+            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
+            channelId = parts[2];
             stateId = parts.pop() || '';
 
             if (
@@ -367,8 +370,6 @@ export default abstract class MQTTBase {
             ) {
                 stateId = `${parts.pop()}.${stateId}`;
             }
-
-            channelId = parts.splice(2, parts.length).join('.');
         }
         const ledModeIdExor = `${this.adapter.namespace}.${channelId}.modeLedExor`;
         if (this.cachedModeExor[ledModeIdExor] === undefined) {
@@ -724,8 +725,10 @@ export default abstract class MQTTBase {
         if (state && !state.ack) {
             // find client.id
             const parts = id.split('.');
+            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
+            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
+            const channelId = parts[2];
             const stateId = parts.pop() || '';
-            const channelId = parts.splice(2, parts.length).join('.');
 
             // Check if this is a Zigbee device state change
             // Pattern: ZbReceived_DEVICEID_ATTRIBUTE (e.g., ZbReceived_0x0856_Power)
@@ -786,6 +789,32 @@ export default abstract class MQTTBase {
             } else {
                 if (!this.config.ignoreNotConnectedWarnings) {
                     this.adapter.log.info(`Client "${channelId}" not connected`);
+                }
+            }
+        }
+    }
+
+    /**
+     * Forgets everything that was cached about the objects of one device, so the next message from it
+     * recreates them. `processTasks` creates every object only once per adapter run
+     * (`cacheAddedObjects`), so data points that were deleted from outside - e.g. by the device
+     * manager's "delete and recreate all data points" action - would otherwise never come back until
+     * the adapter is restarted.
+     *
+     * @param deviceId full ID of the device channel, e.g. "sonoff.0.DVES_123456"
+     */
+    public forgetObjects(deviceId: string): void {
+        const prefix = `${deviceId}.`;
+        const caches: Record<string, unknown>[] = [
+            this.cacheAddedObjects,
+            this.cachedModeExor,
+            this.cachedReadColors,
+            this.cachePowerObjects,
+        ];
+        for (const cache of caches) {
+            for (const id of Object.keys(cache)) {
+                if (id === deviceId || id.startsWith(prefix)) {
+                    delete cache[id];
                 }
             }
         }

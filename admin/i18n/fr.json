@@ -18,6 +18,7 @@
     "Deactivate it, so the broker stores the messages while the adapter is not running": "Désactivez-le pour que le broker conserve les messages pendant que l'adaptateur ne fonctionne pas",
     "Default QoS": "QoS par défaut",
     "Default Quality of Service level (0, 1, or 2)": "Niveau de service par défaut (0, 1 ou 2)",
+    "Device manager": "Gestionnaire d’appareils",
     "Disables the built-in MQTT server and connects as client to an external broker": "Désactive le serveur MQTT intégré et se connecte en tant que client à un broker externe",
     "Divided by comma": "Divisé par une virgule, par ex. 'mqtt/0/#, javascript/#'",
     "Empty: iobroker_sonoff_<instance>": "Vide : iobroker_sonoff_<instance>",

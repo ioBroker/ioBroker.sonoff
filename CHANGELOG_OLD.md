@@ -1,4 +1,7 @@
 # Older changes
+## 3.1.2 (2024-08-17)
+* (mattreim) updated packages
+
 ## 3.1.1 (2024-08-09)
 * (mattreim) updated packages
 
