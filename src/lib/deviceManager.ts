@@ -656,7 +656,7 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
         const test = (re: RegExp): boolean => list.some(s => re.test(s));
 
         let key = 'other';
-        if (test(/^Shutter\d*_?Position$/)) {
+        if (test(/^Shutter\d+_Position$/)) {
             key = 'cover';
         } else if (test(/^(Color|CT|led_basecolor_rgb|led_basecolor_rgbcw|Dimmer|led_dimmer)$/)) {
             key = 'light';
@@ -817,20 +817,8 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
             { re: /^led_dimmer$/, label: () => 'Dimmer', min: 0, max: 100, unit: '%' },
             { re: /^CT$/, label: () => 'Color temperature', min: 153, max: 500 },
             { re: /^led_temperature$/, label: () => 'Color temperature', min: 154, max: 500 },
-            {
-                re: /^Shutter(\d*)_?Position$/,
-                label: m => (m[1] ? `Shutter ${m[1]} position` : 'Shutter position'),
-                min: 0,
-                max: 100,
-                unit: '%',
-            },
-            {
-                re: /^Shutter(\d*)_?Tilt$/,
-                label: m => (m[1] ? `Shutter ${m[1]} tilt` : 'Shutter tilt'),
-                min: 0,
-                max: 100,
-                unit: '%',
-            },
+            { re: /^Shutter(\d+)_Position$/, label: m => `Shutter ${m[1]} position`, min: 0, max: 100, unit: '%' },
+            { re: /^Shutter(\d+)_Tilt$/, label: m => `Shutter ${m[1]} tilt`, min: 0, max: 100, unit: '%' },
         ];
         for (const state of ownStates) {
             if (used.has(state.id) || state.common?.type !== 'number' || state.common.write === false) {
