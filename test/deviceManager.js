@@ -169,4 +169,33 @@ describe('Device manager', function () {
 
         await bridge.destroy();
     });
+
+    // A leftover from before "Create object tree" was toggled (e.g. a nested "RESULT.POWER" next to
+    // the current bare "POWER") flattens to the same control ID (see `flatName`). Only one control per
+    // ID may be built, or the Device Manager rejects the whole device as a duplicate.
+    it('builds only one control when a data point exists both bare and nested', async () => {
+        const { adapter, bridge, send } = setup({ OBJ_TREE: false });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER":"ON"}');
+
+        adapter.objects[`${DEVICE}.RESULT.POWER`] = {
+            _id: `${DEVICE}.RESULT.POWER`,
+            type: 'state',
+            common: { type: 'boolean', write: true, role: 'switch' },
+            native: {},
+        };
+        adapter.states[`${DEVICE}.RESULT.POWER`] = { val: true, ts: 1, ack: true };
+
+        const dm = new SonoffDeviceManagement(adapter);
+        const devices = [];
+        await dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+
+        assert.strictEqual(devices.length, 1, 'the device must still be reported');
+        const powerControls = devices[0].controls.filter(c => c.id === 'POWER');
+        assert.strictEqual(powerControls.length, 1, 'only one "POWER" control may exist');
+        assert.strictEqual(powerControls[0].stateId, `DVES_123456.POWER`, 'the freshest copy must win');
+
+        await bridge.destroy();
+    });
 });

@@ -670,11 +670,11 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
     buildControls(shortDeviceId, prefix) {
         const controls = [];
         const used = new Set();
-        const ownStates = [];
+        const rawStates = [];
         for (const id in this.objects) {
             if (id.startsWith(prefix) && this.objects[id].type === 'state') {
                 const suffix = id.substring(prefix.length);
-                ownStates.push({
+                rawStates.push({
                     id,
                     suffix,
                     name: flatName(suffix),
@@ -682,6 +682,19 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
                 });
             }
         }
+        // Two state objects can flatten to the same name at once - e.g. a bare "POWER" next to a
+        // leftover "RESULT.POWER" from before "Create object tree" was toggled. Both would end up as
+        // a control with the same ID, which the Device Manager rejects as a duplicate - so only the
+        // most recently updated copy of each name is kept (a leftover stops being updated, so its
+        // timestamp falls behind, the same fallback rule as `getPowerEntries` uses).
+        const byName = new Map();
+        for (const state of rawStates) {
+            const existing = byName.get(state.name);
+            if (!existing || (this.states[state.id]?.ts ?? 0) > (this.states[existing.id]?.ts ?? 0)) {
+                byName.set(state.name, state);
+            }
+        }
+        const ownStates = [...byName.values()];
         const stateHandler = (fullId) => async (_deviceId, _actionId, state) => {
             await this.adapter.setForeignStateAsync(fullId, state);
             return { val: state, ts: Date.now(), ack: true };
