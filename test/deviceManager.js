@@ -146,4 +146,27 @@ describe('Device manager', function () {
 
         await bridge.destroy();
     });
+
+    // A data point without "common" can be left behind by a much older adapter version or a manual
+    // edit. It must not take down the whole device list - only the device manager entry is affected.
+    it('still lists devices when one data point object has no "common"', async () => {
+        const { adapter, bridge, send } = setup({ OBJ_TREE: false });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER1":"ON"}');
+
+        adapter.objects[`${DEVICE}.LegacyLeftover`] = {
+            _id: `${DEVICE}.LegacyLeftover`,
+            type: 'state',
+            native: {},
+        };
+
+        const dm = new SonoffDeviceManagement(adapter);
+        const devices = [];
+        await dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+
+        assert.strictEqual(devices.length, 1, 'the device must still be reported');
+
+        await bridge.destroy();
+    });
 });
