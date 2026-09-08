@@ -198,4 +198,34 @@ describe('Device manager', function () {
 
         await bridge.destroy();
     });
+
+    // A single-shutter setup can report its position/tilt without a shutter number (Tasmota accepts
+    // "ShutterPosition"/"ShutterTilt" as aliases for "ShutterPosition1"/"ShutterTilt1"). That must be
+    // recognized as a cover device and get a slider, same as the numbered "Shutter1_Position" form.
+    it('shows a slider for a shutter position/tilt reported without a shutter number', async () => {
+        const { adapter, bridge, send } = setup({ OBJ_TREE: false });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+
+        adapter.objects[`${DEVICE}.ShutterPosition`] = {
+            _id: `${DEVICE}.ShutterPosition`,
+            type: 'state',
+            common: { type: 'number', write: true, role: 'level.blind', min: 0, max: 100, unit: '%' },
+            native: {},
+        };
+        adapter.states[`${DEVICE}.ShutterPosition`] = { val: 56, ts: 1, ack: true };
+
+        const dm = new SonoffDeviceManagement(adapter);
+        const devices = [];
+        await dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+
+        assert.strictEqual(devices.length, 1, 'the device must be reported');
+        assert.strictEqual(devices[0].group.key, 'cover', 'must be grouped as a cover device');
+
+        const positionControls = devices[0].controls.filter(c => c.id === 'ShutterPosition');
+        assert.strictEqual(positionControls.length, 1, 'exactly one slider must exist');
+        assert.strictEqual(positionControls[0].type, 'slider');
+
+        await bridge.destroy();
+    });
 });
