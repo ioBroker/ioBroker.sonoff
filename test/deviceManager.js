@@ -198,4 +198,34 @@ describe('Device manager', function () {
 
         await bridge.destroy();
     });
+
+    // With "Create object tree" on, a relay is stored twice by design: nested from the telemetry
+    // ("STATE.POWER") and bare from its own "stat/.../POWER" topic, kept in sync by the adapter. The
+    // duplicate control ID of exactly this setup hid every device of the adapter.
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/604
+    it('builds only one power switch when "Create object tree" stores POWER twice', async () => {
+        const { adapter, bridge, dm, devices } = await loadDevice({ OBJ_TREE: true }, [
+            ['stat/kitchen/POWER', 'ON'],
+            ['tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER":"ON"}'],
+        ]);
+        assert.ok(adapter.objects[`${DEVICE}.POWER`], 'the bare copy must exist');
+        assert.ok(adapter.objects[`${DEVICE}.STATE.POWER`], 'the nested copy must exist');
+
+        assert.strictEqual(devices.length, 1, 'the device must be reported');
+        assert.strictEqual(devices[0].controls.filter(c => c.id === 'POWER').length, 1);
+
+        // The copy that was updated last wins, even if its value did not change
+        const powerStateId = async () => {
+            const reloaded = [];
+            await dm.loadDevices({ addDevice: device => reloaded.push(device), setTotalDevices: () => {} });
+            return reloaded[0].controls.find(c => c.id === 'POWER').stateId;
+        };
+        dm.onStateChange(`${DEVICE}.POWER`, { val: true, ack: true, ts: 50 });
+        dm.onStateChange(`${DEVICE}.STATE.POWER`, { val: true, ack: true, ts: 100 });
+        assert.strictEqual(await powerStateId(), 'DVES_123456.STATE.POWER');
+        dm.onStateChange(`${DEVICE}.POWER`, { val: true, ack: true, ts: 150 });
+        assert.strictEqual(await powerStateId(), 'DVES_123456.POWER');
+
+        await bridge.destroy();
+    });
 });

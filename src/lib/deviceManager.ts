@@ -226,10 +226,9 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
 
     public onStateChange(id: string, state: ioBroker.State | null): void {
         if (state) {
-            if (!this.states[id] || this.states[id].val !== state.val) {
-                // trigger DM update
-                this.states[id] = state;
-            }
+            // Also on an unchanged value: the timestamp decides which copy of a data point that exists
+            // more than once is the current one (see `buildControls` and `getPowerEntries`)
+            this.states[id] = state;
         } else if (this.states[id]) {
             // trigger DM update
             delete this.states[id];

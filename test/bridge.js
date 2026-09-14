@@ -193,6 +193,30 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    // A dot in the MQTT client ID is kept in the device channel ID ("sonoff.0.home.kitchen"), so the
+    // channel is not just the first segment after the namespace - neither for bare nor nested states
+    it('writes to a device whose MQTT client ID contains a dot', async () => {
+        const { adapter, bridge, client, send } = setup({ OBJ_TREE: true });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"home.kitchen"}}');
+        await send('stat/kitchen/POWER', 'ON');
+        await send('tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER1":"ON"}');
+        assert.ok(adapter.objects['sonoff.0.home.kitchen.POWER'], 'the device channel must keep the dot');
+        assert.ok(adapter.objects['sonoff.0.home.kitchen.STATE.POWER1'], 'the data point must be nested');
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.home.kitchen.POWER', { val: false, ack: false });
+        await delay(50);
+        await bridge.onStateChange('sonoff.0.home.kitchen.STATE.POWER1', { val: false, ack: false });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [
+            { topic: 'cmnd/kitchen/POWER', payload: 'OFF' },
+            { topic: 'cmnd/kitchen/POWER1', payload: 'OFF' },
+        ]);
+
+        await bridge.destroy();
+    });
+
     it('supports the device-first full topic (%topic%/%prefix%/)', async () => {
         const { adapter, bridge, client, send } = setup();
 

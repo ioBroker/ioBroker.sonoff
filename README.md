@@ -167,6 +167,11 @@ States:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@patricknitsch) Fixed Device Manager showing no devices at all if a data point exists twice, e.g. `POWER` and `STATE.POWER` (#604)
+* (@patricknitsch) Fixed writing to nested data points, e.g. `STATE.POWER1` with "Create object tree" enabled
+* (@GermanBluefox) Fixed writing to devices whose MQTT client ID contains a dot
+
 ### 4.2.0 (2026-09-07)
 * (@patricknitsch) Added Device Manager for existing devices
 

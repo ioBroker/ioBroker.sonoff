@@ -214,12 +214,30 @@ class MQTTBase {
             this.processTasks().catch(err => this.adapter.log.error(err));
         }
     }
+    /**
+     * Finds the device channel (the `iobId` of its client) a state belongs to. That is not simply the
+     * first segment after "<namespace>.": the state can be nested (e.g. "STATE.POWER1" with "Create
+     * object tree" on), and a client ID may contain dots itself, as `FORBIDDEN_CHARS` keeps them. So
+     * the longest leading path that belongs to a known client wins - the first segment is only the
+     * fallback for a client that is not connected.
+     *
+     * @param id full state ID, e.g. "sonoff.0.DVES_123456.STATE.POWER1"
+     */
+    getChannelId(id) {
+        const parts = id.substring(this.adapter.namespace.length + 1).split('.');
+        // The last segment is the data point itself, never part of the channel
+        for (let i = parts.length - 1; i > 1; i--) {
+            const channelId = parts.slice(0, i).join('.');
+            if (this.mappingClients[channelId]) {
+                return channelId;
+            }
+        }
+        return parts[0];
+    }
     async onStateChangedColors(id, state, channelId, stateId) {
         if (!channelId) {
             const parts = id.split('.');
-            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
-            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
-            channelId = parts[2];
+            channelId = this.getChannelId(id);
             stateId = parts.pop() || '';
             if (stateId === 'level' ||
                 stateId === 'state' ||
@@ -557,11 +575,8 @@ class MQTTBase {
         this.adapter.log.debug(`onStateChange ${id}: ${JSON.stringify(state)}`);
         if (state && !state.ack) {
             // find client.id
-            const parts = id.split('.');
-            // The device channel is always exactly "<namespace>.<instance>.<deviceId>", regardless of
-            // how deeply the state itself is nested (e.g. "STATE.POWER1" with "Create object tree" on)
-            const channelId = parts[2];
-            const stateId = parts.pop() || '';
+            const channelId = this.getChannelId(id);
+            const stateId = id.split('.').pop() || '';
             // Check if this is a Zigbee device state change
             // Pattern: ZbReceived_DEVICEID_ATTRIBUTE (e.g., ZbReceived_0x0856_Power)
             const zbMatch = stateId.match(/^ZbReceived_([^_]+)_(Power|Dimmer)$/);
