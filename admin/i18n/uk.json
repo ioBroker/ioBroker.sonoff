@@ -7,7 +7,7 @@
     "Check the certificate of the broker": "Перевіряти сертифікат брокера",
     "Clean session": "Чиста сесія",
     "Client": "Клієнт/абонент",
-    "Client ID": "Ідентифікатор клієнта",
+    "Client ID": "ID клієнта",
     "Client ID:": "ID клієнта",
     "Client timeout": "Час очікування клієнта",
     "Comma separated list. Standard full topic: tele/#, stat/# - device first: +/tele/+, +/stat/+": "Список через кому. Стандартний FullTopic: tele/#, stat/# - спочатку пристрій: +/tele/+, +/stat/+",
