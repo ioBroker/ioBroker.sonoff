@@ -1,4 +1,9 @@
 # Older changes
+## 3.2.0 (2024-08-28)
+* (bluefox) Added information about connected clients in the server mode
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## 3.1.2 (2024-08-17)
 * (mattreim) updated packages
 

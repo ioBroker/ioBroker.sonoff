@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "4.2.0",
+    "version": "4.2.1",
     "news": {
+      "4.2.1": {
+        "en": "Fixed Device Manager showing no devices at all if a data point exists twice, e.g. `POWER` and `STATE.POWER` (#604)\nFixed writing to nested data points, e.g. `STATE.POWER1` with \"Create object tree\" enabled\nFixed writing to devices whose MQTT client ID contains a dot",
+        "de": "Fix: Gerätemanager zeigt bei zweimaligem Datenpunkt keine Geräte an, z. B. `POWER` und `STATE.POWER` (#604)\nKorrigiert das Schreiben in Datenpunkte, z. B. `STATE.POWER1` mit Objektbaum\nFehler beim Schreiben auf Geräte mit Punkt in der MQTT-Client-ID behoben",
+        "ru": "Исправлено, что диспетчер устройств вообще не отображал никаких устройств, если точка данных существует дважды, например `POWER` и `STATE.POWER` (#604)\nИсправлена запись во вложенные точки данных, например, `STATE.POWER1` с включенной функцией «Создать дерево объектов»\nИсправлена запись на устройства, чей идентификатор клиента MQTT содержит точку",
+        "pt": "O Fixed Device Manager não mostra nenhum dispositivo se um ponto de dados existir duas vezes, como `POWER` e `STATE.POWER` (#604)\nGravação fixa em pontos de dados aninhados, como `STATE.POWER1` com “Criar árvore de objetos”\nGravação fixa em dispositivos com um ponto no ID do cliente MQTT",
+        "nl": "Fixed Device Manager toont helemaal geen apparaten als een datapunt twee keer bestaat, bijvoorbeeld `POWER` en `STATE.POWER` (#604)\nSchrijven naar geneste datapunten is opgelost, bijvoorbeeld `STATE.POWER1` met „Create Object Tree” ingeschakeld\nSchrijven naar apparaten waarvan de MQTT-client-ID een punt bevat, is opgelost",
+        "fr": "Fixed Device Manager n'affiche aucun appareil s'il y a deux points de données, par exemple « POWER » et « STATE.POWER » (#604)\nCorrection de l'écriture sur des données imbriquées, par exemple « STATE.POWER1 » avec « Créer un arbre d'objets »\nCorrection de l'écriture sur les clients MQTT marqués d'un point",
+        "it": "Fixed Device Manager non mostrava alcun dispositivo se un data point esiste due volte, ad esempio POWER e STATE.POWER (#604)\nScrittura fissa su data point annidati, ad esempio STATE.POWER1 con «Crea albero oggetti»\nRisolto il problema con l'ID client MQTT con un punto",
+        "es": "El gestor de dispositivos fijos no muestra ningún dispositivo si un punto de datos existe dos veces, por ejemplo, POWER y STATE.POWER (#604)\nEscritura fija en puntos de datos anidados, p. ej., `STATE.POWER1` con «Crear árbol de objetos»\nEscritura fija en dispositivos con ID de cliente de MQTT con un punto",
+        "pl": "Naprawiono błąd Menedżera urządzeń, który nie wykazuje żadnych urządzeń, jeśli punkt danych istnieje dwa razy, np. `POWER` i `STATE.POWER` (#604)\nNaprawiono zapisywanie do zagnieżdżonych punktów danych, np. `STATE.POWER1` z włączonym „Utwórz drzewo obiektów”\nNaprawiono zapisywanie na urządzeniach, których identyfikator klienta MQTT zawiera kropkę",
+        "uk": "Виправлений диспетчер пристроїв, який взагалі не показує пристроїв, якщо точка даних існує двічі, наприклад `POWER` та `STATE.POWER` (#604)\nВиправлено запис до вкладених точок даних, наприклад `STATE.POWER1` з увімкненим «Створити дерево об'єктів»\nВиправлено запис на пристрої, ідентифікатор клієнта MQTT яких містить крапку",
+        "zh-cn": "修复了如果一个数据点存在两次（例如 “POWER” 和 “STATE.POWER”），设备管理器根本不显示任何设备的问题 (#604)\n修复了写入嵌套数据点的问题，例如启用了 “创建对象树” 的 `STATE.POWER1`\n修复了向 MQTT 客户端 ID 包含点的设备写入的问题"
+      },
       "4.2.0": {
         "en": "Added Device Manager for existing devices",
         "de": "Gerätemanager für alte Geräte hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "zaktualizowane pakiety",
         "uk": "оновлені пакети",
         "zh-cn": "更新软件包"
-      },
-      "3.1.0": {
-        "en": "Important: Node.js 18.x  and js-controller 5.0.19+ is needed at minimum\nupgraded states for Tasmota 13.4.0.3 20240402\nenhanced some log messages\nAdded PWM Items\nFixed QoS handling to prevent invalid resubmissions\nPrevent creation of storeMap property in common and cleanup",
-        "de": "Wichtig: Node.js 18.x und js-controller 5.0.19+ ist mindestens erforderlich\naktualisierte Zustände für Tasmota 13.4.0.3 20240402\neinige log-nachrichten erweitert\nPWM Waren\nBehobene QoS-Behandlung, um ungültige Wiedereinsetzungen zu verhindern\nVerhindern Sie die Erstellung von Geschäft Karte Immobilien gemeinsam und sauber",
-        "ru": "Важно: Node.js 18.x и js-контроллер 5.0.19+ необходимо как минимум\nмодернизированные штаты для Тасмота 13.4.0.3 20240402\nрасширенные сообщения\nДобавлено PWM Пункты\nФиксированная обработка QoS для предотвращения неправильных повторной подачи\nПредотвращение создания магазина Карта недвижимости в целом и очистки",
-        "pt": "Importante: Node.js 18.x e js-controller 5.0.19+ é necessário no mínimo\nestados atualizados para Tasmota 13.4.0.3 20240402\nmelhorou algumas mensagens de log\nAdicionado PWM Itens\nManuseio QoS fixo para evitar resubmissões inválidas\nImpedir a criação de loja Propriedade do mapa em comum e limpeza",
-        "nl": "Belangrijk: Node.js 18.x en js-controller 5.0.19+ is minimaal nodig\nverbeterde staten voor Tasmota 13.4.0.3 20240402\nsommige logberichten verbeterd\nToegevoegd PWM Artikelen\nVaste QoS-behandeling om ongeldige resubmissions te voorkomen\nVoorkoming van de oprichting van een opslagplaats Kaart eigendom gemeenschappelijk en opruimen",
-        "fr": "Important: Node.js 18.x et js-controller 5.0.19+ est nécessaire au minimum\nétats améliorés pour Tasmota 13.4.03 202402\namélioré certains messages de journal\nAjouté PWM Éléments\nManipulation fixe de QoS pour empêcher les nouvelles présentations non valides\nEmpêcher la création de magasins Carte propriété en commun et nettoyage",
-        "it": "Importante: Node.js 18.x e js-controller 5.0.19+ è necessario al minimo\nstati aggiornati per Tasmota 13.4.0.3 20240402\nmigliorato alcuni messaggi di log\nAggiunto PWM Articoli\nMovimentazione QoS fissa per evitare resubmissioni non valide\nPrevenire la creazione di negozio Mappa di proprietà in comune e pulizia",
-        "es": "Importante: Node.js 18.x y js-controller 5.0.19+ se necesita al mínimo\nestados actualizados para Tasmota 13.4.0.3 20240402\nmejorar algunos mensajes de registro\nAñadido PWM Temas\nManejo fijo de QoS para prevenir las remisiones inválidas\nPrevenir la creación de la tienda Mapa propiedad en común y limpieza",
-        "pl": "Ważne: Node.js 18.x i sterownik js- 5.0.19 + jest potrzebny co najmniej\nzaktualizowane stany dla Tasmota 13.4.0.3 20240402\npoprawiła niektóre komunikaty dziennika\nDodano PWM Pozycje\nNaprawiono obsługę QoS, aby zapobiec niepoprawnym ponownym uruchomieniom\nZapobieganie tworzeniu magazynu Map właściwość wspólne i sprzątanie",
-        "uk": "Важливо: Node.js 18.x і js-controller 5.0.19+ необхідний мінімум\nоновлені стани для Тасмота 13.4.0.3 20240402\nрозширено деяких повідомлень журналу\nДодано PWM Товари\nВиправлена обробка QoS для запобігання недійсних відповідей\nПрофілактика створення магазину Карта нерухомості в загальному і чистому вигляді",
-        "zh-cn": "重要:节点.js 18.x和js控制器 5.0.19+至少需要\n塔斯莫塔州升级\n增强一些日志消息\n已添加的 PWM 项目\n防止重新提交无效的固定QoS处理\n防止创建仓库 共同和清理的映射属性"
       }
     },
     "titleLang": {
