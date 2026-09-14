@@ -64,7 +64,10 @@ function createAdapter(config) {
     const states = {};
     const handlers = {};
     const toId = id => (id.startsWith('sonoff.0.') ? id : `sonoff.0.${id}`);
-    const toRegExp = pattern => new RegExp(`^${pattern.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+    // Escapes every regex-special character in the pattern, then turns the (now escaped) "*" wildcard
+    // back into ".*" - so a pattern like "sonoff.0.foo.*" only matches literal dots, not any character
+    const toRegExp = pattern =>
+        new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\*/g, '.*')}$`);
 
     const adapter = {
         namespace: 'sonoff.0',
