@@ -86,6 +86,6 @@
     "chars": "caracteres",
     "connected": "conectado",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "ej. mqtt://192.168.1.100:1883 o mqtts://broker:8883",
-    "ms": "Sra",
-    "sec": "s"
+    "ms": "EM",
+    "sec": "segundo"
 }
