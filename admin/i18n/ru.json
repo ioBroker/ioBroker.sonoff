@@ -7,7 +7,7 @@
     "Check the certificate of the broker": "Проверять сертификат брокера",
     "Clean session": "Чистая сессия",
     "Client": "Клиент/подписчик",
-    "Client ID": "Идентификатор клиента",
+    "Client ID": "ID клиента",
     "Client ID:": "ID Клиента",
     "Client timeout": "Время ожидания клиента",
     "Comma separated list. Standard full topic: tele/#, stat/# - device first: +/tele/+, +/stat/+": "Список через запятую. Стандартный FullTopic: tele/#, stat/# - сначала устройство: +/tele/+, +/stat/+",
