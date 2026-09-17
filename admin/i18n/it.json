@@ -7,7 +7,7 @@
     "Check the certificate of the broker": "Verificare il certificato del broker",
     "Clean session": "Sessione pulita",
     "Client": "Client/abbonato",
-    "Client ID": "ID client",
+    "Client ID": "ID cliente",
     "Client ID:": "Identificativo cliente",
     "Client timeout": "Timeout del cliente",
     "Comma separated list. Standard full topic: tele/#, stat/# - device first: +/tele/+, +/stat/+": "Elenco separato da virgole. FullTopic standard: tele/#, stat/# - dispositivo per primo: +/tele/+, +/stat/+",
@@ -86,6 +86,6 @@
     "chars": "caratteri",
     "connected": "collegato",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "es. mqtt://192.168.1.100:1883 o mqtts://broker:8883",
-    "ms": "Signorina",
-    "sec": "s"
+    "ms": "SM",
+    "sec": "sicurezza"
 }

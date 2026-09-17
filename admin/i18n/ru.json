@@ -7,11 +7,11 @@
     "Check the certificate of the broker": "Проверять сертификат брокера",
     "Clean session": "Чистая сессия",
     "Client": "Клиент/подписчик",
-    "Client ID": "Идентификатор клиента",
+    "Client ID": "ID клиента",
     "Client ID:": "ID Клиента",
     "Client timeout": "Время ожидания клиента",
     "Comma separated list. Standard full topic: tele/#, stat/# - device first: +/tele/+, +/stat/+": "Список через запятую. Стандартный FullTopic: tele/#, stat/# - сначала устройство: +/tele/+, +/stat/+",
-    "Connection": "Соединение",
+    "Connection": "Подключение",
     "Connection settings": "Настройки соединения",
     "Create object tree": "Создать дерево объектов",
     "Deactivate it for self-signed certificates": "Отключите для самоподписанных сертификатов",
@@ -86,6 +86,6 @@
     "chars": "символов",
     "connected": "успешно",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "например mqtt://192.168.1.100:1883 или mqtts://broker:8883",
-    "ms": "мс",
+    "ms": "РС",
     "sec": "сек"
 }
