@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "5.1.0",
+    "version": "5.1.1",
     "news": {
+      "5.1.1": {
+        "en": "Admin 7.6.20+ is required. Added missing translations. The tests run on Windows and macOS too",
+        "de": "Admin 7.6.20+ ist nötig. Fehlende Übersetzungen. Die Tests laufen auf Windows und macOS",
+        "ru": "Требуется администратор версии 7.6.20+. Добавлены недостающие переводы. Тесты также работают в Windows и macOS",
+        "pt": "Requer o Admin 7.6.20+. Adição de traduções faltantes. Os testes também são em Windows e macOS",
+        "nl": "Admin 7.6.20+ is vereist. Ontbrekende vertalingen toegevoegd. De tests worden ook uitgevoerd op Windows en MacOS",
+        "fr": "Admin 7.6.20+ est requis. Ajout de traductions manquantes. Les tests se font aussi sur Windows et macOS",
+        "it": "Serve Admin 7.6.20+. Aggiunte traduzioni mancanti. I test sono anche su Windows e macOS",
+        "es": "Se necesita Admin 7.6.20+. Añadió las traducciones que faltaban Las pruebas también son en Windows y macOS",
+        "pl": "Wymagany jest Admin 7.6.20+. Dodano brakujące tłumaczenia. Testy działają również w systemach Windows i macOS",
+        "uk": "Адміністратор 7.6.20+ обов'язковий. Додані відсутні переклади. Тести також виконуються на Windows та macOS",
+        "zh-cn": "需要管理员 7.6.20+。添加了缺失的翻译。测试也在 Windows 和 macOS 上运行"
+      },
       "5.1.0": {
         "en": "Device manager: firmware update of Tasmota devices. The latest release is read from GitHub once a day (option \"Check for firmware updates\"), devices with an older firmware show the update indicator. The update is started with `Upgrade 1`, so the device downloads the firmware from its own OTA URL\nDevice manager: search for Tasmota devices in the network and connect them with ioBroker (enables MQTT and writes server, port, user and password)\nDevice manager: the connection state and the Wi-Fi signal are updated live, the signal is shown in dBm (`Wifi_Signal`) instead of the link quality in percent. Toggles like `Fade` are switches instead of buttons\nThe devices are linked with their `alive` state (`common.statusStates`), so admin shows in the object tree whether a device is connected\nThe port of the built-in MQTT server is reported to js-controller 8 as a used resource (`common.declareUsedResources`), so admin shows which ports are occupied. In bridge mode no port is reported. If the port is already used, the log names the instance that occupies it",
         "de": "Gerätemanager: Firmware-Update von Tasmota. Die neueste Version wird einmal täglich von GitHub gelesen (Option „Nach Updates suchen“), Geräte mit älterer Firmware zeigen das Update an. Das Update beginnt mit `Upgrade 1`, das Gerät lädt die Firmware von seiner OTA-URL\nGerätemanager: Suche im Netzwerk nach Tasmota-Geräten und verbinde sie mit ioBroker (aktiviert MQTT und schreibt Server, Port und Passwort)\nGerätemanager: Verbindungsstatus und Wi-Fi-Signal werden live aktualisiert, in dBm (`Wifi_Signal`) statt der Verbindungsqualität in%. Schalter wie `Fade` sind Schalter statt Knöpfe\nDie Geräte sind „live“ (common.StatusStates) verknüpft, sodass der Admin im Objektbaum zeigt, ob ein Gerät verbunden ist\nDer Port des eingebauten MQTT-Servers wird JS-Controller 8 als genutzte Ressource gemeldet (`common.declareUsedResources`), sodass admin zeigt, welche Ports belegt sind. Im Bridge-Modus ist kein Port gemeldet. Ist der Port bereits belegt, benennt das Log die ihn belegt",
@@ -80,19 +93,6 @@
         "pl": "**WAŻNE**: Komendy teraz poprawnie używają prefiksu cmnd/ zamiast prefiksu tele/\nDodano konfigurację dla zaawansowanych ustawień MQTT\nUlepszono, dodano i zoptymalizowano różne definicje i role punktów danych, zobacz Changelog",
         "uk": "**ВАЖЛИВО**: Тепер команди правильно використовують префікс cmnd/ замість префіксу tele/\nДодана конфігурація для розширених налаштувань MQTT.\nПокращено, додано та оптимізовано різні визначення точок даних та ролей, дивіться Журнал змін",
         "zh-cn": "**重要提示**：命令现在正确使用cmnd/前缀，而不再使用tele/前缀\n添加了高级MQTT设置的配置\n增强，添加和优化了各种数据点的定义和角色，详见变更日志。"
-      },
-      "3.2.1": {
-        "en": "Sanitize the IDs of the clients\nAdded information about connected clients in the server mode",
-        "de": "Sanitize die IDs der Kunden\nWeitere Informationen zu verbundenen Clients im Servermodus",
-        "ru": "Санитизируйте идентификаторы клиентов\nДобавлена информация о подключенных клиентах в серверном режиме",
-        "pt": "Sanitize os IDs dos clientes\nInformaÃ§Ãμes adicionais sobre clientes conectados no modo servidor",
-        "nl": "De identificaties van de cliënten reinigen\nInformatie over verbonden clients toegevoegd in de servermodus",
-        "fr": "Sanitiser les ID des clients\nAjout d'informations sur les clients connectés en mode serveur",
-        "it": "Smaltire gli ID dei clienti\nAggiunte informazioni sui client connessi nella modalità server",
-        "es": "Sanitize the IDs of the clients\nInformación adicional sobre clientes conectados en el modo servidor",
-        "pl": "Sanitize identyfikatory klientów\nDodano informacje o podłączonych klientach w trybie serwera",
-        "uk": "Сатизувати ідентифікатори клієнтів\nДодано інформацію про підключені клієнти в режимі сервера",
-        "zh-cn": "对客户身份进行保密\n在服务器模式中添加了连接客户端的信息"
       }
     },
     "messages": [
