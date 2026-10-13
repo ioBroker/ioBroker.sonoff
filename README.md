@@ -194,7 +194,7 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.1.0 (2026-10-13)
 * (@GermanBluefox) Device manager: firmware update of Tasmota devices. The latest release is read from GitHub once a day (option "Check for firmware updates"), devices with an older firmware show the update indicator. The update is started with `Upgrade 1`, so the device downloads the firmware from its own OTA URL
 * (@GermanBluefox) Device manager: search for Tasmota devices in the network and connect them with ioBroker (enables MQTT and writes server, port, user and password)
 * (@GermanBluefox) Device manager: the connection state and the Wi-Fi signal are updated live, the signal is shown in dBm (`Wifi_Signal`) instead of the link quality in percent. Toggles like `Fade` are switches instead of buttons
@@ -233,26 +233,6 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 * (@Apollon77/@copilot) Added support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
 * (@Apollon77/@copilot) Added PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
 * (@GermanBluefox) Breaking: a minimal supported Node.js version is now 22
-
-### 3.3.0 (2025-09-20)
-* (@Apollon77/@copilot) **IMPORTANT**: Commands now correctly use `cmnd/` prefix instead of `tele/` prefix
-* (@Apollon77/@copilot) Added configuration for advanced MQTT settings
-* (@Apollon77/@copilot) Fixed shutter command mapping to use the correct Tasmota format - Transforms Shutter1_Position to ShutterPosition1 for proper device control
-* (@Apollon77/@copilot) Fixed IRHVAC Power, Light and Mode fields showing NULL instead of actual string values
-* (@Apollon77/@copilot) Added Zigbee device control support for Tasmota coordinators - users can now control Zigbee devices (Power/Dimmer) through ioBroker states via automatic ZbSend command generation
-* (@Apollon77/@copilot) Added support for Tasmota tele/MARGINS messages enabling integration of PowerLow, PowerHigh, and PowerDelta limits
-* (@Apollon77/@copilot) Fixed POW R2 energy datapoints not being created by enabling TELE_STATE by default
-* (@Apollon77/@copilot) Fixed pressure and temperature unit display to respect PressureUnit and TempUnit from Tasmota MQTT messages
-* (@Apollon77/@copilot) Added support for decoupled button actions in Tasmota devices - creates Button1-Button8 datapoints for button events
-* (@Apollon77/@copilot) Fixed RESULT message processing bug where tele/*/RESULT messages were incorrectly processed as WAKEUP instead of RESULT
-* (@Apollon77/@copilot) Fixed the deprecated value.power.consumption role for ENERGY_Power datapoint to improve device detection
-* (@Apollon77/@copilot) Added support for SHUTTER5-SHUTTER16 datapoints for ESP32 shutter32 devices
-* (@Apollon77/@copilot) Updated admin UI responsive design to use ioBroker standard values for mobile compatibility
-* (@Apollon77/@copilot) Added support for Sonoff B1 (RGB LED) and Sonoff SC (Environmental Sensor) devices with proper value ranges
-* (@Apollon77/@copilot) Added meaningful state labels for Scheme datapoint (color animation schemes)
-* (@Apollon77/@copilot) Added a configuration option to suppress "not connected" warnings for temporarily offline devices
-* (@Apollon77/@copilot) Added Switch5-Switch28 datapoint definitions for consistent boolean mapping
-* (@Apollon77/@copilot) Fixed a write flag for all Switch datapoints to enable proper control from ioBroker
 
 ## License
 
