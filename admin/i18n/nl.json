@@ -87,5 +87,7 @@
     "connected": "conectado",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "bijv. mqtt://192.168.1.100:1883 of mqtts://broker:8883",
     "ms": "mevrouw",
-    "sec": "sec"
+    "sec": "sec",
+    "Check for firmware updates": "Controleren op firmware-updates",
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Leest eenmaal per dag de nieuwste Tasmota-versie van GitHub, zodat de apparaatbeheerder de apparaten kan bijwerken"
 }

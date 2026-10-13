@@ -187,6 +187,7 @@
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "compact": true,
+    "declareUsedResources": true,
     "enabled": true,
     "readme": "https://github.com/ioBroker/ioBroker.sonoff/blob/master/README.md",
     "loglevel": "info",
@@ -260,7 +261,8 @@
     "retransmitInterval": 2000,
     "retransmitCount": 10,
     "ignorePings": false,
-    "ignoreNotConnectedWarnings": false
+    "ignoreNotConnectedWarnings": false,
+    "checkFirmware": true
   },
   "objects": [],
   "instanceObjects": [

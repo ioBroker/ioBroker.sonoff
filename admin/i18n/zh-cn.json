@@ -87,5 +87,7 @@
     "connected": "连接的",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "例如 mqtt://192.168.1.100:1883 或 mqtts://broker:8883",
     "ms": "多发性硬化症",
-    "sec": "秒"
+    "sec": "秒",
+    "Check for firmware updates": "检查固件更新",
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "每天从 GitHub 读取一次最新的 Tasmota 版本，以便设备管理器可以更新设备"
 }

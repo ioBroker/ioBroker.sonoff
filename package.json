@@ -45,7 +45,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test:unit": "mocha test/bridge.js test/checkStates.js test/deviceManager.js --exit",
+    "test:unit": "mocha test/bridge.js test/checkStates.js test/deviceManager.js test/firmware.js test/discovery.js test/usedResources.js --exit",
     "test:integration": "mocha test/integration.js --exit",
     "test:package": "mocha test/testPackageFiles.js --exit",
     "test": "npm run test:unit && npm run test:integration",

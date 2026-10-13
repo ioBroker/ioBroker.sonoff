@@ -16,8 +16,11 @@ const server_1 = __importDefault(require("./lib/server"));
 const bridge_1 = __importDefault(require("./lib/bridge"));
 const checkStates_1 = require("./lib/checkStates");
 const deviceManager_1 = __importDefault(require("./lib/deviceManager"));
+const firmware_1 = require("./lib/firmware");
 /** How many shortened states are written into the log */
 const MAX_REPORTED_STATES = 20;
+/** How often the latest Tasmota release is read from GitHub */
+const FIRMWARE_CHECK_INTERVAL = 24 * 60 * 60 * 1000;
 class SonoffAdapter extends adapter_core_1.Adapter {
     server = null;
     deviceManagement = null;
@@ -72,6 +75,23 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
             this.server = new server_1.default(this);
+        }
+        if (this.config.checkFirmware !== false) {
+            await this.checkFirmware();
+            // Managed by the adapter, so it is stopped on unload
+            this.setInterval(() => void this.checkFirmware(), FIRMWARE_CHECK_INTERVAL);
+        }
+    }
+    /** Reads the latest Tasmota release, so the device manager can offer the firmware update */
+    async checkFirmware() {
+        try {
+            const version = await (0, firmware_1.fetchLatestTasmotaVersion)();
+            this.log.debug(`Latest Tasmota firmware: ${version}`);
+            this.deviceManagement?.setLatestFirmware(version);
+        }
+        catch (err) {
+            // Not important enough for a warning: without internet, there is simply no update indicator
+            this.log.info(`Cannot check the latest Tasmota firmware: ${err.message}`);
         }
     }
     /**

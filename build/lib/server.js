@@ -40,6 +40,7 @@ const node_net_1 = require("node:net");
 // @ts-expect-error no types
 const mqtt_connection_1 = __importDefault(require("mqtt-connection"));
 const mqttBase_1 = __importStar(require("./mqttBase"));
+const usedResources_1 = require("./usedResources");
 /**
  * MQTT Server constructor
  */
@@ -327,7 +328,14 @@ class MQTTServer extends mqttBase_1.default {
                 client.pingresp();
             });
         });
-        this.server.on('error', err => this.adapter.log.error(`Can not start Server ${err}`));
+        this.server.on('error', (err) => {
+            if (err.code !== 'EADDRINUSE') {
+                this.adapter.log.error(`Can not start Server ${err}`);
+                return;
+            }
+            // js-controller 8 knows which instance registered the port
+            void (0, usedResources_1.findPortHolders)(this.adapter, this.config.port).then(holders => this.adapter.log.error(`Can not start Server ${err}${holders.length ? `: the port is used by ${holders.join(', ')}` : ''}`));
+        });
         this.config.port = parseInt(this.config.port, 10) || 1883;
         this.config.retransmitInterval = this.config.retransmitInterval || 2000;
         this.config.retransmitCount = this.config.retransmitCount || 10;
@@ -338,6 +346,8 @@ class MQTTServer extends mqttBase_1.default {
         // to start
         this.server.listen(this.config.port, this.config.bind, () => {
             this.adapter.log.info(`Starting MQTT ${this.config.user ? 'authenticated ' : ''} server on port ${this.config.port}`);
+            // only after the port was really opened
+            void (0, usedResources_1.registerTcpPort)(this.adapter, this.config.port, this.config.bind);
             // info.connection is filled with the list of the connected clients
             this.updateClients().catch(err => this.adapter.log.error(`Cannot update clients: ${err}`));
             this.resendTimer = setInterval(() => !this.resending && this.checkResends(), this.config.retransmitInterval || 2000);

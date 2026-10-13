@@ -1,5 +1,6 @@
 import { I18n } from '@iobroker/adapter-core';
 import {
+    ACTIONS,
     DeviceManagement,
     type ActionContext,
     type ConfigItemAny,
@@ -9,10 +10,23 @@ import {
     type DeviceInfo,
     type DeviceLoadContext,
     type DeviceRefresh,
+    type DeviceStatus,
     type InstanceDetails,
 } from '@iobroker/dm-utils';
 // Type only - the adapter gives access to the running MQTT server/bridge, see `handleRecreateDevice`
 import type { SonoffAdapter } from '../main';
+import { isNewerVersion, parseVersion } from './firmware';
+import {
+    configureMqtt,
+    getLocalIp,
+    scanNetwork,
+    TasmotaAuthError,
+    type MqttSettings,
+    type TasmotaDevice,
+} from './discovery';
+
+/** How long the firmware update of a device may take, including the download and the restart */
+const FIRMWARE_UPDATE_TIMEOUT = 5 * 60 * 1000;
 
 /** Icon shown for every device, since the adapter does not ship per-model icons */
 const DEVICE_ICON = 'adapter/sonoff/admin/sonoff.png';
@@ -85,7 +99,6 @@ const INFO_ITEMS: { stateId: string; label: string; copy?: boolean }[] = [
     { stateId: 'Mac', label: 'MAC address', copy: true },
     { stateId: 'Gateway', label: 'Gateway' },
     { stateId: 'Subnetmask', label: 'Subnet mask' },
-    { stateId: 'Version', label: 'Firmware version' },
     { stateId: 'Hardware', label: 'Hardware' },
     { stateId: 'BuildDateTime', label: 'Build date' },
     { stateId: 'Core', label: 'Core' },
@@ -188,9 +201,13 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
     private readonly ready: Promise<void>;
     private readonly states: { [id: string]: ioBroker.State } = {};
     private readonly objects: { [id: string]: ioBroker.ChannelObject | ioBroker.StateObject } = {};
+    /** Version of the latest Tasmota release, see `setLatestFirmware` */
+    private latestFirmware: string | null = null;
 
     constructor(adapter: SonoffAdapter) {
-        super(adapter);
+        // `true` creates `info.deviceManager` - the state through which the adapter updates an open device
+        // manager, e.g. when a device goes offline or a new firmware is available
+        super(adapter, true);
 
         // Initialize i18n
         this.ready = I18n.init(__dirname, adapter)
@@ -221,18 +238,339 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
         return {
             apiVersion: 'v3',
             smallCards: true,
+            communicationStateId: `${this.adapter.namespace}.info.deviceManager`,
+            actions: [
+                {
+                    id: 'discover',
+                    icon: 'search',
+                    title: I18n.getTranslatedObject('Search for devices'),
+                    description: I18n.getTranslatedObject(
+                        'Search the network for Tasmota devices and connect them with ioBroker',
+                    ),
+                    timeout: 120_000,
+                    handler: async (context: ActionContext): Promise<{ refresh: boolean }> =>
+                        await this.handleDiscoverDevices(context),
+                },
+            ],
         };
     }
 
+    /**
+     * MQTT settings the devices need to connect with ioBroker: the built-in server of the adapter or, in
+     * bridge mode, the external broker
+     *
+     * @param deviceIp address of a found device, to find the own address in its network
+     */
+    private getMqttDefaults(deviceIp: string): MqttSettings {
+        const config = this.adapter.config;
+        if (config.useExternalBroker && config.externalBrokerUrl) {
+            try {
+                const url = new URL(
+                    config.externalBrokerUrl.includes('://')
+                        ? config.externalBrokerUrl
+                        : `mqtt://${config.externalBrokerUrl}`,
+                );
+                return {
+                    host: url.hostname,
+                    port: parseInt(url.port, 10) || (url.protocol === 'mqtts:' ? 8883 : 1883),
+                    user: config.externalBrokerUser || '',
+                    password: config.externalBrokerPassword || '',
+                };
+            } catch {
+                // invalid URL, use the own address
+            }
+        }
+        return {
+            host: getLocalIp(deviceIp) || '',
+            port: parseInt(config.port as string, 10) || 1883,
+            user: config.user || '',
+            password: config.password || '',
+        };
+    }
+
+    /**
+     * Searches the network for Tasmota devices and connects the selected ones with ioBroker: enables MQTT
+     * and writes the address, the port and the credentials of the MQTT server. The devices restart and
+     * appear in the list as soon as they are connected.
+     *
+     * @param context context to show the progress and the forms
+     * @param addresses addresses to ask, by default the local networks (for tests)
+     */
+    async handleDiscoverDevices(context: ActionContext, addresses?: string[]): Promise<{ refresh: boolean }> {
+        await this.ready;
+
+        const progress = await context.openProgress(I18n.getTranslatedObject('Searching for Tasmota devices...'), {
+            value: 0,
+        });
+        // Every message to the GUI is the answer to the previous one, so a progress update may only be sent
+        // after the previous one was confirmed - otherwise the answers get mixed up and "close" is lost
+        const pending: { update: Promise<void> | null } = { update: null };
+        let lastPercent = 0;
+        let found: TasmotaDevice[];
+        try {
+            found = await scanNetwork((done, total) => {
+                const percent = Math.floor((done / total) * 100);
+                if (percent !== lastPercent && !pending.update) {
+                    lastPercent = percent;
+                    pending.update = progress.update({ value: percent }).finally(() => (pending.update = null));
+                }
+            }, addresses);
+        } finally {
+            await pending.update;
+            await progress.close();
+        }
+
+        if (!found.length) {
+            await context.showMessage(I18n.getTranslatedObject('No Tasmota devices found'));
+            return { refresh: false };
+        }
+
+        // A device which is connected with this instance needs no configuration
+        const connected = new Set<string>();
+        for (const id in this.states) {
+            const match = id.match(/^(.+)\.INFO\.(Mac|IPAddress|Info2_IPAddress)$/);
+            if (match && this.states[`${match[1]}.alive`]?.val === true && this.states[id].val) {
+                connected.add(String(this.states[id].val).toUpperCase());
+            }
+        }
+        const isConnected = (device: TasmotaDevice): boolean =>
+            connected.has(device.ip) || (!!device.mac && connected.has(device.mac.toUpperCase()));
+        const candidates = found.filter(device => !isConnected(device));
+        const known = found.filter(device => isConnected(device));
+        if (!candidates.length) {
+            await context.showMessage(
+                I18n.getTranslatedObject('All %s found devices are already connected', known.length),
+            );
+            return { refresh: false };
+        }
+
+        const defaults = this.getMqttDefaults(found[0].ip);
+        const items: Record<string, ConfigItemAny> = {};
+        const data: Record<string, unknown> = { ...defaults, webPassword: '', selectAll: false };
+        const noneSelected: string[] = [];
+
+        if (candidates.length) {
+            items._mqttHeader = {
+                type: 'header',
+                text: I18n.getTranslatedObject('MQTT settings'),
+                size: 5,
+            };
+            items.host = { type: 'text', label: I18n.getTranslatedObject('MQTT server'), xs: 12, sm: 8, newLine: true };
+            items.port = {
+                type: 'number',
+                label: I18n.getTranslatedObject('MQTT port'),
+                min: 1,
+                max: 65535,
+                xs: 12,
+                sm: 4,
+            };
+            items.user = { type: 'text', label: I18n.getTranslatedObject('MQTT user'), xs: 12, sm: 6, newLine: true };
+            items.password = { type: 'password', label: I18n.getTranslatedObject('MQTT password'), xs: 12, sm: 6 };
+            items.webPassword = {
+                type: 'password',
+                label: I18n.getTranslatedObject('Web password of the devices'),
+                help: I18n.getTranslatedObject('Only required for devices with a web password'),
+                xs: 12,
+                newLine: true,
+            };
+
+            items._newHeader = {
+                type: 'header',
+                text: I18n.getTranslatedObject('Devices (%s)', candidates.length),
+                size: 5,
+            };
+            if (candidates.length > 1) {
+                items.selectAll = {
+                    type: 'checkbox',
+                    label: I18n.getTranslatedObject('Select all'),
+                    xs: 12,
+                    newLine: true,
+                };
+            }
+            candidates.forEach((device, i) => {
+                let mqtt: string;
+                if (device.protected) {
+                    mqtt = I18n.translate('password protected');
+                } else if (!device.mqttEnabled) {
+                    mqtt = I18n.translate('MQTT disabled');
+                } else {
+                    mqtt = `MQTT: ${device.mqttHost || '?'}:${device.mqttPort || '?'}`;
+                }
+                items[`add_${i}`] = {
+                    type: 'checkbox',
+                    label: `${device.name || device.hostname || device.ip} — ${device.ip} (${mqtt})`,
+                    xs: 12,
+                    newLine: true,
+                    onChange: { alsoDependsOn: ['selectAll'], calculateFunc: 'data.selectAll', ignoreOwnChanges: true },
+                };
+                data[`add_${i}`] = false;
+                noneSelected.push(`!data.add_${i}`);
+            });
+        }
+
+        if (known.length) {
+            items._knownHeader = {
+                type: 'header',
+                text: I18n.getTranslatedObject('Already connected (%s)', known.length),
+                size: 5,
+            };
+            known.forEach((device, i) => {
+                items[`known_${i}`] = {
+                    type: 'staticInfo',
+                    label: device.name || device.hostname || device.ip,
+                    data: device.ip,
+                    addColon: true,
+                    newLine: true,
+                };
+            });
+        }
+
+        const result = await context.showForm(
+            { type: 'panel', items },
+            {
+                data,
+                title: I18n.getTranslatedObject('Connect devices with ioBroker'),
+                ...(noneSelected.length
+                    ? { applyDisabledRule: noneSelected.join(' && ') }
+                    : { ignoreApplyDisabled: true }),
+            },
+        );
+
+        const selected = candidates.filter((_device, i) => result?.[`add_${i}`]);
+        if (!result || !selected.length) {
+            return { refresh: false };
+        }
+
+        const settings: MqttSettings = {
+            host: String(result.host || '').trim(),
+            port: parseInt(String(result.port), 10) || 1883,
+            user: String(result.user || '').trim(),
+            password: String(result.password || ''),
+        };
+        if (!settings.host) {
+            await context.showMessage(I18n.getTranslatedObject('The MQTT server is missing'));
+            return { refresh: false };
+        }
+
+        const webPassword = String(result.webPassword || '') || undefined;
+        const configProgress = await context.openProgress(I18n.getTranslatedObject('Configuring devices...'), {
+            value: 0,
+        });
+        const lines: string[] = [];
+        for (let i = 0; i < selected.length; i++) {
+            const device = selected[i];
+            const label = device.name || device.hostname || device.ip;
+            await configProgress.update({ value: Math.round((i / selected.length) * 100), label });
+            try {
+                await configureMqtt(device.ip, settings, webPassword);
+                lines.push(`✓ ${label} (${device.ip})`);
+                this.adapter.log.info(`Device ${label} (${device.ip}) connected with MQTT server ${settings.host}`);
+            } catch (err) {
+                const reason =
+                    err instanceof TasmotaAuthError
+                        ? I18n.translate('the web password is missing or wrong')
+                        : (err as Error).message;
+                lines.push(`✗ ${label} (${device.ip}): ${reason}`);
+                this.adapter.log.warn(`Cannot configure ${label} (${device.ip}): ${reason}`);
+            }
+        }
+        await configProgress.close();
+
+        await context.showMessage(
+            `${I18n.translate('The devices restart and connect with ioBroker')}:\n${lines.join('\n')}`,
+        );
+        return { refresh: true };
+    }
+
     public onStateChange(id: string, state: ioBroker.State | null): void {
+        const previous = this.states[id];
         if (state) {
             // Also on an unchanged value: the timestamp decides which copy of a data point that exists
             // more than once is the current one (see `buildControls` and `getPowerEntries`)
             this.states[id] = state;
-        } else if (this.states[id]) {
-            // trigger DM update
+        } else if (previous) {
             delete this.states[id];
         }
+
+        if (previous?.val === state?.val) {
+            return;
+        }
+
+        // Connection, signal and battery are bound to their states (see `buildDeviceStatus`), the GUI
+        // follows them by itself
+        if (/\.INFO\.(\w+_)?Version$/.test(id) && previous) {
+            // A new firmware version (e.g. after an update) changes the update indicator and the actions
+            this.refreshGui();
+        }
+    }
+
+    /**
+     * Stores the version of the latest Tasmota release. Devices with an older firmware get the update
+     * indicator and the action to update it.
+     *
+     * @param version e.g. "15.0.1", null if unknown
+     */
+    public setLatestFirmware(version: string | null): void {
+        if (this.latestFirmware !== version) {
+            this.latestFirmware = version;
+            this.refreshGui();
+        }
+    }
+
+    /** Reloads all devices in an open device manager */
+    private refreshGui(): void {
+        this.sendCommandToGui({ command: 'all' }).catch(e =>
+            this.adapter.log.debug(`Cannot update the device manager: ${e}`),
+        );
+    }
+
+    /**
+     * Firmware version of a device, e.g. "14.2.0(tasmota)". Tasmota reports it on boot in INFO1
+     * ("INFO.Info1_Version", older versions "INFO.Version") and when asked for STATUS2 ("INFO.Version"),
+     * so the most recently updated one is the current one.
+     *
+     * @param prefix `<namespace>.<deviceId>.`
+     */
+    private getFirmwareVersion(prefix: string): string | undefined {
+        let newest: ioBroker.State | undefined;
+        for (const id in this.states) {
+            if (!id.startsWith(`${prefix}INFO.`) || !/^(\w+_)?Version$/.test(id.substring(prefix.length + 5))) {
+                continue;
+            }
+            const state = this.states[id];
+            if (parseVersion(state?.val as string) && (!newest || state.ts > newest.ts)) {
+                newest = state;
+            }
+        }
+        return newest?.val as string | undefined;
+    }
+
+    /**
+     * Connection, signal strength and battery of a device, as shown in the header of its card. They are
+     * bound to their states, so an open device manager shows every change without reloading the devices.
+     *
+     * The device manager expects the signal strength in dBm. Tasmota reports it as "Signal" (dBm) and
+     * as "RSSI", which is the link quality in percent - so "RSSI" is only used if there is no "Signal"
+     * and it is already in dBm (negative, e.g. from a Zigbee device).
+     *
+     * @param prefix `<namespace>.<deviceId>.`
+     */
+    private buildDeviceStatus(prefix: string): DeviceStatus {
+        let rssiSuffix = this.findDataPointSuffix(prefix, 'Signal');
+        if (!rssiSuffix) {
+            const suffix = this.findDataPointSuffix(prefix, 'RSSI');
+            const val = suffix ? this.states[`${prefix}${suffix}`]?.val : undefined;
+            rssiSuffix = typeof val === 'number' && val < 0 ? suffix : undefined;
+        }
+        const batterySuffix = this.findDataPointSuffix(prefix, 'BatteryPercentage');
+        return {
+            connection: {
+                stateId: `${prefix}alive`,
+                mapping: { true: 'connected', false: 'disconnected' },
+            },
+            rssi: rssiSuffix ? { stateId: `${prefix}${rssiSuffix}` } : undefined,
+            battery: batterySuffix ? { stateId: `${prefix}${batterySuffix}` } : undefined,
+        };
     }
 
     public onObjectChange(id: string, obj: ioBroker.ChannelObject | ioBroker.StateObject | null): void {
@@ -425,31 +763,30 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                 const hostname = this.states[`${prefix}INFO.Hostname`]?.val as string | undefined;
                 const ip = this.states[`${prefix}INFO.IPAddress`]?.val as string | undefined;
                 const model = (this.states[`${prefix}INFO.Module`]?.val as string) || undefined;
-                const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
-                const rssi = rssiSuffix
-                    ? (this.states[`${prefix}${rssiSuffix}`]?.val as number | undefined)
-                    : undefined;
-                const batterySuffix = this.findDataPointSuffix(prefix, 'BatteryPercentage');
-                const battery = batterySuffix
-                    ? (this.states[`${prefix}${batterySuffix}`]?.val as number | undefined)
-                    : undefined;
                 const clientId = (device.native as { clientId?: string } | undefined)?.clientId;
                 const group = this.getDeviceGroup(suffixes);
+                const firmware = this.getFirmwareVersion(prefix);
+                const updateAvailable = isNewerVersion(this.latestFirmware, firmware);
 
                 const res: DeviceInfo<string> = {
                     id: device._id,
                     identifier: hostname || ip || clientId || undefined,
                     name: device.common?.name || shortDeviceId,
                     icon: DEVICE_ICON,
-                    color: !alive ? '#fff' : undefined,
-                    backgroundColor: !alive ? '#f44336' : undefined,
+                    // Red header while the device is offline, follows "alive" without reloading
+                    color: { stateId: `${prefix}alive`, mapping: { false: '#fff' } },
+                    backgroundColor: { stateId: `${prefix}alive`, mapping: { false: '#f44336' } },
                     group,
                     model,
-                    status: {
-                        connection: alive ? 'connected' : 'disconnected',
-                        rssi,
-                        battery,
-                    },
+                    status: this.buildDeviceStatus(prefix),
+                    // Only Tasmota devices report a firmware version which can be compared with the release
+                    update: firmware
+                        ? {
+                              available: updateAvailable,
+                              version: firmware,
+                              newVersion: updateAvailable ? this.latestFirmware! : undefined,
+                          }
+                        : undefined,
                     hasDetails: true,
                     customInfo: this.buildCustomInfo(device._id, prefix),
                     controls: this.buildControls(shortDeviceId, prefix),
@@ -476,6 +813,28 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                             ): Promise<{ refresh: DeviceRefresh }> =>
                                 await this.handleRecreateDevice(deviceId, context),
                         },
+                        ...(alive && updateAvailable
+                            ? [
+                                  {
+                                      // Also called when the user clicks on the update indicator
+                                      id: ACTIONS.UPDATE,
+                                      icon: 'update' as const,
+                                      description: I18n.getTranslatedObject('Update firmware'),
+                                      confirmation: I18n.getTranslatedObject(
+                                          'Update the firmware from %s to %s? The device downloads the firmware from its OTA URL and restarts.',
+                                          firmware!,
+                                          this.latestFirmware,
+                                      ),
+                                      // The GUI waits for the answer until the device has restarted
+                                      timeout: FIRMWARE_UPDATE_TIMEOUT + 30_000,
+                                      handler: async (
+                                          deviceId: string,
+                                          context: ActionContext,
+                                      ): Promise<{ refresh: DeviceRefresh }> =>
+                                          await this.handleFirmwareUpdate(deviceId, context),
+                                  },
+                              ]
+                            : []),
                         ...(hostname || ip
                             ? [
                                   {
@@ -549,14 +908,34 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
             };
         }
 
-        const rssiSuffix = this.findDataPointSuffix(prefix, 'RSSI');
+        // The version is reported in two places, see `getFirmwareVersion`
+        const firmware = this.getFirmwareVersion(prefix);
+        if (firmware) {
+            items._firmware = {
+                type: 'staticInfo',
+                label: I18n.getTranslatedObject('Firmware version'),
+                data: firmware,
+                addColon: true,
+            };
+            if (isNewerVersion(this.latestFirmware, firmware)) {
+                items._newFirmware = {
+                    type: 'staticInfo',
+                    label: I18n.getTranslatedObject('Available firmware'),
+                    data: this.latestFirmware!,
+                    addColon: true,
+                };
+            }
+        }
+
+        // "Signal" is in dBm, Tasmota's "RSSI" is the link quality in percent (see `buildDeviceStatus`)
+        const rssiSuffix = this.findDataPointSuffix(prefix, 'Signal') || this.findDataPointSuffix(prefix, 'RSSI');
         const rssi = rssiSuffix ? (this.states[`${prefix}${rssiSuffix}`]?.val as number | undefined) : undefined;
-        if (rssi !== undefined) {
+        if (typeof rssi === 'number') {
             items._rssi = {
                 type: 'staticInfo',
                 label: I18n.getTranslatedObject('RSSI'),
                 data: rssi,
-                unit: 'dBm',
+                unit: rssi < 0 ? 'dBm' : '%',
                 addColon: true,
             };
         }
@@ -894,6 +1273,20 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                 }
 
                 if (pass === 'button') {
+                    // A toggle like "Fade" can be switched on and off. A button would only ever send
+                    // "true", so it could never switch it off again - only real buttons stay buttons.
+                    if (!state.common.role?.startsWith('button')) {
+                        controls.push({
+                            group: 'group_settings',
+                            id: controlId(state.name),
+                            type: 'switch',
+                            stateId: `${shortDeviceId}.${state.suffix}`,
+                            label: state.name.replace(/_/g, ' '),
+                            state: currentState(state.id),
+                            handler: stateHandler(state.id),
+                        });
+                        continue;
+                    }
                     controls.push({
                         group: 'group_settings',
                         id: controlId(state.name),
@@ -973,7 +1366,87 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
             this.adapter.log.warn(`Can not rename device ${id}: ${JSON.stringify(res)}`);
             return { refresh: 'none' };
         }
-        return { refresh: 'device' as DeviceRefresh };
+        return { refresh: 'devices' };
+    }
+
+    /**
+     * Starts the firmware update of a Tasmota device with "Upgrade 1": the device downloads the firmware
+     * from its own OTA URL (by default the official release of its build variant) and restarts. Tasmota
+     * does not report the progress, so the dialog follows the restart and waits for the new version, which
+     * the device reports after the restart (INFO1, and STATUS2 on request of the adapter).
+     *
+     * @param id device (channel) ID
+     * @param context context to show the progress
+     */
+    async handleFirmwareUpdate(id: string, context: ActionContext): Promise<{ refresh: DeviceRefresh }> {
+        const ns = this.adapter.namespace;
+        const prefix = `${id}.`;
+        const shortDeviceId = id.substring(ns.length + 1);
+        const oldVersion = this.getFirmwareVersion(prefix);
+        const start = Date.now();
+
+        if (!this.adapter.server?.sendCommand(shortDeviceId, 'Upgrade', '1')) {
+            await context.showMessage(I18n.getTranslatedObject('The device is not connected'));
+            return { refresh: 'none' };
+        }
+        this.adapter.log.info(`Firmware update of ${shortDeviceId} started (installed: ${oldVersion})`);
+
+        const progress = await context.openProgress(I18n.getTranslatedObject('Updating firmware...'), {
+            indeterminate: true,
+            label: I18n.getTranslatedObject('The device downloads the firmware...'),
+        });
+
+        // "Upgrade" is only stored if objects are created from RESULT, it tells e.g. from where the
+        // firmware is downloaded or that the download failed
+        let lastMessage: ioBroker.StateValue = null;
+        let restarted = false;
+        let result: 'done' | 'failed' | 'timeout' | undefined;
+        // Every progress update is awaited: the GUI has to confirm one message before the next one is sent
+        while (!result) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const upgradeSuffix = this.findDataPointSuffix(prefix, 'Upgrade');
+            const upgrade = upgradeSuffix ? this.states[`${prefix}${upgradeSuffix}`] : undefined;
+            if (upgrade && upgrade.ts >= start && upgrade.val !== lastMessage) {
+                lastMessage = upgrade.val;
+                if (/fail|error|abort/i.test(String(upgrade.val))) {
+                    result = 'failed';
+                    break;
+                }
+                await progress.update({ label: String(upgrade.val) });
+            }
+
+            if (!restarted && this.states[`${prefix}alive`]?.val === false) {
+                restarted = true;
+                await progress.update({ label: I18n.getTranslatedObject('The device restarts...') });
+            }
+
+            const version = this.getFirmwareVersion(prefix);
+            if (version && version !== oldVersion) {
+                result = 'done';
+            } else if (Date.now() - start > FIRMWARE_UPDATE_TIMEOUT) {
+                result = 'timeout';
+            }
+        }
+
+        await progress.close();
+
+        const newVersion = this.getFirmwareVersion(prefix);
+        if (result === 'done') {
+            this.adapter.log.info(`Firmware of ${shortDeviceId} updated from ${oldVersion} to ${newVersion}`);
+            await context.showMessage(I18n.getTranslatedObject('The firmware was updated to %s', newVersion!));
+        } else if (result === 'failed') {
+            this.adapter.log.warn(`Firmware update of ${shortDeviceId} failed: ${lastMessage}`);
+            await context.showMessage(I18n.getTranslatedObject('The firmware update failed: %s', String(lastMessage)));
+        } else {
+            this.adapter.log.warn(`Firmware update of ${shortDeviceId}: no new version within 5 minutes`);
+            await context.showMessage(
+                I18n.getTranslatedObject(
+                    'The device did not report a new firmware within 5 minutes. The update may still be running, please check the device.',
+                ),
+            );
+        }
+        return { refresh: 'devices' };
     }
 
     /**
@@ -1016,6 +1489,6 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
         this.adapter.server?.forgetObjects(id);
 
         this.adapter.log.info(`Removed ${removed} data point(s) of ${id}, they will be recreated automatically`);
-        return { refresh: 'device' as DeviceRefresh };
+        return { refresh: 'devices' };
     }
 }

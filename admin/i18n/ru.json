@@ -87,5 +87,7 @@
     "connected": "успешно",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "например mqtt://192.168.1.100:1883 или mqtts://broker:8883",
     "ms": "РС",
-    "sec": "сек"
+    "sec": "сек",
+    "Check for firmware updates": "Проверять обновления прошивки",
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Раз в день считывает последнюю версию Tasmota с GitHub, чтобы менеджер устройств мог обновлять устройства"
 }

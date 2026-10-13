@@ -6,7 +6,8 @@
 
 const assert = require('node:assert');
 require('./lib/adapterCoreMock');
-const { setup } = require('./lib/mqttMock');
+const { setup, delay } = require('./lib/mqttMock');
+const { ACTIONS } = require('@iobroker/dm-utils');
 const SonoffDeviceManagement = require('../build/lib/deviceManager').default;
 
 const DEVICE = 'sonoff.0.DVES_123456';
@@ -121,6 +122,85 @@ describe('Device manager', function () {
         const details = await dm.getDeviceDetails(DEVICE);
         const powerItems = Object.keys(details.schema.items).filter(key => key.startsWith('energy_'));
         assert.deepStrictEqual(powerItems.sort(), ['energy_SENSOR_ENERGY_Power', 'energy_SENSOR_ENERGY_Voltage']);
+
+        await bridge.destroy();
+    });
+
+    // The device manager rates the signal in dBm, Tasmota's "RSSI" is the link quality in percent
+    it('binds the connection and the signal in dBm to their states', async () => {
+        const { bridge, devices } = await loadDevice({}, [
+            ['tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","Wifi":{"RSSI":52,"Signal":-74}}'],
+        ]);
+        assert.deepStrictEqual(devices[0].status, {
+            connection: { stateId: `${DEVICE}.alive`, mapping: { true: 'connected', false: 'disconnected' } },
+            rssi: { stateId: `${DEVICE}.Wifi_Signal` },
+            battery: undefined,
+        });
+        assert.deepStrictEqual(devices[0].backgroundColor, { stateId: `${DEVICE}.alive`, mapping: { false: '#f44336' } });
+
+        // an older Tasmota without "Signal" shows no signal instead of a wrong one
+        const old = await loadDevice({}, [['tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","Wifi":{"RSSI":52}}']]);
+        assert.strictEqual(old.devices[0].status.rssi, undefined);
+
+        await bridge.destroy();
+        await old.bridge.destroy();
+    });
+
+    it('offers the firmware update only for an older Tasmota version', async () => {
+        const firmware = version => [
+            ['stat/kitchen/STATUS2', `{"StatusFWR":{"Version":"${version}","Hardware":"ESP8266EX"}}`],
+            ['tele/kitchen/STATE', '{"Time":"2026-08-26T12:00:00","POWER":"ON"}'],
+        ];
+
+        const old = await loadDevice({}, firmware('14.2.0(tasmota)'));
+        old.dm.setLatestFirmware('15.0.1');
+        const devices = [];
+        await old.dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+        assert.deepStrictEqual(devices[0].update, {
+            available: true,
+            version: '14.2.0(tasmota)',
+            newVersion: '15.0.1',
+        });
+        assert.ok(devices[0].actions.find(action => action.id === ACTIONS.UPDATE));
+
+        const current = await loadDevice({}, firmware('15.0.1(tasmota)'));
+        current.dm.setLatestFirmware('15.0.1');
+        devices.length = 0;
+        await current.dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+        assert.strictEqual(devices[0].update.available, false);
+        assert.ok(!devices[0].actions.find(action => action.id === ACTIONS.UPDATE));
+
+        await old.bridge.destroy();
+        await current.bridge.destroy();
+    });
+
+    it('updates the firmware and waits for the new version', async () => {
+        const { adapter, bridge, client, send } = setup();
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('stat/kitchen/STATUS2', '{"StatusFWR":{"Version":"14.2.0(tasmota)"}}');
+
+        const dm = new SonoffDeviceManagement(adapter);
+        dm.setLatestFirmware('15.0.1');
+        const devices = [];
+        await dm.loadDevices({ addDevice: device => devices.push(device), setTotalDevices: () => {} });
+        const update = devices[0].actions.find(action => action.id === ACTIONS.UPDATE);
+
+        const messages = [];
+        const context = {
+            showMessage: async text => messages.push(text.en),
+            openProgress: async () => ({ update: async () => {}, close: async () => {} }),
+        };
+        client.published.length = 0;
+        const running = update.handler(DEVICE, context);
+        await delay(100);
+        assert.deepStrictEqual(client.published, [{ topic: 'cmnd/kitchen/Upgrade', payload: '1' }]);
+
+        // After the restart the device reports the new version
+        await send('stat/kitchen/STATUS2', '{"StatusFWR":{"Version":"15.0.1(tasmota)"}}');
+        dm.onStateChange(`${DEVICE}.INFO.Version`, adapter.states[`${DEVICE}.INFO.Version`]);
+
+        assert.deepStrictEqual(await running, { refresh: 'devices' });
+        assert.deepStrictEqual(messages, ['The firmware was updated to 15.0.1(tasmota)']);
 
         await bridge.destroy();
     });

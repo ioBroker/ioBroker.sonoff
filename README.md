@@ -180,11 +180,27 @@ Since version 5.0 the objects get roles which the type-detector recognizes corre
 
 A device with several relays (`POWER1`, `POWER2`, ...) in one channel is still detected only as one device, as the type-detector finds every device type only once per channel.
 
+## Device manager
+The devices are shown in the device manager of the admin with their relays, dimmers, colors, shutters and settings, which can be controlled directly there.
+
+**Firmware update:** if "Check for firmware updates" is enabled (default), the adapter reads the latest Tasmota release from GitHub once a day. A Tasmota device with an older firmware shows the update indicator and the action "Update firmware". It sends `Upgrade 1` to the device, which downloads the firmware from its own OTA URL (by default the official release of its build variant, e.g. `tasmota` or `tasmota32`) and restarts. The dialog waits until the device reports the new version, at most 5 minutes. Development builds are not offered to be "updated" to the release they are based on.
+
+**Search for devices:** the action "Search for devices" of the instance asks every address of the local networks (the /24 network of each own address) via the web interface of Tasmota for its status - the official Tasmota builds do not announce themselves by mDNS. The found devices are listed with their current MQTT settings, the ones already connected with this instance separately. For the selected devices the adapter enables MQTT and writes the MQTT server, port, user and password (`Backlog SetOption3 1; MqttHost ...; MqttPort ...; MqttUser ...; MqttPassword ...`). The settings are prefilled with the own address and the port and credentials of the built-in server, in bridge mode with the external broker. The devices restart and appear in the list as soon as they are connected. Devices with a web password require it in the form. If ioBroker runs in a Docker container without host network, only the network of the container is searched.
+
+The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm) live.
+
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Device manager: firmware update of Tasmota devices. The latest release is read from GitHub once a day (option "Check for firmware updates"), devices with an older firmware show the update indicator. The update is started with `Upgrade 1`, so the device downloads the firmware from its own OTA URL
+* (@GermanBluefox) Device manager: search for Tasmota devices in the network and connect them with ioBroker (enables MQTT and writes server, port, user and password)
+* (@GermanBluefox) Device manager: the connection state and the Wi-Fi signal are updated live, the signal is shown in dBm (`Wifi_Signal`) instead of the link quality in percent. Toggles like `Fade` are switches instead of buttons
+* (@GermanBluefox) The devices are linked with their `alive` state (`common.statusStates`), so admin shows in the object tree whether a device is connected
+* (@GermanBluefox) The port of the built-in MQTT server is reported to js-controller 8 as a used resource (`common.declareUsedResources`), so admin shows which ports are occupied. In bridge mode no port is reported. If the port is already used, the log names the instance that occupies it
+
 ### 5.0.0 (2026-10-13)
 * (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
 * (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept

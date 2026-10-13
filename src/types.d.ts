@@ -15,6 +15,8 @@ export interface SonoffAdapterConfig {
     retransmitCount: number;
     ignorePings: boolean;
     ignoreNotConnectedWarnings: boolean;
+    /** Read the latest Tasmota release from GitHub to offer the firmware update in the device manager */
+    checkFirmware: boolean;
     sendInterval: number;
     useExternalBroker: boolean;
     externalBrokerUrl: string;

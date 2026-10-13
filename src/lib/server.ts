@@ -2,6 +2,7 @@ import { Server } from 'node:net';
 // @ts-expect-error no types
 import mqtt from 'mqtt-connection';
 import MQTTBase, { FORBIDDEN_CHARS, type MQTTClient, type MQTTPacket, type MQTTPacketStored } from './mqttBase';
+import { findPortHolders, registerTcpPort } from './usedResources';
 
 /**
  * MQTT Server constructor
@@ -376,7 +377,18 @@ export default class MQTTServer extends MQTTBase {
             });
         });
 
-        this.server.on('error', err => this.adapter.log.error(`Can not start Server ${err}`));
+        this.server.on('error', (err: NodeJS.ErrnoException) => {
+            if (err.code !== 'EADDRINUSE') {
+                this.adapter.log.error(`Can not start Server ${err}`);
+                return;
+            }
+            // js-controller 8 knows which instance registered the port
+            void findPortHolders(this.adapter, this.config.port as number).then(holders =>
+                this.adapter.log.error(
+                    `Can not start Server ${err}${holders.length ? `: the port is used by ${holders.join(', ')}` : ''}`,
+                ),
+            );
+        });
 
         this.config.port = parseInt(this.config.port as string, 10) || 1883;
 
@@ -392,6 +404,8 @@ export default class MQTTServer extends MQTTBase {
             this.adapter.log.info(
                 `Starting MQTT ${this.config.user ? 'authenticated ' : ''} server on port ${this.config.port}`,
             );
+            // only after the port was really opened
+            void registerTcpPort(this.adapter, this.config.port as number, this.config.bind);
             // info.connection is filled with the list of the connected clients
             this.updateClients().catch(err => this.adapter.log.error(`Cannot update clients: ${err}`));
 

@@ -193,6 +193,30 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    it('links the device with its alive state, so admin shows the connection', async () => {
+        const { adapter, bridge, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        assert.deepStrictEqual(adapter.objects['sonoff.0.DVES_123456'].common.statusStates, {
+            onlineId: 'sonoff.0.DVES_123456.alive',
+        });
+        await bridge.destroy();
+
+        // a device created by an older version gets the link too, its name is kept
+        const second = setup();
+        second.adapter.objects['sonoff.0.DVES_123456'] = {
+            _id: 'sonoff.0.DVES_123456',
+            type: 'channel',
+            common: { name: 'Kitchen light' },
+            native: { clientId: 'DVES_123456' },
+        };
+        await second.send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        const common = second.adapter.objects['sonoff.0.DVES_123456'].common;
+        assert.deepStrictEqual(common.statusStates, { onlineId: 'sonoff.0.DVES_123456.alive' });
+        assert.strictEqual(common.name, 'Kitchen light');
+        await second.bridge.destroy();
+    });
+
     it('nests the on-demand STATUS10 sensor data the same way as regular SENSOR telemetry', async () => {
         const { adapter, bridge, send } = setup({ OBJ_TREE: true });
 

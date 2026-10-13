@@ -813,6 +813,25 @@ export default abstract class MQTTBase {
     }
 
     /**
+     * Sends a command to a device, e.g. "Upgrade 1" to start the firmware update of a Tasmota device. The
+     * topic is built the same way as for a written state (`cmnd/<topic>/<command>`).
+     *
+     * @param iobId ID of the device without the namespace, e.g. "DVES_123456"
+     * @param command Tasmota command, e.g. "Upgrade"
+     * @param payload parameter of the command, e.g. "1"
+     * @returns false if the device is not connected or its topic is still unknown
+     */
+    public sendCommand(iobId: string, command: string, payload: string): boolean {
+        const clientId = this.mappingClients[iobId];
+        const client = clientId ? this.clients[clientId] : undefined;
+        if (!client || (!client._map?.[command] && !client._fallBackName)) {
+            return false;
+        }
+        this.setStateImmediate(clientId, command, payload);
+        return true;
+    }
+
+    /**
      * Forgets everything that was cached about the objects of one device, so the next message from it
      * recreates them. `processTasks` creates every object only once per adapter run
      * (`cacheAddedObjects`), so data points that were deleted from outside - e.g. by the device
@@ -869,7 +888,21 @@ export default abstract class MQTTBase {
                     obj.common.role !== common.role &&
                     !!task.legacyRoles?.includes(obj.common.role || '');
 
-                if (obj.common.type !== common.type || task.storeMap !== undefined || updateRole) {
+                // Channels of older versions get the link to "alive", so that admin shows the connection
+                const statusStates = (task.data.common as ioBroker.DeviceCommon).statusStates;
+                const updateStatus =
+                    !!statusStates &&
+                    JSON.stringify((obj.common as ioBroker.DeviceCommon).statusStates) !== JSON.stringify(statusStates);
+
+                if (updateStatus) {
+                    (obj.common as ioBroker.DeviceCommon).statusStates = statusStates;
+                    try {
+                        await this.adapter.setForeignObjectAsync(task.id, obj);
+                        this.adapter.log.info(`Object updated: ${task.id}`);
+                    } catch (err) {
+                        this.adapter.log.warn(`Object update error: ${err.message}`);
+                    }
+                } else if (obj.common.type !== common.type || task.storeMap !== undefined || updateRole) {
                     obj.common.type = common.type;
                     if (updateRole) {
                         obj.common.role = common.role;
@@ -907,7 +940,9 @@ export default abstract class MQTTBase {
             common: {
                 name: client.id,
                 desc: '',
-            },
+                // Admin shows in the object tree, whether the device is connected (like for zigbee)
+                statusStates: { onlineId: `${id}.alive` },
+            } as ioBroker.ChannelCommon,
             native: {
                 clientId: client.id,
             },

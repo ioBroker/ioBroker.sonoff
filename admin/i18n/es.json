@@ -87,5 +87,7 @@
     "connected": "conectado",
     "e.g. mqtt://192.168.1.100:1883 or mqtts://broker:8883": "ej. mqtt://192.168.1.100:1883 o mqtts://broker:8883",
     "ms": "EM",
-    "sec": "segundo"
+    "sec": "segundo",
+    "Check for firmware updates": "Buscar actualizaciones de firmware",
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Lee una vez al día la última versión de Tasmota desde GitHub, para que el administrador de dispositivos pueda actualizar los dispositivos"
 }

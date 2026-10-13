@@ -333,6 +333,16 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "checkFirmware": {
+                    "type": "checkbox",
+                    "label": "Check for firmware updates",
+                    "help": "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "_header5": {
                     "newLine": true,
                     "type": "header",
