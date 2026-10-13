@@ -89,5 +89,9 @@
     "ms": "EM",
     "sec": "segundo",
     "Check for firmware updates": "Buscar actualizaciones de firmware",
-    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Lee una vez al día la última versión de Tasmota desde GitHub, para que el administrador de dispositivos pueda actualizar los dispositivos"
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Lee una vez al día la última versión de Tasmota desde GitHub, para que el administrador de dispositivos pueda actualizar los dispositivos",
+    "Port": "Puerto",
+    "User": "Usuario",
+    "Password": "Contraseña",
+    "in seconds": "en segundos"
 }

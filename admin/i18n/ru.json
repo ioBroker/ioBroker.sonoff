@@ -89,5 +89,9 @@
     "ms": "РС",
     "sec": "сек",
     "Check for firmware updates": "Проверять обновления прошивки",
-    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Раз в день считывает последнюю версию Tasmota с GitHub, чтобы менеджер устройств мог обновлять устройства"
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "Раз в день считывает последнюю версию Tasmota с GitHub, чтобы менеджер устройств мог обновлять устройства",
+    "Port": "Порт",
+    "User": "Пользователь",
+    "Password": "Пароль",
+    "in seconds": "в секундах"
 }

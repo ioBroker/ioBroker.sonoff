@@ -42,16 +42,17 @@ jobs:
 
         needs: [check-and-lint]
 
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
         strategy:
             matrix:
                 node-version: [22.x, 24.x, 26.x]
+                os: [ubuntu-latest, windows-latest, macos-latest]
 
         steps:
             - uses: ioBroker/testing-action-adapter@v1
               with:
                   build: true
-                  os: 'ubuntu-latest'
+                  os: ${{ matrix.os }}
                   node-version: ${{ matrix.node-version }}
 
     # Deploys the final package to NPM

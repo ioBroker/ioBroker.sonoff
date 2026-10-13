@@ -89,5 +89,9 @@
     "ms": "多发性硬化症",
     "sec": "秒",
     "Check for firmware updates": "检查固件更新",
-    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "每天从 GitHub 读取一次最新的 Tasmota 版本，以便设备管理器可以更新设备"
+    "Reads the latest Tasmota release from GitHub once a day, so the device manager can update the devices": "每天从 GitHub 读取一次最新的 Tasmota 版本，以便设备管理器可以更新设备",
+    "Port": "端口",
+    "User": "用户",
+    "Password": "密码",
+    "in seconds": "以秒为单位"
 }
