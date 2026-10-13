@@ -95,6 +95,62 @@
         "zh-cn": "更新软件包"
       }
     },
+    "messages": [
+      {
+        "condition": {
+          "operand": "and",
+          "rules": [
+            "oldVersion<5.0.0",
+            "newVersion>=5.0.0"
+          ]
+        },
+        "title": {
+          "en": "The roles of the objects change",
+          "de": "Die Rollen der Objekte ändern sich",
+          "ru": "Роли объектов изменяются",
+          "pt": "As funções dos objetos mudam",
+          "nl": "De rollen van de objecten veranderen",
+          "fr": "Les rôles des objets changent",
+          "it": "I ruoli degli oggetti cambiano",
+          "es": "Los roles de los objetos cambian",
+          "pl": "Zmieniają się role obiektów",
+          "uk": "Ролі об’єктів змінюються",
+          "zh-cn": "对象的角色发生变化"
+        },
+        "text": {
+          "en": "Version 5 gives the objects roles which the type-detector recognizes correctly (e.g. for Alexa, Matter, Material, devices). The roles of existing objects are updated as soon as the device sends the value again; roles changed by you are kept. Visualizations, scripts or aliases which rely on the old roles may behave differently. \"Switch1\"...\"Switch28\" are read-only now.",
+          "de": "Version 5 gibt den Objekten Rollen, die der Type-Detector richtig erkennt (z. B. für Alexa, Matter, Material, Geräte). Die Rollen bestehender Objekte werden aktualisiert, sobald das Gerät den Wert erneut sendet; von Ihnen geänderte Rollen bleiben erhalten. Visualisierungen, Skripte oder Aliase, die sich auf die alten Rollen verlassen, können sich anders verhalten. \"Switch1\"...\"Switch28\" sind jetzt nur lesbar.",
+          "ru": "Версия 5 назначает объектам роли, которые type-detector распознаёт правильно (например, для Alexa, Matter, Material, устройств). Роли существующих объектов обновляются, как только устройство снова отправит значение; роли, изменённые вами, сохраняются. Визуализации, скрипты или алиасы, которые полагаются на старые роли, могут вести себя иначе. \"Switch1\"...\"Switch28\" теперь только для чтения.",
+          "pt": "A versão 5 atribui aos objetos funções que o type-detector reconhece corretamente (por exemplo, para Alexa, Matter, Material, dispositivos). As funções dos objetos existentes são atualizadas assim que o dispositivo enviar o valor novamente; as funções alteradas por você são mantidas. Visualizações, scripts ou aliases que dependem das funções antigas podem se comportar de forma diferente. \"Switch1\"...\"Switch28\" agora são somente leitura.",
+          "nl": "Versie 5 geeft de objecten rollen die de type-detector correct herkent (bijv. voor Alexa, Matter, Material, apparaten). De rollen van bestaande objecten worden bijgewerkt zodra het apparaat de waarde opnieuw verstuurt; door u gewijzigde rollen blijven behouden. Visualisaties, scripts of aliassen die op de oude rollen vertrouwen, kunnen zich anders gedragen. \"Switch1\"...\"Switch28\" zijn nu alleen-lezen.",
+          "fr": "La version 5 attribue aux objets des rôles que le type-detector reconnaît correctement (par ex. pour Alexa, Matter, Material, appareils). Les rôles des objets existants sont mis à jour dès que l’appareil renvoie la valeur ; les rôles que vous avez modifiés sont conservés. Les visualisations, scripts ou alias qui s’appuient sur les anciens rôles peuvent se comporter différemment. \"Switch1\"...\"Switch28\" sont désormais en lecture seule.",
+          "it": "La versione 5 assegna agli oggetti ruoli che il type-detector riconosce correttamente (ad es. per Alexa, Matter, Material, dispositivi). I ruoli degli oggetti esistenti vengono aggiornati non appena il dispositivo invia di nuovo il valore; i ruoli modificati da te vengono mantenuti. Visualizzazioni, script o alias che si basano sui vecchi ruoli possono comportarsi in modo diverso. \"Switch1\"...\"Switch28\" ora sono di sola lettura.",
+          "es": "La versión 5 asigna a los objetos roles que el type-detector reconoce correctamente (p. ej., para Alexa, Matter, Material, dispositivos). Los roles de los objetos existentes se actualizan en cuanto el dispositivo vuelve a enviar el valor; los roles que usted haya cambiado se mantienen. Las visualizaciones, scripts o alias que dependan de los roles antiguos pueden comportarse de forma diferente. \"Switch1\"...\"Switch28\" ahora son de solo lectura.",
+          "pl": "Wersja 5 nadaje obiektom role, które type-detector rozpoznaje poprawnie (np. dla Alexa, Matter, Material, urządzeń). Role istniejących obiektów są aktualizowane, gdy tylko urządzenie ponownie wyśle wartość; role zmienione przez Ciebie pozostają bez zmian. Wizualizacje, skrypty lub aliasy, które opierają się na starych rolach, mogą działać inaczej. \"Switch1\"...\"Switch28\" są teraz tylko do odczytu.",
+          "uk": "Версія 5 призначає об’єктам ролі, які type-detector розпізнає правильно (наприклад, для Alexa, Matter, Material, пристроїв). Ролі наявних об’єктів оновлюються, щойно пристрій знову надішле значення; ролі, змінені вами, зберігаються. Візуалізації, скрипти або аліаси, які покладаються на старі ролі, можуть поводитися інакше. \"Switch1\"...\"Switch28\" тепер лише для читання.",
+          "zh-cn": "版本 5 为对象分配了 type-detector 能够正确识别的角色（例如用于 Alexa、Matter、Material、设备）。现有对象的角色会在设备再次发送该值时更新；您修改过的角色将被保留。依赖旧角色的可视化、脚本或别名可能会表现不同。\"Switch1\"...\"Switch28\" 现在为只读。"
+        },
+        "link": "https://github.com/ioBroker/ioBroker.sonoff#roles-of-the-objects-since-50",
+        "linkText": {
+          "en": "Details",
+          "de": "Details",
+          "ru": "Подробнее",
+          "pt": "Detalhes",
+          "nl": "Details",
+          "fr": "Détails",
+          "it": "Dettagli",
+          "es": "Detalles",
+          "pl": "Szczegóły",
+          "uk": "Докладніше",
+          "zh-cn": "详情"
+        },
+        "level": "warn",
+        "buttons": [
+          "agree",
+          "cancel"
+        ]
+      }
+    ],
     "titleLang": {
       "en": "Sonoff",
       "de": "Sonoff",

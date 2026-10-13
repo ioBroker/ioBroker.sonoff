@@ -1,4 +1,4 @@
-import types from './datapoints';
+import types, { autoLegacyRoles, autoRoles, legacyRoles } from './datapoints';
 import type { SonoffAdapterConfig } from '../types';
 
 const hueCalc = true;
@@ -154,6 +154,8 @@ export interface Task {
     storeMap?: boolean;
     setState?: true;
     setValue?: ioBroker.StateValue;
+    /** Roles of the older adapter versions: an existing object with one of them gets the role from `data` */
+    legacyRoles?: string[];
 }
 
 export default abstract class MQTTBase {
@@ -858,16 +860,32 @@ export default abstract class MQTTBase {
                 } catch (err) {
                     this.adapter.log.warn(`New object creation error: ${err.message}`);
                 }
-            } else if (
-                obj.common.type !== (task.data as ioBroker.StateObject).common.type ||
-                task.storeMap !== undefined
-            ) {
-                obj.common.type = (task.data as ioBroker.StateObject).common.type;
-                try {
-                    await this.adapter.setForeignObjectAsync(task.id, obj);
-                    this.adapter.log.info(`Object updated: ${task.id}`);
-                } catch (err) {
-                    this.adapter.log.warn(`Object update error: ${err.message}`);
+            } else {
+                const common = (task.data as ioBroker.StateObject).common;
+                // Objects created by older versions get the current role, so that the type-detector can
+                // recognize the device. A role changed by the user is never in the list and stays as it is.
+                const updateRole =
+                    !!common.role &&
+                    obj.common.role !== common.role &&
+                    !!task.legacyRoles?.includes(obj.common.role || '');
+
+                if (obj.common.type !== common.type || task.storeMap !== undefined || updateRole) {
+                    obj.common.type = common.type;
+                    if (updateRole) {
+                        obj.common.role = common.role;
+                        obj.common.write = common.write;
+                        for (const attr of ['unit', 'min', 'max'] as const) {
+                            if (common[attr] !== undefined) {
+                                (obj.common as Record<string, unknown>)[attr] = common[attr];
+                            }
+                        }
+                    }
+                    try {
+                        await this.adapter.setForeignObjectAsync(task.id, obj);
+                        this.adapter.log.info(`Object updated: ${task.id}`);
+                    } catch (err) {
+                        this.adapter.log.warn(`Object update error: ${err.message}`);
+                    }
                 }
             }
         }
@@ -1007,6 +1025,7 @@ export default abstract class MQTTBase {
                 native: {},
                 type: 'state',
             },
+            legacyRoles: legacyRoles[typeKey],
         };
     }
 
@@ -1319,20 +1338,31 @@ export default abstract class MQTTBase {
                     const attributes: ioBroker.StateCommon = {
                         role: 'value',
                         read: true,
-                        write: false,
+                        // RESULT is the answer to a command, so it can be controlled
+                        write: parts[2] === 'RESULT',
                         type: typeof val as ioBroker.CommonType,
                         name: `${client.id} ${prefix ? `${prefix} ` : ''}${path.length ? `${path.join(' ')} ` : ''} ${replaceAttr}`,
                     };
 
-                    if (parts[2] === 'RESULT') {
-                        // control
-                        attributes.write = true;
-                        attributes.role = 'level';
-                    }
-
                     if (!['number', 'string', 'boolean'].includes(attributes.type)) {
                         attributes.type = 'string';
                         val = (val || '').toString();
+                    }
+
+                    const autoRole = autoRoles[path.length ? `${path.join('_')}_${attr}` : attr];
+                    if (autoRole) {
+                        attributes.role = autoRole.role;
+                        if (autoRole.unit) {
+                            attributes.unit = autoRole.unit;
+                        }
+                    } else if (attributes.type === 'string') {
+                        attributes.role = 'text';
+                    } else if (attributes.type === 'boolean') {
+                        // "switch" and "state" would be taken by the type-detector for a light or a socket
+                        attributes.role = attributes.write ? 'switch.setting' : 'indicator';
+                    } else if (attributes.write) {
+                        // "level" would be taken by the type-detector for a dimmer or a blind
+                        attributes.role = 'state';
                     }
 
                     const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr}`;
@@ -1344,6 +1374,7 @@ export default abstract class MQTTBase {
                             native: {},
                             type: 'state',
                         },
+                        legacyRoles: autoLegacyRoles,
                     };
                     (obj.data as ioBroker.StateObject).common.name =
                         `${client.id} ${prefix ? `${prefix} ` : ''}${path.length ? `${path.join(' ')} ` : ''} ${replaceAttr}`;
@@ -1535,6 +1566,7 @@ export default abstract class MQTTBase {
                         native: {},
                         type: 'state',
                     },
+                    legacyRoles: legacyRoles[stateId],
                 };
 
                 // push only new objects

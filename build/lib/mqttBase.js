@@ -1,10 +1,40 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FORBIDDEN_CHARS = void 0;
-const datapoints_1 = __importDefault(require("./datapoints"));
+const datapoints_1 = __importStar(require("./datapoints"));
 const hueCalc = true;
 exports.FORBIDDEN_CHARS = /[\]\\[*,;'"`<>\\?]/g;
 const NO_PREFIX = '';
@@ -678,15 +708,31 @@ class MQTTBase {
                     this.adapter.log.warn(`New object creation error: ${err.message}`);
                 }
             }
-            else if (obj.common.type !== task.data.common.type ||
-                task.storeMap !== undefined) {
-                obj.common.type = task.data.common.type;
-                try {
-                    await this.adapter.setForeignObjectAsync(task.id, obj);
-                    this.adapter.log.info(`Object updated: ${task.id}`);
-                }
-                catch (err) {
-                    this.adapter.log.warn(`Object update error: ${err.message}`);
+            else {
+                const common = task.data.common;
+                // Objects created by older versions get the current role, so that the type-detector can
+                // recognize the device. A role changed by the user is never in the list and stays as it is.
+                const updateRole = !!common.role &&
+                    obj.common.role !== common.role &&
+                    !!task.legacyRoles?.includes(obj.common.role || '');
+                if (obj.common.type !== common.type || task.storeMap !== undefined || updateRole) {
+                    obj.common.type = common.type;
+                    if (updateRole) {
+                        obj.common.role = common.role;
+                        obj.common.write = common.write;
+                        for (const attr of ['unit', 'min', 'max']) {
+                            if (common[attr] !== undefined) {
+                                obj.common[attr] = common[attr];
+                            }
+                        }
+                    }
+                    try {
+                        await this.adapter.setForeignObjectAsync(task.id, obj);
+                        this.adapter.log.info(`Object updated: ${task.id}`);
+                    }
+                    catch (err) {
+                        this.adapter.log.warn(`Object update error: ${err.message}`);
+                    }
                 }
             }
         }
@@ -816,6 +862,7 @@ class MQTTBase {
                 native: {},
                 type: 'state',
             },
+            legacyRoles: datapoints_1.legacyRoles[typeKey],
         };
     }
     async syncPowerState(powerId, val) {
@@ -1068,18 +1115,32 @@ class MQTTBase {
                     const attributes = {
                         role: 'value',
                         read: true,
-                        write: false,
+                        // RESULT is the answer to a command, so it can be controlled
+                        write: parts[2] === 'RESULT',
                         type: typeof val,
                         name: `${client.id} ${prefix ? `${prefix} ` : ''}${path.length ? `${path.join(' ')} ` : ''} ${replaceAttr}`,
                     };
-                    if (parts[2] === 'RESULT') {
-                        // control
-                        attributes.write = true;
-                        attributes.role = 'level';
-                    }
                     if (!['number', 'string', 'boolean'].includes(attributes.type)) {
                         attributes.type = 'string';
                         val = (val || '').toString();
+                    }
+                    const autoRole = datapoints_1.autoRoles[path.length ? `${path.join('_')}_${attr}` : attr];
+                    if (autoRole) {
+                        attributes.role = autoRole.role;
+                        if (autoRole.unit) {
+                            attributes.unit = autoRole.unit;
+                        }
+                    }
+                    else if (attributes.type === 'string') {
+                        attributes.role = 'text';
+                    }
+                    else if (attributes.type === 'boolean') {
+                        // "switch" and "state" would be taken by the type-detector for a light or a socket
+                        attributes.role = attributes.write ? 'switch.setting' : 'indicator';
+                    }
+                    else if (attributes.write) {
+                        // "level" would be taken by the type-detector for a dimmer or a blind
+                        attributes.role = 'state';
                     }
                     const id = `${this.adapter.namespace}.${client.iobId}.${prefix ? `${prefix}.` : ''}${path.length ? `${path.join('_')}_` : ''}${replaceAttr}`;
                     const obj = {
@@ -1090,6 +1151,7 @@ class MQTTBase {
                             native: {},
                             type: 'state',
                         },
+                        legacyRoles: datapoints_1.autoLegacyRoles,
                     };
                     obj.data.common.name =
                         `${client.id} ${prefix ? `${prefix} ` : ''}${path.length ? `${path.join(' ')} ` : ''} ${replaceAttr}`;
@@ -1281,6 +1343,7 @@ class MQTTBase {
                         native: {},
                         type: 'state',
                     },
+                    legacyRoles: datapoints_1.legacyRoles[stateId],
                 };
                 // push only new objects
                 this.updateState(obj, async () => {

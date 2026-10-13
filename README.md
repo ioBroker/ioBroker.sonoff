@@ -162,11 +162,34 @@ States:
 * `modeLedExor` - exor for white LEDs and color LEDs => if the white LEDs are switched on, color LEDs are switched off and vice versa (default true)
 * `modeReadColors` - allow for color read from MQTT (default false)
 
+## Roles of the objects since 5.0
+Since version 5.0 the objects get roles which the type-detector recognizes correctly, so that adapters like Alexa (iot), Matter, Material or devices find the right devices: a relay as light or socket, a light with its color, dimmer and effect, a temperature sensor and so on. Before, e.g. `Wifi_Channel` or `MqttPort` were detected as dimmer and `POWER` of an RGB light was replaced by `WW_POWER`.
+
+**The behavior of the existing objects can change:**
+
+* The roles of the existing objects are updated as soon as the device sends the value again. Only the roles which the older versions set are changed, a role changed by you (e.g. `switch.light` on `POWER`) is kept. The ID, the name, the history settings and the value stay as they are.
+* Visualizations, scripts or aliases which select the states by their role can find other states now.
+* `Switch1`...`Switch28` are the inputs of the device and so read-only now.
+* The most important changes:
+  * network and firmware information: `info.ip`, `info.name`, `info.firmware`, `info.hardware`, ...
+  * diagnostic values (`Heap`, `LoadAvg`, `Wifi_Channel`, `HTTP_API`, ...): `info.status`, `UptimeSec`: `value.interval`, `Wifi_Signal`: `value.rssi`
+  * `POWER`, `POWER1`... with `switch.power`: `switch`
+  * `RGB_POWER`, `WW_POWER`, `CW_POWER`: `switch.mode.color`, `switch.mode.white`, `switch.mode.coldwhite`, `Fade`, `modeLedExor`, `modeReadColors`: `switch.setting`, `Scheme`: `level.effect`, `CT`: `level.color.temperature`
+  * `Today`, `Yesterday`: `value.energy.consumed`, `Vcc`: `value.voltage.vcc`, `DewPoint`: `value.temperature.dewpoint`
+  * automatically created states: texts `text`, writable numbers `state` (before `level`)
+
+A device with several relays (`POWER1`, `POWER2`, ...) in one channel is still detected only as one device, as the type-detector finds every device type only once per channel.
+
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
+* (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
+* (@GermanBluefox) `Switch1`...`Switch28` (inputs of the device) are read-only sensors now
+
 ### 4.2.1 (2026-09-14)
 * (@patricknitsch) Fixed Device Manager showing no devices at all if a data point exists twice, e.g. `POWER` and `STATE.POWER` (#604)
 * (@patricknitsch) Fixed writing to nested data points, e.g. `STATE.POWER1` with "Create object tree" enabled

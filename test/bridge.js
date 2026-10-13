@@ -128,6 +128,71 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    it('gives the diagnostic values roles which the type-detector does not take for a device', async () => {
+        const { adapter, bridge, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send(
+            'tele/kitchen/STATE',
+            '{"Time":"2021-05-02T18:08:19","Uptime":"0T03:15:43","UptimeSec":11743,"Heap":26,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":11,"POWER":"ON","Fade":"OFF","Wifi":{"AP":1,"SSId":"Skynet","BSSId":"3C:A6:2F:23:6A:94","Channel":6,"RSSI":52,"Signal":-74,"LinkCount":1,"Downtime":"0T00:00:07"}}',
+        );
+        await send('stat/kitchen/RESULT', '{"GPIO1":17,"FriendlyName1":"Kitchen"}');
+
+        const common = id => adapter.objects[`sonoff.0.DVES_123456.${id}`]?.common;
+        // "Wifi.Channel" was a writable level and so detected as a dimmer
+        assert.strictEqual(common('Wifi_Channel')?.role, 'info.status');
+        assert.strictEqual(common('Wifi_Channel')?.write, false);
+        assert.strictEqual(common('Wifi_Signal')?.role, 'value.rssi');
+        assert.strictEqual(common('Wifi_Signal')?.unit, 'dBm');
+        assert.strictEqual(common('Wifi_SSId')?.role, 'text');
+        assert.strictEqual(common('Heap')?.role, 'info.status');
+        assert.strictEqual(common('UptimeSec')?.role, 'value.interval');
+        assert.strictEqual(common('Fade')?.role, 'switch.setting');
+        assert.strictEqual(common('POWER')?.role, 'switch');
+        // answers to commands stay writable, but are neither a level nor a switch
+        assert.strictEqual(common('GPIO1')?.role, 'state');
+        assert.strictEqual(common('GPIO1')?.write, true);
+        assert.strictEqual(common('FriendlyName1')?.role, 'text');
+        assert.strictEqual(common('FriendlyName1')?.write, true);
+
+        await bridge.destroy();
+    });
+
+    it('updates the roles of the older versions, but keeps the roles changed by the user', async () => {
+        const { adapter, bridge, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        const create = (id, common) =>
+            (adapter.objects[`sonoff.0.DVES_123456.${id}`] = {
+                _id: `sonoff.0.DVES_123456.${id}`,
+                type: 'state',
+                common: { name: id, read: true, ...common },
+                native: {},
+            });
+        create('Hostname', { type: 'string', role: 'state', write: false });
+        create('Wifi_Channel', { type: 'number', role: 'level', write: true });
+        create('Heap', { type: 'number', role: 'value', write: false });
+        create('POWER', { type: 'boolean', role: 'switch.light', write: true });
+        create('POWER1', { type: 'boolean', role: 'switch.power', write: true });
+
+        await send(
+            'tele/kitchen/STATE',
+            '{"Time":"2021-05-02T18:08:19","Hostname":"tasmota-kitchen","Heap":26,"POWER":"ON","POWER1":"OFF","Wifi":{"Channel":6}}',
+        );
+
+        const common = id => adapter.objects[`sonoff.0.DVES_123456.${id}`]?.common;
+        assert.strictEqual(common('Hostname')?.role, 'info.name');
+        assert.strictEqual(common('Wifi_Channel')?.role, 'info.status');
+        assert.strictEqual(common('Wifi_Channel')?.write, false);
+        assert.strictEqual(common('Heap')?.role, 'info.status');
+        assert.strictEqual(common('Heap')?.unit, 'kB');
+        assert.strictEqual(common('POWER')?.role, 'switch.light', 'the role set by the user must be kept');
+        // "switch.power" is detected neither as light nor as socket
+        assert.strictEqual(common('POWER1')?.role, 'switch');
+
+        await bridge.destroy();
+    });
+
     it('nests the on-demand STATUS10 sensor data the same way as regular SENSOR telemetry', async () => {
         const { adapter, bridge, send } = setup({ OBJ_TREE: true });
 
