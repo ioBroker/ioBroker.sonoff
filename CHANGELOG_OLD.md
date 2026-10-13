@@ -1,4 +1,8 @@
 # Older changes
+## 3.2.1 (2024-10-07)
+
+* (bluefox) Sanitize the IDs of the clients
+
 ## 3.2.0 (2024-08-28)
 * (bluefox) Added information about connected clients in the server mode
 

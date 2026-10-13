@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "sonoff",
-    "version": "4.2.1",
+    "version": "5.0.0",
     "news": {
+      "5.0.0": {
+        "en": "Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)\nBetter roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept\n`Switch1`...`Switch28` (inputs of the device) are read-only sensors now",
+        "de": "Bahnbrechende Änderung: Die Rollen der Objekte ändern sich, siehe [Rollen der Objekte seit 5.0] (#roles -the-objects-since-50)\nBessere Funktionen für den Typdetektor: Diagnosewerte (z. B. `Wifi_Channel`, `Heap`, `MQTTPort`) werden nicht mehr als Dimmer, Jalousie oder Fenster erkannt, `POWER` ist RGB-Lichtschalter und `switch.power` der Relais wechselt zu `switch`, `Scheme` ist der Lichteffekt. Die Rollen der Objekte werden aktualisiert und vom Benutzer geändert\n`Schalter 1`... Switch28 (Geräteeingänge) sind jetzt schreibgeschützt",
+        "ru": "Критическое изменение: роли объектов меняются, см. [Роли объектов начиная с версии 5.0] (#roles of-the-objects-since-50)\nБолее важная роль детектора типов: диагностические значения (например, «Wifi_Channel», «Heap», «MqttPort») больше не распознаются как диммер, жалюзи или окна, «POWER» — это переключатель RGB-ламп, а «switch.power» реле переносится на «переключатель», «Scheme» — световой эффект. Роли существующих объектов обновлены, роли, измененные пользователем, сохранены\n`Переключатель 1`... Датчики `Switch28` (входы устройства) теперь доступны только для чтения",
+        "pt": "Mudança significativa: as funções dos objetos mudam, veja [Funções dos objetos desde 5.0] (#roles -of-the-objects-since-50)\nMelhores funções para o detector de tipos: valores de diagnóstico (por exemplo, `Wifi_Channel`, `Heap`, `mqttPort`) não são mais detectados como dimmer, blind ou janela, `POWER` é o interruptor de luzes RGB e `switch.power` dos relés migra para `switch`, `Scheme` é o efeito de luz. As funções dos objetos existentes são atualizadas e mantidas pelo usuário\n`Switch 1`... O `Switch28` (entradas do aparelho) agora é só de leitura",
+        "nl": "Brekende verandering: de rollen van de objecten veranderen, zie [Rollen van de objecten sinds 5.0] (#roles -of-the-objects-since-50)\nBetere rollen voor de typedetector: diagnostische waarden (bijv. `Wifi_Channel`, `Heap`, `MQTTPort`) worden niet meer gedetecteerd als dimmer, jaloezie of raam, `POWER` is de schakelaar van RGB-lampen en `switch.power` van de relais wordt gemigreerd naar `switch`, `Scheme` is het lichteffect. De rollen van de bestaande objecten worden bijgewerkt, de rollen die door de gebruiker zijn gewijzigd, worden behouden\n`Schakelaar 1`... `Switch28` (ingangen van het apparaat) zijn nu sensoren die alleen kunnen worden gelezen",
+        "fr": "Breaking change : les rôles des objets changent, voir [Rôles des objets depuis la version 5.0] (#roles -of-the-objects-since-50)\nMeilleur rôle pour le détecteur de type : les valeurs de diagnostic (par exemple, « Wifi_Channel », « Heap », « MQTTPort ») ne sont plus détectées comme étant un variateur, un store ou une fenêtre, « POWER » est l'interrupteur des lumières RGB et le « switch » des relais est migré vers « switch », « Scheme » est l'effet lumineux. Les rôles des objets existants sont mis à jour, les rôles modifiés par l'utilisateur\n`Switch1`... Le « Switch28 » (entrées de l'appareil) est en lecture seule",
+        "it": "Cambio radicale: i ruoli degli oggetti cambiano, vedere [Ruoli degli oggetti dalla 5.0] (#roles -of-the-objects-since-50)\nRuoli migliori per il rilevatore di tipi: i valori diagnostici (ad es. `Wifi_Channel`, `Heap`, `MQTTPort`) non vengono più rilevati come dimmer, blind o window, `POWER` è l'interruttore delle luci RGB e `switch.power` dei relè è migrato a `switch`, `Scheme` è l'effetto luce. I ruoli degli oggetti esistenti sono aggiornati e modificati dall'utente\n`Switch 1`... `Switch28` (ingressi) ora sono sensori di sola lettura",
+        "es": "Cambio radical: los roles de los objetos cambian, consulte [Roles de los objetos desde la versión 5.0] (#roles -of-the-objects-since-50)\nMejores funciones para el detector de tipos: los valores de diagnóstico (por ejemplo, `Wifi_Channel`, `Heap`, `MQTTPort`) ya no se detectan como atenuador, persiana o ventana, `POWER` es el interruptor de las luces RGB y `switch.power` de los relés se migra a `Switch`, `Scheme` es el efecto de luz. Se actualizan los roles de los objetos existentes, se mantienen los roles cambiados por el usuario\n`Switch 1`... El Switch28 (entradas del dispositivo) ahora son sensores de solo lectura",
+        "pl": "Zmiana przerywająca: role obiektów zmieniają się, zobacz [Role obiektów od 5.0] (#roles -of-the-objects-since-50)\nLepsze role detektora typu: wartości diagnostyczne (np. „Wifi_Channel”, „Heap”, „MQttport”) nie są już wykrywane jako ściemniacz, żaluzja lub okno, „POWER” to przełącznik świateł RGB, a „switch.power” przekaźników jest migrowany do „przełącznika”, „Scheme” to efekt świetlny. Role istniejących obiektów są aktualizowane, role zmienione przez użytkownika są zachowywane\n`Przełącznik1`... „Switch28” (wejścia urządzenia) są teraz czujnikami tylko do odczytu",
+        "uk": "Порушення змін: ролі об'єктів змінюються, див. [Ролі об'єктів з 5.0] (#roles -of-the-objects-since-50)\nКращі ролі для детектора типу: діагностичні значення (наприклад, `Wifi_Channel`, `Heap`, `MQTTport`) більше не виявляються як диммер, глухий або віконний, `POWER` - це перемикач ламп RGB, а `switch.power` реле мігрується до `комутатора`, ``Схема` - світловий ефект. Ролі існуючих об'єктів оновлюються, ролі змінені користувачем зберігаються\n`Перемикач1`... `Switch28` (входи пристрою) тепер є датчиками лише для читання",
+        "zh-cn": "重大更改：对象的角色发生了变化，请参阅 [自 5.0 起对象的角色] (#roles of-the-objects-since-50)\n类型检测器的作用更好：诊断值（例如 “Wifi_Channel”、“Heap”、“MQTTPort”）不再被检测为调光器、百叶窗或窗户，“POWER” 是 RGB 灯的开关，继电器的 “switch.power” 迁移到 “开关”，“Scheme” 是灯光效果。更新现有对象的角色，保留用户更改的角色\n`Switch1`...`Switch28`（设备的输入）现在是只读传感器"
+      },
       "4.2.1": {
         "en": "Fixed Device Manager showing no devices at all if a data point exists twice, e.g. `POWER` and `STATE.POWER` (#604)\nFixed writing to nested data points, e.g. `STATE.POWER1` with \"Create object tree\" enabled\nFixed writing to devices whose MQTT client ID contains a dot",
         "de": "Fix: Gerätemanager zeigt bei zweimaligem Datenpunkt keine Geräte an, z. B. `POWER` und `STATE.POWER` (#604)\nKorrigiert das Schreiben in Datenpunkte, z. B. `STATE.POWER1` mit Objektbaum\nFehler beim Schreiben auf Geräte mit Punkt in der MQTT-Client-ID behoben",
@@ -69,19 +82,6 @@
         "zh-cn": "对客户身份进行保密\n在服务器模式中添加了连接客户端的信息"
       },
       "3.1.2": {
-        "en": "updated packages",
-        "de": "aktualisierte pakete",
-        "ru": "обновления пакетов",
-        "pt": "pacotes atualizados",
-        "nl": "bijgewerkte pakketten",
-        "fr": "paquets mis à jour",
-        "it": "pacchetti aggiornati",
-        "es": "paquetes actualizados",
-        "pl": "zaktualizowane pakiety",
-        "uk": "оновлені пакети",
-        "zh-cn": "更新软件包"
-      },
-      "3.1.1": {
         "en": "updated packages",
         "de": "aktualisierte pakete",
         "ru": "обновления пакетов",

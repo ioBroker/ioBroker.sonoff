@@ -185,7 +185,7 @@ A device with several relays (`POWER1`, `POWER2`, ...) in one channel is still d
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.0.0 (2026-10-13)
 * (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
 * (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
 * (@GermanBluefox) `Switch1`...`Switch28` (inputs of the device) are read-only sensors now
@@ -237,10 +237,6 @@ A device with several relays (`POWER1`, `POWER2`, ...) in one channel is still d
 * (@Apollon77/@copilot) Added a configuration option to suppress "not connected" warnings for temporarily offline devices
 * (@Apollon77/@copilot) Added Switch5-Switch28 datapoint definitions for consistent boolean mapping
 * (@Apollon77/@copilot) Fixed a write flag for all Switch datapoints to enable proper control from ioBroker
-
-### 3.2.1 (2024-10-07)
-
-* (bluefox) Sanitize the IDs of the clients
 
 ## License
 
