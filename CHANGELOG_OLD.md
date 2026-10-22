@@ -1,4 +1,7 @@
 # Older changes
+## 4.2.0 (2026-09-07)
+* (@patricknitsch) Added Device Manager for existing devices
+
 ## 4.0.0 (2026-08-13)
 * (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
 * (stony2k) Added bridge mode to connect to an external MQTT broker instead of running a built-in broker
