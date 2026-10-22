@@ -151,11 +151,44 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "externalBrokerCredentialType": {
+                    "newLine": true,
+                    "type": "select",
+                    "label": "Credentials",
+                    "options": [
+                        {
+                            "label": "Enter manually",
+                            "value": "manual"
+                        },
+                        {
+                            "label": "From the credential storage",
+                            "value": "manager"
+                        }
+                    ],
+                    "default": "manual",
+                    "hidden": "!data.useExternalBroker",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "externalBrokerCredentialId": {
+                    "type": "credential",
+                    "label": "Credential",
+                    "help": "Managed in the system settings under \"Credentials\"",
+                    "hidden": "!data.useExternalBroker || data.externalBrokerCredentialType !== 'manager'",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "externalBrokerUser": {
                     "newLine": true,
                     "type": "text",
                     "label": "External broker user",
-                    "hidden": "!data.useExternalBroker",
+                    "hidden": "!data.useExternalBroker || data.externalBrokerCredentialType === 'manager'",
                     "xs": 12,
                     "sm": 12,
                     "md": 6,
@@ -166,7 +199,7 @@
                     "type": "password",
                     "label": "External broker password",
                     "repeat": true,
-                    "hidden": "!data.useExternalBroker",
+                    "hidden": "!data.useExternalBroker || data.externalBrokerCredentialType === 'manager'",
                     "xs": 12,
                     "sm": 12,
                     "md": 6,
@@ -222,11 +255,44 @@
                     "lg": 12,
                     "xl": 12
                 },
+                "credentialType": {
+                    "newLine": true,
+                    "type": "select",
+                    "label": "Credentials",
+                    "options": [
+                        {
+                            "label": "Enter manually",
+                            "value": "manual"
+                        },
+                        {
+                            "label": "From the credential storage",
+                            "value": "manager"
+                        }
+                    ],
+                    "default": "manual",
+                    "hidden": "!!data.useExternalBroker",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "credentialId": {
+                    "type": "credential",
+                    "label": "Credential",
+                    "help": "Managed in the system settings under \"Credentials\"",
+                    "hidden": "!!data.useExternalBroker || data.credentialType !== 'manager'",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "user": {
                     "newLine": true,
                     "type": "text",
                     "label": "User",
-                    "hidden": "!!data.useExternalBroker",
+                    "hidden": "!!data.useExternalBroker || data.credentialType === 'manager'",
                     "xs": 12,
                     "sm": 12,
                     "md": 6,
@@ -242,7 +308,7 @@
                     "type": "password",
                     "label": "Password",
                     "repeat": true,
-                    "hidden": "!!data.useExternalBroker"
+                    "hidden": "!!data.useExternalBroker || data.credentialType === 'manager'"
                 },
                 "_header3": {
                     "newLine": true,

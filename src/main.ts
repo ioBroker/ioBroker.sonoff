@@ -5,7 +5,7 @@
  *
  *      MIT License
  */
-import { Adapter, type AdapterOptions } from '@iobroker/adapter-core'; // Get common this utils
+import { Adapter, type AdapterOptions, Credentials } from '@iobroker/adapter-core'; // Get common this utils
 import MQTTServer from './lib/server';
 import MQTTBridge from './lib/bridge';
 import type MQTTBase from './lib/mqttBase';
@@ -23,6 +23,8 @@ export class SonoffAdapter extends Adapter {
     declare config: SonoffAdapterConfig;
     server: MQTTBase | null = null;
     deviceManagement: SonoffDeviceManagement | null = null;
+    /** Stops watching the credential from the central storage */
+    private unsubscribeCredentials: (() => Promise<void>) | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -30,6 +32,10 @@ export class SonoffAdapter extends Adapter {
             name: 'sonoff',
             ready: () => this.main(),
             unload: async (cb?: () => void): Promise<void> => {
+                if (this.unsubscribeCredentials) {
+                    await this.unsubscribeCredentials().catch(() => {});
+                    this.unsubscribeCredentials = null;
+                }
                 if (this.server) {
                     await this.server.destroy();
                     this.server = null;
@@ -39,6 +45,10 @@ export class SonoffAdapter extends Adapter {
                 }
             },
             objectChange: (id: string, obj: ioBroker.Object | null | undefined): void => {
+                // The credential from the central storage is handled by its own listener
+                if (!id.startsWith(`${this.namespace}.`)) {
+                    return;
+                }
                 this.deviceManagement?.onObjectChange(id, obj as ioBroker.ChannelObject | ioBroker.StateObject | null);
             },
             stateChange: (id: string, state: ioBroker.State | null | undefined): void => {
@@ -73,12 +83,16 @@ export class SonoffAdapter extends Adapter {
         await this.reportShortenedStates();
 
         if (this.config.useExternalBroker && this.config.externalBrokerUrl) {
-            this.server = new MQTTBridge(this);
+            if (await this.applyCredentials(true)) {
+                this.server = new MQTTBridge(this);
+            }
         } else {
             if (this.config.useExternalBroker) {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
-            this.server = new MQTTServer(this);
+            if (await this.applyCredentials(false)) {
+                this.server = new MQTTServer(this);
+            }
         }
 
         if (this.config.checkFirmware !== false) {
@@ -86,6 +100,60 @@ export class SonoffAdapter extends Adapter {
             // Managed by the adapter, so it is stopped on unload
             this.setInterval(() => void this.checkFirmware(), FIRMWARE_CHECK_INTERVAL);
         }
+    }
+
+    /**
+     * If the user selected a credential from the central storage (Settings → Credentials) instead of
+     * entering the login, reads it and writes login and password into the configuration, so the server,
+     * the bridge and the device manager use them. The adapter restarts if the credential is changed.
+     *
+     * @param externalBroker true for the credentials of the external broker, false for the built-in server
+     * @returns false if the credential cannot be read, so the MQTT server must not be started
+     */
+    private async applyCredentials(externalBroker: boolean): Promise<boolean> {
+        const type = externalBroker ? this.config.externalBrokerCredentialType : this.config.credentialType;
+        if (type !== 'manager') {
+            return true;
+        }
+        const id = externalBroker ? this.config.externalBrokerCredentialId : this.config.credentialId;
+        if (!id) {
+            this.log.error(
+                'No credential selected in the configuration. Please select one or enter the login manually',
+            );
+            return false;
+        }
+        try {
+            const credentials = await Credentials.getCredentials<Credentials.LoginPasswordCredentials>(this, id);
+            if (Credentials.getCredentialForm(credentials.values) !== 'login') {
+                this.log.error(`Credential "${id}" has no login and password. Please select another one`);
+                return false;
+            }
+            if (externalBroker) {
+                this.config.externalBrokerUser = credentials.values.login || '';
+                this.config.externalBrokerPassword = credentials.values.password || '';
+            } else {
+                this.config.user = credentials.values.login || '';
+                this.config.password = credentials.values.password || '';
+            }
+            this.log.info(`Using login "${credentials.values.login}" from credential "${id}"`);
+        } catch (err: unknown) {
+            this.log.error(`Cannot read credential "${id}": ${(err as Error).message}`);
+            return false;
+        }
+
+        try {
+            this.unsubscribeCredentials = await Credentials.subscribeCredentials(this, id, (changedId, credentials) => {
+                if (credentials) {
+                    this.log.info(`Credential "${changedId}" was changed. Restarting the adapter`);
+                } else {
+                    this.log.warn(`Credential "${changedId}" was deleted. Restarting the adapter`);
+                }
+                this.restart();
+            });
+        } catch (err: unknown) {
+            this.log.warn(`Cannot watch credential "${id}" for changes: ${(err as Error).message}`);
+        }
+        return true;
     }
 
     /** Reads the latest Tasmota release, so the device manager can offer the firmware update */

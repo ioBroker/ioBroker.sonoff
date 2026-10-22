@@ -93,5 +93,10 @@
     "Port": "Port",
     "User": "User",
     "Password": "Password",
-    "in seconds": "in seconds"
+    "in seconds": "in seconds",
+    "Credentials": "Credentials",
+    "Credential": "Credential",
+    "Enter manually": "Enter manually",
+    "From the credential storage": "From the credential storage",
+    "Managed in the system settings under \"Credentials\"": "Managed in the system settings under \"Credentials\""
 }

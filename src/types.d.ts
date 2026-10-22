@@ -1,6 +1,10 @@
 export interface SonoffAdapterConfig {
     port: number | string;
     bind: string;
+    /** Where the credentials of the built-in server come from: from user/password or from the central credential storage */
+    credentialType?: 'manual' | 'manager';
+    /** ID of the credential in the central storage, e.g. system.credentials.mqtt */
+    credentialId?: string;
     user: string;
     password: string;
     timeout: number | string;
@@ -20,6 +24,10 @@ export interface SonoffAdapterConfig {
     sendInterval: number;
     useExternalBroker: boolean;
     externalBrokerUrl: string;
+    /** Where the credentials of the external broker come from: from externalBrokerUser/externalBrokerPassword or from the central credential storage */
+    externalBrokerCredentialType?: 'manual' | 'manager';
+    /** ID of the credential in the central storage, e.g. system.credentials.mqtt */
+    externalBrokerCredentialId?: string;
     externalBrokerUser: string;
     externalBrokerPassword: string;
     externalBrokerTopics: string;

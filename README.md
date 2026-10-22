@@ -100,6 +100,8 @@ By default the adapter runs a built-in TCP broker that Tasmota devices connect t
 
 In the adapter settings, activate **Use external MQTT broker** and set **External broker URL** to your broker address, e.g. `mqtt://192.168.1.10:1883` or just `192.168.1.10:1883`. Optionally set username and password. If the option is deactivated (or no URL is entered), the built-in broker is started as before.
 
+**Credentials from the central storage:** instead of entering the user and password, you can select **Credentials: From the credential storage** - for the built-in server as well as for the external broker - and pick a credential of the form "Login & password" that is managed once in the system settings of admin (Settings → Credentials, admin 7.9.0 or newer). This is handy if the same MQTT login is used by several adapters or instances. The adapter reads the credential on start and restarts if it is changed. If the credential cannot be read, the MQTT server/connection is not started and an error is logged.
+
 **Topics to subscribe** defines which topics the adapter listens to, by default `tele/#, stat/#, +/tele/+, +/stat/+`. Extend this list if your devices use other topics, e.g. OpenBeken devices, which publish to `<devicename>/...`, or a global prefix in the full topic (`myPrefix/tele/#`).
 
 Optionally you can set the **Client ID** used at the broker (default `iobroker_sonoff_<instance>`), the **Keepalive** interval and **Clean session**. Deactivate the clean session if the broker should store the messages of the devices while the adapter is not running.
@@ -194,6 +196,9 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) The MQTT login of the built-in server and of the external broker can be taken from the central credential storage of admin (Settings → Credentials), admin 7.9.0+ is required (#629)
+
 ### 5.1.1 (2026-10-13)
 * (@GermanBluefox) Admin 7.6.20+ is required. Added missing translations. The tests run on Windows and macOS too
 

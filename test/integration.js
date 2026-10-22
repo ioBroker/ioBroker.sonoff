@@ -755,5 +755,72 @@ tests.integration(path.join(__dirname, '..'), {
                 }
             });
         });
+
+        suite('Credentials from the central storage', (getHarness) => {
+            let harness;
+            let goodClient;
+            let wrongClient;
+
+            before(async function() {
+                this.timeout(60000);
+                harness = getHarness();
+
+                // The password of a credential is encrypted with the system secret (legacy algorithm of adapter.decrypt)
+                const systemConfig = await harness.objects.getObjectAsync('system.config');
+                const secret = systemConfig.native.secret;
+                const encrypt = value => value
+                    .split('')
+                    .map((ch, i) => String.fromCharCode(secret[i % secret.length].charCodeAt(0) ^ ch.charCodeAt(0)))
+                    .join('');
+
+                await harness.objects.setObjectAsync('system.credentials.sonofftest', {
+                    type: 'config',
+                    common: { name: 'Sonoff test' },
+                    native: {
+                        type: 'custom',
+                        version: 1,
+                        encryptedFields: ['password'],
+                        login: 'creduser',
+                        password: encrypt('credpass'),
+                    },
+                });
+
+                // The manually entered login must be ignored
+                await harness.changeAdapterConfig('sonoff', {
+                    native: {
+                        credentialType: 'manager',
+                        credentialId: 'system.credentials.sonofftest',
+                        user: 'user',
+                        password: 'pass1',
+                    },
+                });
+
+                await harness.startAdapterAndWait();
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                goodClient = new MqttClient(null, null, { name: 'Cred-good', user: 'creduser', pass: 'credpass' });
+                wrongClient = new MqttClient(null, null, { name: 'Cred-wrong', user: 'user', pass: 'pass1' });
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            });
+
+            after(async function() {
+                this.timeout(10000);
+                goodClient?.stop();
+                wrongClient?.stop();
+            });
+
+            it('Should accept only the login from the credential', async function() {
+                this.timeout(5000);
+                const connectionState = await harness.states.getStateAsync('sonoff.0.info.connection');
+                const clients = (connectionState?.val || '').split(',');
+                if (!clients.includes('Cred-good')) {
+                    throw new Error(`Expected client "Cred-good" to be connected, but got "${connectionState?.val}"`);
+                }
+                if (clients.includes('Cred-wrong')) {
+                    throw new Error('Client "Cred-wrong" with the manually entered login must be rejected');
+                }
+            });
+        });
     }
 });

@@ -93,5 +93,10 @@
     "Port": "Port",
     "User": "Utilisateur",
     "Password": "Mot de passe",
-    "in seconds": "en secondes"
+    "in seconds": "en secondes",
+    "Credentials": "Identifiants",
+    "Credential": "Identifiant",
+    "Enter manually": "Saisir manuellement",
+    "From the credential storage": "Depuis le stockage des identifiants",
+    "Managed in the system settings under \"Credentials\"": "Géré dans les paramètres système sous \"Identifiants\""
 }
