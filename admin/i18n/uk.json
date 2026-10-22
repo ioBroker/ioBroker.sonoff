@@ -93,5 +93,10 @@
     "Port": "Порт",
     "User": "Користувач",
     "Password": "Пароль",
-    "in seconds": "у секундах"
+    "in seconds": "у секундах",
+    "Credentials": "Облікові дані",
+    "Credential": "Запис облікових даних",
+    "Enter manually": "Ввести вручну",
+    "From the credential storage": "Зі сховища облікових даних",
+    "Managed in the system settings under \"Credentials\"": "Керується в системних налаштуваннях у розділі \"Облікові дані\""
 }

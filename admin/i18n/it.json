@@ -93,5 +93,10 @@
     "Port": "Porta",
     "User": "Utente",
     "Password": "Password",
-    "in seconds": "in secondi"
+    "in seconds": "in secondi",
+    "Credentials": "Credenziali",
+    "Credential": "Credenziale",
+    "Enter manually": "Inserisci manualmente",
+    "From the credential storage": "Dall'archivio delle credenziali",
+    "Managed in the system settings under \"Credentials\"": "Gestito nelle impostazioni di sistema sotto \"Credenziali\""
 }

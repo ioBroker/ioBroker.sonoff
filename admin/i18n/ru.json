@@ -93,5 +93,10 @@
     "Port": "Порт",
     "User": "Пользователь",
     "Password": "Пароль",
-    "in seconds": "в секундах"
+    "in seconds": "в секундах",
+    "Credentials": "Учётные данные",
+    "Credential": "Запись учётных данных",
+    "Enter manually": "Ввести вручную",
+    "From the credential storage": "Из хранилища учётных данных",
+    "Managed in the system settings under \"Credentials\"": "Управляется в системных настройках в разделе \"Учётные данные\""
 }

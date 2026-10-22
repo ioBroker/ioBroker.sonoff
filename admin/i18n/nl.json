@@ -93,5 +93,10 @@
     "Port": "Poort",
     "User": "Gebruiker",
     "Password": "Wachtwoord",
-    "in seconds": "in seconden"
+    "in seconds": "in seconden",
+    "Credentials": "Inloggegevens",
+    "Credential": "Inloggegeven",
+    "Enter manually": "Handmatig invoeren",
+    "From the credential storage": "Uit de opslag van inloggegevens",
+    "Managed in the system settings under \"Credentials\"": "Wordt beheerd in de systeeminstellingen onder \"Inloggegevens\""
 }

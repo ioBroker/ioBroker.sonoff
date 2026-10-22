@@ -93,5 +93,10 @@
     "Port": "Port",
     "User": "Użytkownik",
     "Password": "Hasło",
-    "in seconds": "w sekundach"
+    "in seconds": "w sekundach",
+    "Credentials": "Dane uwierzytelniające",
+    "Credential": "Wpis danych uwierzytelniających",
+    "Enter manually": "Wprowadź ręcznie",
+    "From the credential storage": "Z magazynu danych uwierzytelniających",
+    "Managed in the system settings under \"Credentials\"": "Zarządzane w ustawieniach systemu w sekcji \"Dane uwierzytelniające\""
 }

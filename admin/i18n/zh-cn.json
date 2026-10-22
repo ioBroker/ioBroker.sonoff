@@ -93,5 +93,10 @@
     "Port": "端口",
     "User": "用户",
     "Password": "密码",
-    "in seconds": "以秒为单位"
+    "in seconds": "以秒为单位",
+    "Credentials": "凭据",
+    "Credential": "凭据条目",
+    "Enter manually": "手动输入",
+    "From the credential storage": "来自凭据存储",
+    "Managed in the system settings under \"Credentials\"": "在系统设置的 \"凭据\" 中管理"
 }
