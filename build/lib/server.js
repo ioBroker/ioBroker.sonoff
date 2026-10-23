@@ -379,6 +379,10 @@ class MQTTServer extends mqttBase_1.default {
                 const topic = `cmnd/${parts.slice(1, -1).join('/')}/Status`;
                 this.sendState2Client(client, topic, 5, this.config.defaultQoS);
                 this.sendState2Client(client, topic, 2, this.config.defaultQoS);
+                // Texts for OFF and ON, e.g. a German firmware sends "AUS"/"AN"
+                const prefix = `cmnd/${parts.slice(1, -1).join('/')}`;
+                this.sendState2Client(client, `${prefix}/StateText1`, '', this.config.defaultQoS);
+                this.sendState2Client(client, `${prefix}/StateText2`, '', this.config.defaultQoS);
             }
         }
     }

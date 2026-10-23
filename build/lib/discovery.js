@@ -9,6 +9,7 @@ exports.buildMqttCommand = buildMqttCommand;
 exports.configureMqtt = configureMqtt;
 exports.getLocalIp = getLocalIp;
 const node_os_1 = require("node:os");
+const onOff_1 = require("./onOff");
 /** How long one address may take to answer during the scan */
 const PROBE_TIMEOUT = 2000;
 /** How many addresses are asked at the same time */
@@ -79,7 +80,8 @@ async function probeDevice(ip, password) {
     };
     try {
         const option = await sendHttpCommand(ip, 'SetOption3', password);
-        device.mqttEnabled = option.SetOption3 === 'ON';
+        // the answer uses the texts of the device for ON/OFF, e.g. "AN" with a German firmware
+        device.mqttEnabled = (0, onOff_1.parseOnOff)(option.SetOption3) === true;
     }
     catch {
         // not important, only shown to the user

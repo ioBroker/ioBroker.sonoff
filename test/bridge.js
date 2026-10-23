@@ -306,6 +306,37 @@ describe('MQTT bridge (external broker)', function () {
         await bridge.destroy();
     });
 
+    // Some (German) firmware builds send "AN"/"AUS" instead of "ON"/"OFF"
+    it('understands the ON/OFF texts of a German firmware', async () => {
+        const { adapter, bridge, client, send } = setup();
+
+        await send('stat/Terrasse/STATUS6', '{"StatusMQT":{"MqttClient":"Terrasse"}}');
+        for (const index of [1, 2]) {
+            assert.ok(
+                client.published.find(p => p.topic === `cmnd/Terrasse/StateText${index}` && p.payload === ''),
+                `the device must be asked for StateText${index}`,
+            );
+        }
+
+        await send('tele/Terrasse/STATE', '{"Time":"2026-10-23T19:08:27","POWER1":"AUS","POWER2":"AN"}');
+        assert.strictEqual(adapter.states['sonoff.0.Terrasse.POWER1']?.val, false);
+        assert.strictEqual(adapter.states['sonoff.0.Terrasse.POWER2']?.val, true);
+
+        await send('stat/Terrasse/POWER1', 'AN');
+        assert.strictEqual(adapter.states['sonoff.0.Terrasse.POWER1']?.val, true);
+
+        // own texts of the device are learned from the answers to StateText1 and StateText2
+        await send('stat/Terrasse/RESULT', '{"StateText1":"Zu"}');
+        await send('stat/Terrasse/RESULT', '{"StateText2":"Offen"}');
+        assert.ok(!adapter.objects['sonoff.0.Terrasse.StateText1'], 'the answer must not create a data point');
+        await send('stat/Terrasse/POWER1', 'ZU');
+        assert.strictEqual(adapter.states['sonoff.0.Terrasse.POWER1']?.val, false);
+        await send('stat/Terrasse/POWER1', 'Offen');
+        assert.strictEqual(adapter.states['sonoff.0.Terrasse.POWER1']?.val, true);
+
+        await bridge.destroy();
+    });
+
     it('supports the device-first full topic (%topic%/%prefix%/)', async () => {
         const { adapter, bridge, client, send } = setup();
 

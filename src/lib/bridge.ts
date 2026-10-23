@@ -345,6 +345,9 @@ export default class MQTTBridge extends MQTTBase {
         if (this.tasmotaTopics.has(topicPrefix)) {
             this.publishCommand(topicPrefix, 'Status', '5');
             this.publishCommand(topicPrefix, 'Status', '2');
+            // Texts for OFF and ON, e.g. a German firmware sends "AUS"/"AN"
+            this.publishCommand(topicPrefix, 'StateText1', '');
+            this.publishCommand(topicPrefix, 'StateText2', '');
         }
         return client;
     }

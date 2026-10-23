@@ -1,5 +1,6 @@
 import types, { autoLegacyRoles, autoRoles, legacyRoles } from './datapoints';
 import type { SonoffAdapterConfig } from '../types';
+import { learnStateTexts, parseOnOff, type StateTexts } from './onOff';
 
 const hueCalc = true;
 export const FORBIDDEN_CHARS = /[\]\\[*,;'"`<>\\?]/g;
@@ -130,6 +131,8 @@ export interface MQTTClient {
     _fallBackName: string;
     /** True as soon as the information of the device (Status 5 and Status 2) was requested */
     _infoRequested?: boolean;
+    /** Texts of the device for ON and OFF, if they differ from the standard (e.g. "AN"/"AUS") */
+    _stateTexts?: StateTexts;
 
     on: (event: string, callback: (args: any) => void) => void;
     connack: (options: { returnCode: number; sessionPresent?: boolean }) => void;
@@ -1296,8 +1299,7 @@ export default abstract class MQTTBase {
                 if ((obj.data as ioBroker.StateObject).common.type === 'number') {
                     val = parseFloat(data[attr]);
                 } else if ((obj.data as ioBroker.StateObject).common.type === 'boolean') {
-                    const _value = (data[attr] || '').toUpperCase();
-                    val = _value === 'ON' || _value === 'TRUE' || _value === '1';
+                    val = parseOnOff(data[attr], client._stateTexts) === true;
                 } else {
                     if (attr === 'Color') {
                         // add # char
@@ -1480,11 +1482,25 @@ export default abstract class MQTTBase {
             // ignore: stat/Sonoff/RESULT = {"POWER":"ON"}
             // testserver.js reports error, so reject above cmd
             const str = val.replace(/\s+/g, '');
-            if (str.startsWith('{"POWER":"ON"}')) {
+            const power = str.match(/^\{"POWER":"([^"]*)"\}/);
+            if (power && parseOnOff(power[1], client._stateTexts) !== undefined) {
                 return;
             }
-            if (str.startsWith('{"POWER":"OFF"}')) {
-                return;
+
+            // answer to StateText1/StateText2: {"StateText1":"AUS"} - remember how the device names OFF and ON
+            if (str.startsWith('{"StateText')) {
+                try {
+                    client._stateTexts ||= {};
+                    if (learnStateTexts(JSON.parse(val), client._stateTexts)) {
+                        this.adapter.log.debug(
+                            `Client [${client.id}] uses "${client._stateTexts.on || 'ON'}"/"${client._stateTexts.off || 'OFF'}" for ON/OFF`,
+                        );
+                        return;
+                    }
+                } catch (e) {
+                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    return;
+                }
             }
 
             if (parts[0] === 'stat' || parts[0] === 'tele') {
@@ -1609,10 +1625,9 @@ export default abstract class MQTTBase {
                     if ((obj.data as ioBroker.StateObject).common.type === 'number') {
                         await this.adapter.setStateAsync(id, parseFloat(val), true);
                     } else if ((obj.data as ioBroker.StateObject).common.type === 'boolean') {
-                        if (val === 'ON' || val === '1' || val === 'true' || val === 'on') {
-                            await this.adapter.setStateAsync(id, true, true);
-                        } else if (val === 'OFF' || val === '0' || val === 'false' || val === 'off') {
-                            await this.adapter.setStateAsync(id, false, true);
+                        const on = parseOnOff(val, client._stateTexts);
+                        if (on !== undefined) {
+                            await this.adapter.setStateAsync(id, on, true);
                         }
                     } else {
                         await this.adapter.setStateAsync(id, val, true);

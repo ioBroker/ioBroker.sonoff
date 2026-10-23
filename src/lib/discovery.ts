@@ -1,4 +1,5 @@
 import { networkInterfaces } from 'node:os';
+import { parseOnOff } from './onOff';
 
 /** How long one address may take to answer during the scan */
 const PROBE_TIMEOUT = 2000;
@@ -112,7 +113,8 @@ export async function probeDevice(ip: string, password?: string): Promise<Tasmot
     };
     try {
         const option = await sendHttpCommand(ip, 'SetOption3', password);
-        device.mqttEnabled = option.SetOption3 === 'ON';
+        // the answer uses the texts of the device for ON/OFF, e.g. "AN" with a German firmware
+        device.mqttEnabled = parseOnOff(option.SetOption3) === true;
     } catch {
         // not important, only shown to the user
     }

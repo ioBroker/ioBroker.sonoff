@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FORBIDDEN_CHARS = void 0;
 const datapoints_1 = __importStar(require("./datapoints"));
+const onOff_1 = require("./onOff");
 const hueCalc = true;
 exports.FORBIDDEN_CHARS = /[\]\\[*,;'"`<>\\?]/g;
 const NO_PREFIX = '';
@@ -1080,8 +1081,7 @@ class MQTTBase {
                     val = parseFloat(data[attr]);
                 }
                 else if (obj.data.common.type === 'boolean') {
-                    const _value = (data[attr] || '').toUpperCase();
-                    val = _value === 'ON' || _value === 'TRUE' || _value === '1';
+                    val = (0, onOff_1.parseOnOff)(data[attr], client._stateTexts) === true;
                 }
                 else {
                     if (attr === 'Color') {
@@ -1240,11 +1240,23 @@ class MQTTBase {
             // ignore: stat/Sonoff/RESULT = {"POWER":"ON"}
             // testserver.js reports error, so reject above cmd
             const str = val.replace(/\s+/g, '');
-            if (str.startsWith('{"POWER":"ON"}')) {
+            const power = str.match(/^\{"POWER":"([^"]*)"\}/);
+            if (power && (0, onOff_1.parseOnOff)(power[1], client._stateTexts) !== undefined) {
                 return;
             }
-            if (str.startsWith('{"POWER":"OFF"}')) {
-                return;
+            // answer to StateText1/StateText2: {"StateText1":"AUS"} - remember how the device names OFF and ON
+            if (str.startsWith('{"StateText')) {
+                try {
+                    client._stateTexts ||= {};
+                    if ((0, onOff_1.learnStateTexts)(JSON.parse(val), client._stateTexts)) {
+                        this.adapter.log.debug(`Client [${client.id}] uses "${client._stateTexts.on || 'ON'}"/"${client._stateTexts.off || 'OFF'}" for ON/OFF`);
+                        return;
+                    }
+                }
+                catch (e) {
+                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    return;
+                }
             }
             if (parts[0] === 'stat' || parts[0] === 'tele') {
                 try {
@@ -1385,11 +1397,9 @@ class MQTTBase {
                         await this.adapter.setStateAsync(id, parseFloat(val), true);
                     }
                     else if (obj.data.common.type === 'boolean') {
-                        if (val === 'ON' || val === '1' || val === 'true' || val === 'on') {
-                            await this.adapter.setStateAsync(id, true, true);
-                        }
-                        else if (val === 'OFF' || val === '0' || val === 'false' || val === 'off') {
-                            await this.adapter.setStateAsync(id, false, true);
+                        const on = (0, onOff_1.parseOnOff)(val, client._stateTexts);
+                        if (on !== undefined) {
+                            await this.adapter.setStateAsync(id, on, true);
                         }
                     }
                     else {
