@@ -1271,6 +1271,11 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             }
         }
         await progress.close();
+        // Some brokers keep "cmnd/<topic>/Upgrade = 1" (a retained message, or e.g. the ioBroker MQTT
+        // adapter, which stores every topic as a state and publishes it again when the device subscribes
+        // after a restart of the broker). The device would then start the update again and again.
+        // An empty payload replaces it: Tasmota only answers it with a hint and does not update.
+        this.adapter.server?.sendCommand(shortDeviceId, 'Upgrade', '', true);
         const newVersion = this.getFirmwareVersion(prefix);
         if (result === 'done') {
             this.adapter.log.info(`Firmware of ${shortDeviceId} updated from ${oldVersion} to ${newVersion}`);
