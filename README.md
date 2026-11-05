@@ -196,6 +196,11 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@patricknitsch) The firmware update dialog of the device manager recognizes the new version also with "Create object tree" ("INFO.Info1.Version"), before it waited till the timeout
+* (@patricknitsch) The firmware update from the device manager clears the "Upgrade" command afterwards, so a restart of the external broker (e.g. the ioBroker MQTT adapter) does not start the update again
+* (@patricknitsch) Bridge mode: "INFO.Version" and the IP address are requested again after a device restarted (e.g. after a firmware update)
+
 ### 5.2.1 (2026-10-23)
 * (@GermanBluefox) Firmware with other texts for ON/OFF (e.g. "AN"/"AUS" of a German build) is supported: the texts of every device are requested and recognized automatically
 

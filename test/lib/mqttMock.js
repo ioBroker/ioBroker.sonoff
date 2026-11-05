@@ -24,8 +24,12 @@ class FakeMqttClient extends EventEmitter {
         }
     }
 
-    publish(topic, payload) {
-        this.published.push({ topic, payload: payload === undefined ? '' : payload.toString() });
+    publish(topic, payload, options) {
+        const packet = { topic, payload: payload === undefined ? '' : payload.toString() };
+        if (options?.retain) {
+            packet.retain = true;
+        }
+        this.published.push(packet);
     }
 
     end(force, options, cb) {
@@ -112,7 +116,9 @@ function createAdapter(config) {
         getObjectAsync: id => adapter.getForeignObjectAsync(toId(id)),
         setForeignStateAsync: async (id, val, ack) => {
             const state = val && typeof val === 'object' && 'val' in val ? val : { val, ack };
-            states[id] = { val: state.val, ack: !!state.ack, ts: states[id] ? states[id].ts + 1 : 1 };
+            // like js-controller: the time of the write, so the newest of two data points can be found
+            const ts = Math.max(Date.now(), states[id] ? states[id].ts + 1 : 0);
+            states[id] = { val: state.val, ack: !!state.ack, ts };
         },
         setStateAsync: (id, val, ack) => adapter.setForeignStateAsync(toId(id), val, ack),
         setForeignState: (id, val, ack, cb) =>

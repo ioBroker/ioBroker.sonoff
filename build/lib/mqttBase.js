@@ -210,14 +210,14 @@ class MQTTBase {
         }
         return stateId;
     }
-    setStateImmediate(channelId, stateId, val) {
+    setStateImmediate(channelId, stateId, val, retain) {
         // Transform shutter state names to correct Tasmota command format
         const transformedStateId = this.transformShutterStateId(stateId);
         if (this.clients[channelId]?._map?.[stateId]) {
-            setImmediate(() => this.sendState2Client(this.clients[channelId], this.clients[channelId]._map[stateId] || `cmnd/sonoff/${transformedStateId}`, val, this.config.defaultQoS));
+            setImmediate(() => this.sendState2Client(this.clients[channelId], this.clients[channelId]._map[stateId] || `cmnd/sonoff/${transformedStateId}`, val, this.config.defaultQoS, retain));
         }
         else if (this.clients[channelId]?._fallBackName) {
-            setImmediate(() => this.sendState2Client(this.clients[channelId], `cmnd/${this.clients[channelId]._fallBackName}/${transformedStateId}`, val, this.config.defaultQoS));
+            setImmediate(() => this.sendState2Client(this.clients[channelId], `cmnd/${this.clients[channelId]._fallBackName}/${transformedStateId}`, val, this.config.defaultQoS, retain));
         }
         else {
             this.adapter.log.warn(`Unknown mapping for "${stateId}"`);
@@ -667,15 +667,16 @@ class MQTTBase {
      * @param iobId ID of the device without the namespace, e.g. "DVES_123456"
      * @param command Tasmota command, e.g. "Upgrade"
      * @param payload parameter of the command, e.g. "1"
+     * @param retain publish with the retain flag, e.g. to clear a retained command with an empty payload
      * @returns false if the device is not connected or its topic is still unknown
      */
-    sendCommand(iobId, command, payload) {
+    sendCommand(iobId, command, payload, retain) {
         const clientId = this.mappingClients[iobId];
         const client = clientId ? this.clients[clientId] : undefined;
         if (!client || (!client._map?.[command] && !client._fallBackName)) {
             return false;
         }
-        this.setStateImmediate(clientId, command, payload);
+        this.setStateImmediate(clientId, command, payload, retain);
         return true;
     }
     /**

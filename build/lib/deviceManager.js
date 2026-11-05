@@ -435,7 +435,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
         }
         // Connection, signal and battery are bound to their states (see `buildDeviceStatus`), the GUI
         // follows them by itself
-        if (/\.INFO\.(\w+_)?Version$/.test(id) && previous) {
+        if (/\.INFO\.(\w+[._])?Version$/.test(id) && previous) {
             // A new firmware version (e.g. after an update) changes the update indicator and the actions
             this.refreshGui();
         }
@@ -458,7 +458,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
     }
     /**
      * Firmware version of a device, e.g. "14.2.0(tasmota)". Tasmota reports it on boot in INFO1
-     * ("INFO.Info1_Version", older versions "INFO.Version") and when asked for STATUS2 ("INFO.Version"),
+     * ("INFO.Info1_Version", "INFO.Info1.Version" with "Create object tree", older versions "INFO.Version") and when asked for STATUS2 ("INFO.Version"),
      * so the most recently updated one is the current one.
      *
      * @param prefix `<namespace>.<deviceId>.`
@@ -466,7 +466,7 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
     getFirmwareVersion(prefix) {
         let newest;
         for (const id in this.states) {
-            if (!id.startsWith(`${prefix}INFO.`) || !/^(\w+_)?Version$/.test(id.substring(prefix.length + 5))) {
+            if (!id.startsWith(`${prefix}INFO.`) || !/^(\w+[._])?Version$/.test(id.substring(prefix.length + 5))) {
                 continue;
             }
             const state = this.states[id];
@@ -1240,37 +1240,55 @@ class SonoffDeviceManagement extends dm_utils_1.DeviceManagement {
             indeterminate: true,
             label: adapter_core_1.I18n.getTranslatedObject('The device downloads the firmware...'),
         });
+        // Some brokers or clients keep "cmnd/<topic>/Upgrade = 1" and publish it again later, e.g. the
+        // ioBroker MQTT adapter, which stores every received topic as a state and publishes its states
+        // when it starts. The device would then start the update again. An empty payload replaces it:
+        // Tasmota only answers it with a hint and does not update. It is sent as soon as the device has
+        // accepted the command and in any case at the end, also if the dialog was closed in between.
+        let upgradeCleared = false;
+        const clearUpgrade = () => {
+            if (!upgradeCleared) {
+                upgradeCleared = true;
+                this.adapter.server?.sendCommand(shortDeviceId, 'Upgrade', '', true);
+            }
+        };
         // "Upgrade" is only stored if objects are created from RESULT, it tells e.g. from where the
         // firmware is downloaded or that the download failed
         let lastMessage = null;
         let restarted = false;
         let result;
-        // Every progress update is awaited: the GUI has to confirm one message before the next one is sent
-        while (!result) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            const upgradeSuffix = this.findDataPointSuffix(prefix, 'Upgrade');
-            const upgrade = upgradeSuffix ? this.states[`${prefix}${upgradeSuffix}`] : undefined;
-            if (upgrade && upgrade.ts >= start && upgrade.val !== lastMessage) {
-                lastMessage = upgrade.val;
-                if (/fail|error|abort/i.test(String(upgrade.val))) {
-                    result = 'failed';
-                    break;
+        try {
+            // Every progress update is awaited: the GUI has to confirm one message before the next one is sent
+            while (!result) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const upgradeSuffix = this.findDataPointSuffix(prefix, 'Upgrade');
+                const upgrade = upgradeSuffix ? this.states[`${prefix}${upgradeSuffix}`] : undefined;
+                if (upgrade && upgrade.ts >= start && upgrade.val !== lastMessage) {
+                    lastMessage = upgrade.val;
+                    if (/fail|error|abort/i.test(String(upgrade.val))) {
+                        result = 'failed';
+                        break;
+                    }
+                    await progress.update({ label: String(upgrade.val) });
                 }
-                await progress.update({ label: String(upgrade.val) });
+                if (!restarted && this.states[`${prefix}alive`]?.val === false) {
+                    restarted = true;
+                    clearUpgrade();
+                    await progress.update({ label: adapter_core_1.I18n.getTranslatedObject('The device restarts...') });
+                }
+                const version = this.getFirmwareVersion(prefix);
+                if (version && version !== oldVersion) {
+                    result = 'done';
+                }
+                else if (Date.now() - start > FIRMWARE_UPDATE_TIMEOUT) {
+                    result = 'timeout';
+                }
             }
-            if (!restarted && this.states[`${prefix}alive`]?.val === false) {
-                restarted = true;
-                await progress.update({ label: adapter_core_1.I18n.getTranslatedObject('The device restarts...') });
-            }
-            const version = this.getFirmwareVersion(prefix);
-            if (version && version !== oldVersion) {
-                result = 'done';
-            }
-            else if (Date.now() - start > FIRMWARE_UPDATE_TIMEOUT) {
-                result = 'timeout';
-            }
+            await progress.close();
         }
-        await progress.close();
+        finally {
+            clearUpgrade();
+        }
         const newVersion = this.getFirmwareVersion(prefix);
         if (result === 'done') {
             this.adapter.log.info(`Firmware of ${shortDeviceId} updated from ${oldVersion} to ${newVersion}`);
