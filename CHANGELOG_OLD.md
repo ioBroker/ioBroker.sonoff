@@ -1,4 +1,11 @@
 # Older changes
+## 5.1.0 (2026-10-13)
+* (@GermanBluefox) Device manager: firmware update of Tasmota devices. The latest release is read from GitHub once a day (option "Check for firmware updates"), devices with an older firmware show the update indicator. The update is started with `Upgrade 1`, so the device downloads the firmware from its own OTA URL
+* (@GermanBluefox) Device manager: search for Tasmota devices in the network and connect them with ioBroker (enables MQTT and writes server, port, user and password)
+* (@GermanBluefox) Device manager: the connection state and the Wi-Fi signal are updated live, the signal is shown in dBm (`Wifi_Signal`) instead of the link quality in percent. Toggles like `Fade` are switches instead of buttons
+* (@GermanBluefox) The devices are linked with their `alive` state (`common.statusStates`), so admin shows in the object tree whether a device is connected
+* (@GermanBluefox) The port of the built-in MQTT server is reported to js-controller 8 as a used resource (`common.declareUsedResources`), so admin shows which ports are occupied. In bridge mode no port is reported. If the port is already used, the log names the instance that occupies it
+
 ## 5.0.0 (2026-10-13)
 * (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
 * (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
