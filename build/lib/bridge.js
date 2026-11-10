@@ -100,10 +100,13 @@ class MQTTBridge extends mqttBase_1.default {
     async updateConnectionState() {
         // nothing to do, the state is set when the connection to the broker is established or lost
     }
-    sendState2Client(client, topic, state, qos) {
+    sendState2Client(client, topic, state, qos, retain) {
         const brokerTopic = this.toBrokerTopic(topic);
         this.adapter.log.debug(`Send to external broker "${client.id}": ${brokerTopic} = ${state}`);
-        this.mqttClient?.publish(brokerTopic, state === null ? 'null' : (state?.toString() ?? ''), { qos });
+        this.mqttClient?.publish(brokerTopic, state === null ? 'null' : (state?.toString() ?? ''), {
+            qos,
+            retain: !!retain,
+        });
     }
     normalizeUrl(url) {
         if (!url.includes('://')) {
@@ -473,6 +476,13 @@ class MQTTBridge extends mqttBase_1.default {
             const client = this.clients[device.name];
             if (client) {
                 await this.receivedTopic(this.toPacket(topic, payload, packet), client);
+                // INFO1 is sent after every boot, e.g. after a firmware update. The external broker keeps
+                // running, so the device is not created again and STATUS2/STATUS5 would only be requested
+                // on the next adapter start - "INFO.Version" and the IP address would stay outdated.
+                if (!packet.retain && this.tasmotaTopics.has(topicPrefix) && /^tele\/.+\/INFO1$/.test(topic)) {
+                    this.publishCommand(topicPrefix, 'Status', '5');
+                    this.publishCommand(topicPrefix, 'Status', '2');
+                }
             }
             return;
         }

@@ -198,6 +198,7 @@ export default abstract class MQTTBase {
         topic: string,
         state: ioBroker.StateValue,
         qos: 0 | 1 | 2,
+        retain?: boolean,
     ): void;
 
     abstract destroy(): Promise<void>;
@@ -301,7 +302,7 @@ export default abstract class MQTTBase {
         return stateId;
     }
 
-    private setStateImmediate(channelId: string, stateId: string, val: ioBroker.StateValue): void {
+    private setStateImmediate(channelId: string, stateId: string, val: ioBroker.StateValue, retain?: boolean): void {
         // Transform shutter state names to correct Tasmota command format
         const transformedStateId = this.transformShutterStateId(stateId);
 
@@ -312,6 +313,7 @@ export default abstract class MQTTBase {
                     this.clients[channelId]._map[stateId] || `cmnd/sonoff/${transformedStateId}`,
                     val,
                     this.config.defaultQoS,
+                    retain,
                 ),
             );
         } else if (this.clients[channelId]?._fallBackName) {
@@ -321,6 +323,7 @@ export default abstract class MQTTBase {
                     `cmnd/${this.clients[channelId]._fallBackName}/${transformedStateId}`,
                     val,
                     this.config.defaultQoS,
+                    retain,
                 ),
             );
         } else {
@@ -822,15 +825,16 @@ export default abstract class MQTTBase {
      * @param iobId ID of the device without the namespace, e.g. "DVES_123456"
      * @param command Tasmota command, e.g. "Upgrade"
      * @param payload parameter of the command, e.g. "1"
+     * @param retain publish with the retain flag, e.g. to clear a retained command with an empty payload
      * @returns false if the device is not connected or its topic is still unknown
      */
-    public sendCommand(iobId: string, command: string, payload: string): boolean {
+    public sendCommand(iobId: string, command: string, payload: string, retain?: boolean): boolean {
         const clientId = this.mappingClients[iobId];
         const client = clientId ? this.clients[clientId] : undefined;
         if (!client || (!client._map?.[command] && !client._fallBackName)) {
             return false;
         }
-        this.setStateImmediate(clientId, command, payload);
+        this.setStateImmediate(clientId, command, payload, retain);
         return true;
     }
 
