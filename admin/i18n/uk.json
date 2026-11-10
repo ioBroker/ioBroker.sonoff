@@ -98,5 +98,8 @@
     "Credential": "Запис облікових даних",
     "Enter manually": "Ввести вручну",
     "From the credential storage": "Зі сховища облікових даних",
-    "Managed in the system settings under \"Credentials\"": "Керується в системних налаштуваннях у розділі \"Облікові дані\""
+    "Managed in the system settings under \"Credentials\"": "Керується в системних налаштуваннях у розділі \"Облікові дані\"",
+    "For tele/SWITCH": "Для tele/SWITCH",
+    "Additional topics": "Додаткові топіки",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Остання частина топіка невідомих значень, через кому. * як шаблон, наприклад PIR*, Motion"
 }

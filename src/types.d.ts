@@ -12,6 +12,10 @@ export interface SonoffAdapterConfig {
     TELE_MARGINS: boolean;
     TELE_STATE: boolean;
     STAT_RESULT: boolean;
+    /** Create the unknown values of tele/<topic>/SWITCH (remote controls, #515), undefined for older instances = on */
+    TELE_SWITCH?: boolean;
+    /** Additional topics (last part of the topic, "*" as wildcard), which are stored although they are unknown (#281) */
+    customTopics?: string;
     OBJ_TREE: boolean;
     storeClientsTime: number | string;
     defaultQoS: 0 | 1 | 2;

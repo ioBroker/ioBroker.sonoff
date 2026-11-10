@@ -98,5 +98,8 @@
     "Credential": "Inloggegeven",
     "Enter manually": "Handmatig invoeren",
     "From the credential storage": "Uit de opslag van inloggegevens",
-    "Managed in the system settings under \"Credentials\"": "Wordt beheerd in de systeeminstellingen onder \"Inloggegevens\""
+    "Managed in the system settings under \"Credentials\"": "Wordt beheerd in de systeeminstellingen onder \"Inloggegevens\"",
+    "For tele/SWITCH": "Voor tele/SWITCH",
+    "Additional topics": "Extra topics",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Laatste deel van het topic van onbekende waarden, gescheiden door komma's. * als jokerteken, bijv. PIR*, Motion"
 }

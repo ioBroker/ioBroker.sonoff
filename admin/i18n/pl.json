@@ -98,5 +98,8 @@
     "Credential": "Wpis danych uwierzytelniających",
     "Enter manually": "Wprowadź ręcznie",
     "From the credential storage": "Z magazynu danych uwierzytelniających",
-    "Managed in the system settings under \"Credentials\"": "Zarządzane w ustawieniach systemu w sekcji \"Dane uwierzytelniające\""
+    "Managed in the system settings under \"Credentials\"": "Zarządzane w ustawieniach systemu w sekcji \"Dane uwierzytelniające\"",
+    "For tele/SWITCH": "Dla tele/SWITCH",
+    "Additional topics": "Dodatkowe tematy",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Ostatnia część tematu nieznanych wartości, oddzielone przecinkami. * jako symbol wieloznaczny, np. PIR*, Motion"
 }

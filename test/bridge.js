@@ -12,13 +12,7 @@ describe('MQTT bridge (external broker)', function () {
 
     it('subscribes to the configured topics', async () => {
         const { client, bridge } = setup();
-        assert.deepStrictEqual(client.subscriptions, [
-            'tele/#',
-            'stat/#',
-            '+/tele/+',
-            '+/stat/+',
-            '+/led_+/get',
-        ]);
+        assert.deepStrictEqual(client.subscriptions, ['tele/#', 'stat/#', '+/tele/+', '+/stat/+', '+/led_+/get']);
         await bridge.destroy();
     });
 
@@ -496,5 +490,202 @@ describe('MQTT bridge (external broker)', function () {
         assert.ok(!/[\u0000-\u001f\u007f]/.test(warnings[0]), 'no control character may be written to the log');
 
         await bridge.destroy();
+    });
+
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/515
+    const REMOTE_PRESS =
+        '{"Button1":{"Action":"hold"},"Signal":-61,"DeviceId":"5AC87680","DeviceType":"R5","Sequence":19,"Timestamp":1770919852}';
+
+    it('stores the presses of a remote control (tele/SWITCH)', async () => {
+        const { adapter, bridge, send } = setup();
+        const written = [];
+        const setForeignStateAsync = adapter.setForeignStateAsync;
+        adapter.setForeignStateAsync = (id, val, ack) => {
+            written.push(id);
+            return setForeignStateAsync(id, val, ack);
+        };
+
+        await send('stat/remote/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_B58068"}}');
+        await send('tele/remote/SWITCH', REMOTE_PRESS);
+
+        const states = adapter.states;
+        const objects = adapter.objects;
+        const device = 'sonoff.0.DVES_B58068';
+        assert.strictEqual(states[`${device}.Button1_Action`]?.val, 'hold');
+        assert.strictEqual(states[`${device}.DeviceId`]?.val, '5AC87680');
+        assert.strictEqual(states[`${device}.DeviceType`]?.val, 'R5');
+        assert.strictEqual(states[`${device}.Signal`]?.val, -61);
+        assert.strictEqual(objects[`${device}.Signal`].common.role, 'value.rssi');
+        assert.strictEqual(objects[`${device}.Signal`].common.unit, 'dBm');
+        assert.strictEqual(objects[`${device}.Signal`].common.write, false);
+        assert.strictEqual(states[`${device}.Sequence`]?.val, 19);
+        assert.ok(
+            written.indexOf(`${device}.DeviceId`) < written.indexOf(`${device}.Button1_Action`),
+            'the remote must be known when a script is triggered by the button',
+        );
+
+        // the same action again must trigger again
+        written.length = 0;
+        await send('tele/remote/SWITCH', REMOTE_PRESS.replace('"Sequence":19', '"Sequence":20'));
+        assert.ok(written.includes(`${device}.Button1_Action`), 'a repeated press must be written again');
+
+        await bridge.destroy();
+    });
+
+    it('stores the presses of a remote control in the object tree and without auto creation', async () => {
+        let { adapter, bridge, send } = setup({ OBJ_TREE: true });
+        await send('stat/remote/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_B58068"}}');
+        await send('tele/remote/SWITCH', REMOTE_PRESS.replace('Button1', 'Button3'));
+        assert.strictEqual(adapter.states['sonoff.0.DVES_B58068.SWITCH.Button3_Action']?.val, 'hold');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_B58068.SWITCH.DeviceId']?.val, '5AC87680');
+        await bridge.destroy();
+
+        ({ adapter, bridge, send } = setup({ TELE_SWITCH: false }));
+        await send('stat/remote/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_B58068"}}');
+        await send('tele/remote/SWITCH', REMOTE_PRESS);
+        assert.strictEqual(adapter.states['sonoff.0.DVES_B58068.Button1_Action']?.val, 'hold', 'known data point');
+        assert.ok(!adapter.objects['sonoff.0.DVES_B58068.DeviceId'], 'no auto creation if disabled');
+        await bridge.destroy();
+    });
+
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/281
+    it('stores the plain values of additional topics', async () => {
+        const { adapter, bridge, send } = setup({ customTopics: 'PIR*, motion' });
+        const device = 'sonoff.0.DVES_123456';
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('stat/kitchen/PIR1', 'ON');
+        assert.strictEqual(adapter.states[`${device}.PIR1`]?.val, true);
+        assert.deepStrictEqual(adapter.objects[`${device}.PIR1`].common, {
+            name: 'DVES_123456 PIR1',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+        });
+        await send('stat/kitchen/PIR1', 'OFF');
+        assert.strictEqual(adapter.states[`${device}.PIR1`]?.val, false);
+        await send('stat/kitchen/PIR1', 'TOGGLE');
+        assert.strictEqual(adapter.states[`${device}.PIR1`]?.val, false, 'a text does not fit a boolean');
+
+        await send('tele/kitchen/Motion', '1');
+        assert.strictEqual(adapter.states[`${device}.Motion`]?.val, 1);
+        assert.strictEqual(adapter.objects[`${device}.Motion`].common.type, 'number');
+
+        await send('tele/kitchen/Other', 'ON');
+        assert.ok(!adapter.objects[`${device}.Other`], 'only the configured topics');
+
+        await bridge.destroy();
+    });
+
+    it('keeps the type of an existing state of an additional topic', async () => {
+        const { adapter, bridge, send } = setup({ customTopics: 'PIR1' });
+        adapter.objects['sonoff.0.DVES_123456.PIR1'] = {
+            _id: 'sonoff.0.DVES_123456.PIR1',
+            type: 'state',
+            common: { name: 'PIR1', type: 'string', role: 'text', read: true, write: false },
+            native: {},
+        };
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('stat/kitchen/PIR1', 'ON');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_123456.PIR1']?.val, 'ON');
+        assert.strictEqual(adapter.objects['sonoff.0.DVES_123456.PIR1'].common.type, 'string');
+
+        await bridge.destroy();
+    });
+
+    it('stores the JSON of additional topics under the name of the topic', async () => {
+        let { adapter, bridge, send } = setup({ customTopics: 'Motion' });
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/Motion', '{"State":"detected","Count":3}');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_123456.Motion_State']?.val, 'detected');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_123456.Motion_Count']?.val, 3);
+        await bridge.destroy();
+
+        ({ adapter, bridge, send } = setup({ customTopics: 'Motion', OBJ_TREE: true }));
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/Motion', '{"State":"detected","Count":3}');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_123456.Motion.State']?.val, 'detected');
+        await bridge.destroy();
+    });
+
+    it('does not change the processing of the Tasmota telegrams with the wildcard "*"', async () => {
+        const { adapter, bridge, send } = setup({ customTopics: '*', TELE_SENSOR: false });
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        await send('tele/kitchen/SENSOR', '{"Time":"2026-11-10T10:00:00","MyCounter":5}');
+        assert.ok(!adapter.objects['sonoff.0.DVES_123456.MyCounter'], 'TELE_SENSOR is off');
+        await send('stat/kitchen/Brightness', '42');
+        assert.strictEqual(adapter.states['sonoff.0.DVES_123456.Brightness']?.val, 42);
+
+        await bridge.destroy();
+    });
+
+    // several remote controls, each on its own topic (EweTopicMode 3 %prefix%/%topic%/Remote_%alias%)
+    it('stores every remote control of an additional topic separately', async () => {
+        const { adapter, bridge, send } = setup({ customTopics: 'Remote_*' });
+
+        await send('stat/remote/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_B58068"}}');
+        await send('tele/remote/Remote_kitchen', REMOTE_PRESS);
+        await send('tele/remote/Remote_hall', REMOTE_PRESS.replace('"single"', '"double"').replace('hold', 'single'));
+
+        const states = adapter.states;
+        assert.strictEqual(states['sonoff.0.DVES_B58068.Remote_kitchen_Button1_Action']?.val, 'hold');
+        assert.strictEqual(states['sonoff.0.DVES_B58068.Remote_kitchen_DeviceId']?.val, '5AC87680');
+        assert.strictEqual(states['sonoff.0.DVES_B58068.Remote_hall_Button1_Action']?.val, 'single');
+        assert.strictEqual(adapter.objects['sonoff.0.DVES_B58068.Remote_hall_Signal'].common.write, false);
+
+        await bridge.destroy();
+    });
+
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/277
+    it('sends the text of "Backlog" as Tasmota commands', async () => {
+        const { adapter, bridge, client, send } = setup();
+
+        await send('stat/kitchen/STATUS6', '{"StatusMQT":{"MqttClient":"DVES_123456"}}');
+        const obj = adapter.objects['sonoff.0.DVES_123456.Backlog'];
+        assert.ok(obj, 'every device must have the Backlog state');
+        assert.strictEqual(obj.common.type, 'string');
+        assert.strictEqual(obj.common.write, true);
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.DVES_123456.Backlog', {
+            val: ' POWER1 TOGGLE; Delay 10; POWER1 TOGGLE ',
+            ack: false,
+        });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [
+            { topic: 'cmnd/kitchen/Backlog', payload: 'POWER1 TOGGLE; Delay 10; POWER1 TOGGLE' },
+        ]);
+        assert.deepStrictEqual(
+            {
+                val: adapter.states['sonoff.0.DVES_123456.Backlog']?.val,
+                ack: adapter.states['sonoff.0.DVES_123456.Backlog']?.ack,
+            },
+            { val: 'POWER1 TOGGLE; Delay 10; POWER1 TOGGLE', ack: true },
+        );
+
+        client.published.length = 0;
+        await bridge.onStateChange('sonoff.0.DVES_123456.Backlog', { val: '', ack: false });
+        await delay(50);
+        assert.deepStrictEqual(client.published, [], 'nothing to send');
+
+        await bridge.destroy();
+    });
+
+    it('compiles the additional topics with wildcards', () => {
+        const { compileTopicPatterns, detectValueType } = require('../build/lib/mqttBase');
+        assert.strictEqual(compileTopicPatterns(''), null);
+        assert.strictEqual(compileTopicPatterns(' , '), null);
+        const re = compileTopicPatterns('PIR*, Motion;a.b');
+        assert.ok(re.test('PIR1') && re.test('pir2') && re.test('Motion') && re.test('a.b'));
+        assert.ok(!re.test('XPIR1') && !re.test('Motions') && !re.test('axb'));
+
+        assert.strictEqual(detectValueType('-12.5'), 'number');
+        assert.strictEqual(detectValueType('0'), 'number');
+        assert.strictEqual(detectValueType('OFF'), 'boolean');
+        assert.strictEqual(detectValueType('AUS'), 'boolean');
+        assert.strictEqual(detectValueType('detected'), 'string');
     });
 });

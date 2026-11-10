@@ -349,6 +349,16 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "TELE_SWITCH": {
+                    "type": "checkbox",
+                    "label": "For tele/SWITCH",
+                    "default": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "STAT_RESULT": {
                     "type": "checkbox",
                     "label": "For stat/RESULT",
@@ -367,6 +377,17 @@
                     "md": 6,
                     "lg": 4,
                     "xl": 4
+                },
+                "customTopics": {
+                    "newLine": true,
+                    "type": "text",
+                    "label": "Additional topics",
+                    "help": "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 8,
+                    "xl": 8
                 },
                 "_header4": {
                     "newLine": true,

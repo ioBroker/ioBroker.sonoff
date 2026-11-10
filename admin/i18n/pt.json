@@ -98,5 +98,8 @@
     "Credential": "Credencial",
     "Enter manually": "Inserir manualmente",
     "From the credential storage": "Do armazenamento de credenciais",
-    "Managed in the system settings under \"Credentials\"": "Gerenciado nas configurações do sistema em \"Credenciais\""
+    "Managed in the system settings under \"Credentials\"": "Gerenciado nas configurações do sistema em \"Credenciais\"",
+    "For tele/SWITCH": "Para tele/SWITCH",
+    "Additional topics": "Tópicos adicionais",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Última parte do tópico de valores desconhecidos, separados por vírgulas. * como curinga, por exemplo PIR*, Motion"
 }

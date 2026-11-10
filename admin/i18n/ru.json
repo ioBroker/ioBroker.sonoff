@@ -98,5 +98,8 @@
     "Credential": "Запись учётных данных",
     "Enter manually": "Ввести вручную",
     "From the credential storage": "Из хранилища учётных данных",
-    "Managed in the system settings under \"Credentials\"": "Управляется в системных настройках в разделе \"Учётные данные\""
+    "Managed in the system settings under \"Credentials\"": "Управляется в системных настройках в разделе \"Учётные данные\"",
+    "For tele/SWITCH": "Для tele/SWITCH",
+    "Additional topics": "Дополнительные топики",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Последняя часть топика неизвестных значений, через запятую. * как подстановочный знак, например PIR*, Motion"
 }

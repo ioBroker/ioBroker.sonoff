@@ -259,6 +259,8 @@
     "TELE_MARGINS": false,
     "TELE_STATE": true,
     "STAT_RESULT": false,
+    "TELE_SWITCH": true,
+    "customTopics": "",
     "OBJ_TREE": false,
     "storeClientsTime": 1440,
     "defaultQoS": 0,

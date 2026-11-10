@@ -33,6 +33,7 @@ The following topics are expected:
 - `tele/DeviceNAME/SENSOR`
 - `tele/DeviceNAME/INFOx`
 - `tele/DeviceNAME/ENERGY`
+- `tele/DeviceNAME/SWITCH` (remote controls, see [Auto-creation of objects](#auto-creation-of-objects))
 - `cmnd/DeviceNAME/POWERx`
 - `stat/DeviceNAME/POWERx`
 - `/DeviceNAME/BM280/Temperature`
@@ -90,7 +91,12 @@ The following topics are expected:
 - `/DeviceNAME/SDS0X1/Longitude`
 - `/DeviceNAME/SR04/Distance`
 
-**Note**: The list could be easily extended. Please send `Pull Requests` or *debug data* for unknown states to the developer (via issue).
+**Note**: The list could be easily extended. Please send `Pull Requests` or *debug data* for unknown states to the developer (via issue). Own topics (e.g. of rules or scripts on the device) can be added in the settings, see `Additional topics` below.
+
+## Sending any command (`Backlog`)
+Every device has the state `Backlog`. Its text is sent to `cmnd/<topic>/Backlog`, so it can be any Tasmota command, also commands without an own state, e.g. `POWER1 TOGGLE` or `POWER1 BLINK`. Several commands are separated by `;`: `POWER1 ON; Delay 100; POWER1 OFF`. The device card of the device manager shows it as a text field.
+
+The `POWERx` states stay boolean (on/off), so that visualizations, scripts and histories keep working. Use `Backlog` for `TOGGLE` or `BLINK`.
 
 ## Bridge mode
 
@@ -145,8 +151,19 @@ In the web config, you can determine which MQTT telegrams create the new objects
 * `TELE_SENSOR` - creates objects from `tele/xxx/SENSOR` telegrams
 * `TELE_STATE` - creates objects from `tele/xxx/STATE` telegrams
 * `STAT_RESULT` - creates objects from `stat/xxx/RESULT` telegrams
+* `TELE_SWITCH` - creates objects from `tele/xxx/SWITCH` telegrams of remote controls (on by default)
 
 Usually TELE_SENSOR should be sufficient for most users.
+
+**Remote controls:** the Berry script [Tasmota-eWeLinkRemote](https://github.com/Flobul/Tasmota-eWeLinkRemote) (eWeLink R5, S-MATE) sends every press as `tele/xxx/SWITCH = {"Button1":{"Action":"single"},"Signal":-61,"DeviceId":"5AC87680",...}`. It is stored in `Button1_Action` (`single`, `double` or `hold`) and `Signal`, `DeviceId`, `DeviceType`, `Sequence`, `Timestamp`. Every press is written, also the same action again. `DeviceId` is written before `ButtonX_Action`, so a script triggered by the button can read which remote was pressed.
+
+**Additional topics:** values on other topics than the ones above are ignored, unless the last part of the topic is listed in `Additional topics` (separated by commas, `*` as wildcard, case is ignored), e.g. `PIR*, Motion`:
+
+* A plain value creates a read-only state with the name of the topic: `stat/xxx/PIR1 = ON` creates `PIR1`. The type is detected from the first value: a number (`1`, `25.4`), on/off (`ON`, `OFF`) or a text. An existing state keeps its type, values which do not fit (e.g. `TOGGLE` for on/off) are ignored.
+* JSON is processed like `tele/xxx/SENSOR`, but under the name of the topic: `tele/xxx/Motion = {"State":"detected"}` creates `Motion_State` (`Motion.State` with `Create object tree`).
+* The Tasmota telegrams (`STATE`, `SENSOR`, `RESULT`, `STATUSx`, ...) keep their own options, even with `*`.
+
+With several remote controls, the Berry script can send every remote on a separate topic, e.g. `EweTopicMode 3 %prefix%/%topic%/Remote_%alias%` with the additional topic `Remote_*`. Then every remote gets its own states (`Remote_kitchen_Button1_Action`, ...).
 
 * `Create object tree` creates objects as tree structure
 
@@ -196,6 +213,11 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Presses of remote controls (`tele/<topic>/SWITCH`, e.g. eWeLink R5 with the Berry script Tasmota-eWeLinkRemote) are stored, new option "For tele/SWITCH" (#515)
+* (@GermanBluefox) New option "Additional topics": values of own topics like `stat/<topic>/PIR1` are stored, also with wildcards (`PIR*`) (#281)
+* (@GermanBluefox) Every device has the state `Backlog` to send any Tasmota command, e.g. `POWER1 TOGGLE` (#277)
+
 ### 5.2.2 (2026-11-10)
 * (@patricknitsch) The firmware update dialog of the device manager recognizes the new version also with "Create object tree" ("INFO.Info1.Version"), before it waited till the timeout
 * (@patricknitsch) The firmware update from the device manager clears the "Upgrade" command afterwards, so a restart of the external broker (e.g. the ioBroker MQTT adapter) does not start the update again

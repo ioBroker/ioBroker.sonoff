@@ -98,5 +98,8 @@
     "Credential": "凭据条目",
     "Enter manually": "手动输入",
     "From the credential storage": "来自凭据存储",
-    "Managed in the system settings under \"Credentials\"": "在系统设置的 \"凭据\" 中管理"
+    "Managed in the system settings under \"Credentials\"": "在系统设置的 \"凭据\" 中管理",
+    "For tele/SWITCH": "用于 tele/SWITCH",
+    "Additional topics": "附加主题",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "未知值的主题的最后一部分，用逗号分隔。* 作为通配符，例如 PIR*, Motion"
 }

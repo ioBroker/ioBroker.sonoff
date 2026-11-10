@@ -98,5 +98,8 @@
     "Credential": "Credential",
     "Enter manually": "Enter manually",
     "From the credential storage": "From the credential storage",
-    "Managed in the system settings under \"Credentials\"": "Managed in the system settings under \"Credentials\""
+    "Managed in the system settings under \"Credentials\"": "Managed in the system settings under \"Credentials\"",
+    "For tele/SWITCH": "For tele/SWITCH",
+    "Additional topics": "Additional topics",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion"
 }

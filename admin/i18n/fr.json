@@ -98,5 +98,8 @@
     "Credential": "Identifiant",
     "Enter manually": "Saisir manuellement",
     "From the credential storage": "Depuis le stockage des identifiants",
-    "Managed in the system settings under \"Credentials\"": "Géré dans les paramètres système sous \"Identifiants\""
+    "Managed in the system settings under \"Credentials\"": "Géré dans les paramètres système sous \"Identifiants\"",
+    "For tele/SWITCH": "Pour tele/SWITCH",
+    "Additional topics": "Topics supplémentaires",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Dernière partie du topic des valeurs inconnues, séparées par des virgules. * comme joker, par ex. PIR*, Motion"
 }

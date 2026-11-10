@@ -455,6 +455,9 @@ export const autoRoles: { [key: string]: { role: string; unit?: string } } = {
     LoadAvg: { role: 'info.status' },
     MqttCount: { role: 'info.status' },
     MqttPort: { role: 'info.port' },
+    // tele/<topic>/SWITCH of remote controls (#515): signal strength and counter of the presses
+    Sequence: { role: 'info.status' },
+    Signal: { role: 'value.rssi', unit: 'dBm' },
     Sleep: { role: 'value.interval', unit: 'ms' },
     UptimeSec: { role: 'value.interval', unit: 's' },
     Wifi_AP: { role: 'info.status' },

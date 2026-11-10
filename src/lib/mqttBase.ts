@@ -17,6 +17,69 @@ export function escapeControlChars(text: string): string {
     return text.replace(/[\u0000-\u001f\u007f]/g, char => `\\x${char.charCodeAt(0).toString(16).padStart(2, '0')}`);
 }
 
+/** Name of the state of every device, which sends its text as Tasmota commands with `cmnd/<topic>/Backlog` */
+export const BACKLOG = 'Backlog';
+
+/** Telegrams of Tasmota with their own processing and options, they are never additional topics */
+const TASMOTA_TELEGRAMS = /^(RESULT|STATE|SENSOR|WAKEUP|SWITCH|INFO|ENERGY|MARGINS|STATUS|LWT)\d*$/;
+
+/**
+ * Builds a regular expression from the "additional topics" of the configuration (#281): a list of names
+ * separated by commas, `*` matches any text, e.g. "PIR*, Motion". The case is ignored.
+ *
+ * @param patterns list of the configuration
+ * @returns null if the list is empty
+ */
+export function compileTopicPatterns(patterns: string | undefined): RegExp | null {
+    const list = (patterns || '')
+        .split(/[,;\s]+/)
+        .map(pattern => pattern.trim())
+        .filter(pattern => pattern);
+    if (!list.length) {
+        return null;
+    }
+    const escaped = list.map(pattern => pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*'));
+    return new RegExp(`^(${escaped.join('|')})$`, 'i');
+}
+
+/**
+ * Detects the type of a plain value of an additional topic: "25.4" is a number, "ON" a boolean, the rest
+ * a string. Numbers win over the ON/OFF texts, so "1" and "0" are numbers.
+ */
+export function detectValueType(val: string, stateTexts?: StateTexts): 'number' | 'boolean' | 'string' {
+    if (/^-?\d+(\.\d+)?$/.test(val)) {
+        return 'number';
+    }
+    if (parseOnOff(val, stateTexts) !== undefined) {
+        return 'boolean';
+    }
+    return 'string';
+}
+
+/**
+ * Converts a plain value into the type of its state.
+ *
+ * @returns undefined if the value does not fit, e.g. "TOGGLE" for a boolean
+ */
+export function convertValue(
+    val: string,
+    type: ioBroker.CommonType,
+    stateTexts?: StateTexts,
+): ioBroker.StateValue | undefined {
+    if (type === 'boolean') {
+        return parseOnOff(val, stateTexts);
+    }
+    if (type === 'number') {
+        const num = parseFloat(val);
+        if (!isNaN(num)) {
+            return num;
+        }
+        const on = parseOnOff(val, stateTexts);
+        return on === undefined ? undefined : on ? 1 : 0;
+    }
+    return val;
+}
+
 /*
  * HSV to RGB color conversion
  *
@@ -197,11 +260,24 @@ export default abstract class MQTTBase {
         'Saturation',
     ];
     protected readonly config: SonoffAdapterConfig;
+    /** Additional topics of the configuration, which are stored although they are not known (#281) */
+    protected readonly customTopics: RegExp | null;
+    /** Types of the states of the additional topics with plain values, so that the type of a state never changes */
+    protected readonly cachedCustomTypes: { [id: string]: ioBroker.CommonType } = {};
 
     constructor(adapter: ioBroker.Adapter) {
         this.adapter = adapter;
         this.config = adapter.config as SonoffAdapterConfig;
         this.config.defaultQoS = (parseInt(this.config.defaultQoS as unknown as string, 10) as 0 | 1 | 2) || 0;
+        this.customTopics = compileTopicPatterns(this.config.customTopics);
+    }
+
+    /**
+     * True if the last part of a topic is one of the additional topics of the configuration. The telegrams
+     * of Tasmota have their own options, so even "*" does not change how they are processed.
+     */
+    protected isCustomTopic(stateId: string): boolean {
+        return !!this.customTopics?.test(stateId) && !TASMOTA_TELEGRAMS.test(stateId);
     }
 
     protected abstract sendState2Client(
@@ -796,6 +872,17 @@ export default abstract class MQTTBase {
             }
 
             if (this.clients[this.mappingClients[channelId]]) {
+                if (id === `${this.adapter.namespace}.${channelId}.${BACKLOG}`) {
+                    // "POWER1 TOGGLE; Delay 10; POWER1 TOGGLE" -> cmnd/<topic>/Backlog
+                    const commands = state.val === null || state.val === undefined ? '' : state.val.toString().trim();
+                    if (commands) {
+                        this.setStateImmediate(this.mappingClients[channelId], BACKLOG, commands);
+                        // the device does not answer with the commands, so confirm that they were sent
+                        await this.adapter.setForeignStateAsync(id, commands, true);
+                    }
+                    return;
+                }
+
                 // check for special led-stripe vars
                 if (!this.specVars.includes(stateId)) {
                     // other objects
@@ -875,6 +962,7 @@ export default abstract class MQTTBase {
             this.cachedModeExor,
             this.cachedReadColors,
             this.cachePowerObjects,
+            this.cachedCustomTypes,
         ];
         for (const cache of caches) {
             for (const id of Object.keys(cache)) {
@@ -991,6 +1079,22 @@ export default abstract class MQTTBase {
             type: 'state',
         };
         this.tasks.push({ id: stateObj._id, data: stateObj });
+
+        // Any Tasmota command, also the ones without own data point, e.g. "POWER1 TOGGLE" (#277)
+        const backlogObj: ioBroker.StateObject = {
+            _id: `${id}.${BACKLOG}`,
+            common: {
+                type: 'string',
+                role: 'text',
+                read: true,
+                write: true,
+                name: `${client.id} ${BACKLOG}`,
+                desc: 'Tasmota commands, several separated by ";", e.g. "POWER1 TOGGLE"',
+            },
+            native: {},
+            type: 'state',
+        };
+        this.tasks.push({ id: backlogObj._id, data: backlogObj });
 
         if (isStart) {
             this.processTasks(callback).catch(err => this.adapter.log.error(err));
@@ -1392,8 +1496,12 @@ export default abstract class MQTTBase {
                         ((this.config.TELE_SENSOR && parts[2] === 'SENSOR') ||
                             (this.config.STAT_RESULT && parts[2] === 'RESULT') ||
                             (this.config.TELE_STATE && parts[2] === 'STATE') ||
-                            (this.config.TELE_MARGINS && parts[2] === 'MARGINS'))) ||
-                    (parts[0] === 'stat' && this.config.STAT_RESULT && parts[2] === 'RESULT')
+                            (this.config.TELE_MARGINS && parts[2] === 'MARGINS') ||
+                            // undefined for instances created before the option existed
+                            (this.config.TELE_SWITCH !== false && parts[2] === 'SWITCH'))) ||
+                    (parts[0] === 'stat' && this.config.STAT_RESULT && parts[2] === 'RESULT') ||
+                    // JSON of an additional topic of the configuration (#281)
+                    this.isCustomTopic(parts[parts.length - 1])
                 ) {
                     let val = data[attr];
                     const replaceAttr = attr;
@@ -1587,6 +1695,21 @@ export default abstract class MQTTBase {
             } catch (e) {
                 this.warnParseError(client, stateId, val, e);
             }
+        } else if (parts[0] === 'tele' && stateId === 'SWITCH') {
+            // Remote controls, e.g. eWeLink R5 with the Berry script Tasmota-eWeLinkRemote (#515):
+            // tele/tasmota_B58068/SWITCH = {"Button1":{"Action":"hold"},"Signal":-61,"DeviceId":"5AC87680","DeviceType":"R5","Sequence":19,"Timestamp":1770919852}
+            try {
+                const data = JSON.parse(val) as Record<string, unknown>;
+                // The states are written in this order: the button comes last, so a script triggered by
+                // it reads the DeviceId of the same press
+                const buttonsLast = Object.fromEntries([
+                    ...Object.entries(data).filter(([key]) => !/^Button\d+$/.test(key)),
+                    ...Object.entries(data).filter(([key]) => /^Button\d+$/.test(key)),
+                ]);
+                this.checkData(client, packet.topic, this.config.OBJ_TREE ? 'SWITCH' : NO_PREFIX, buttonsLast);
+            } catch (e) {
+                this.warnParseError(client, stateId, val, e);
+            }
         } else if (parts[0] === 'stat' && stateId === 'STATUS10') {
             // stat/device/STATUS10 = {"StatusSNS":{"Time":"...","Switch2":"ON","Switch3":"OFF",...}}
             // This is the same data as the periodic tele/.../SENSOR telemetry, just requested on demand,
@@ -1674,9 +1797,79 @@ export default abstract class MQTTBase {
                     }
                     client._map[stateId] = mappedTopic;
                 });
-            } else {
-                this.adapter.log.debug(`Cannot process: ${packet.topic}`);
             }
+        } else if (this.isCustomTopic(stateId)) {
+            await this.processCustomTopic(client, packet.topic, stateId, val);
+        } else {
+            this.adapter.log.debug(`Client [${client.id}] ignores the unknown topic ${packet.topic}`);
         }
+    }
+
+    /**
+     * Stores the message of an additional topic of the configuration (#281). JSON is processed like a
+     * SENSOR telegram under the name of the topic, e.g. "Motion_State" ("Motion.State" with "Create
+     * object tree"). A plain value becomes a read-only state with the name of the topic, its type is
+     * detected from the first value: stat/sonoff/PIR1 = ON -> "PIR1" (boolean).
+     *
+     * @param client the device
+     * @param topic full topic, e.g. "stat/sonoff/PIR1"
+     * @param stateId last part of the topic, e.g. "PIR1"
+     * @param val payload
+     */
+    private async processCustomTopic(client: MQTTClient, topic: string, stateId: string, val: string): Promise<void> {
+        const name = stateId.replace(/[-.+\s]+/g, '_').replace(FORBIDDEN_CHARS, '_');
+        const text = val.trim();
+
+        if (text.startsWith('{')) {
+            try {
+                const data = JSON.parse(text);
+                if (this.config.OBJ_TREE) {
+                    this.checkData(client, topic, name, data);
+                } else {
+                    this.checkData(client, topic, NO_PREFIX, data, undefined, [name]);
+                }
+            } catch (e) {
+                this.warnParseError(client, stateId, val, e);
+            }
+            return;
+        }
+
+        const id = `${this.adapter.namespace}.${client.iobId}.${name}`;
+        let type = this.cachedCustomTypes[id];
+        if (!type) {
+            // A state of an earlier run (or changed by the user) keeps its type
+            const obj = await this.adapter.getForeignObjectAsync(id);
+            type =
+                this.cachedCustomTypes[id] ||
+                (obj?.type === 'state' && ['number', 'boolean', 'string'].includes(obj.common.type)
+                    ? obj.common.type
+                    : detectValueType(text, client._stateTexts));
+            this.cachedCustomTypes[id] = type;
+        }
+
+        const value = convertValue(text, type, client._stateTexts);
+        if (value === undefined) {
+            this.adapter.log.debug(`Client [${client.id}] ignores "${text}" of ${topic}, it is not a ${type}`);
+            return;
+        }
+
+        this.updateState(
+            {
+                id,
+                data: {
+                    _id: id,
+                    common: {
+                        name: `${client.id} ${stateId}`,
+                        type,
+                        role: type === 'boolean' ? 'indicator' : type === 'number' ? 'value' : 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                    type: 'state',
+                },
+            },
+            value,
+        );
     }
 }

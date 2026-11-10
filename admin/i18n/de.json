@@ -98,5 +98,8 @@
     "Credential": "Zugangsdaten-Eintrag",
     "Enter manually": "Manuell eingeben",
     "From the credential storage": "Aus der Zugangsdatenverwaltung",
-    "Managed in the system settings under \"Credentials\"": "Wird in den Systemeinstellungen unter \"Zugangsdaten\" verwaltet"
+    "Managed in the system settings under \"Credentials\"": "Wird in den Systemeinstellungen unter \"Zugangsdaten\" verwaltet",
+    "For tele/SWITCH": "Für tele/SWITCH",
+    "Additional topics": "Zusätzliche Topics",
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Letzter Teil des Topics von unbekannten Werten, durch Kommas getrennt. * als Platzhalter, z. B. PIR*, Motion"
 }
