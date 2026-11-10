@@ -1,115 +1,191 @@
 # ioBroker Adapter Development with GitHub Copilot
 
-**Version:** 0.4.2
+**Version:** 0.5.7  
 **Template Source:** https://github.com/DrozmotiX/ioBroker-Copilot-Instructions
 
 This file contains instructions and best practices for GitHub Copilot when working on ioBroker adapter development.
+
+---
+
+## 📑 Table of Contents
+
+1. [Project Context](#project-context)
+2. [Code Quality & Standards](#code-quality--standards)
+   - [Code Style Guidelines](#code-style-guidelines)
+   - [ESLint Configuration](#eslint-configuration)
+3. [Testing](#testing)
+   - [Unit Testing](#unit-testing)
+   - [Integration Testing](#integration-testing)
+   - [API Testing with Credentials](#api-testing-with-credentials)
+4. [Development Best Practices](#development-best-practices)
+   - [Dependency Management](#dependency-management)
+   - [HTTP Client Libraries](#http-client-libraries)
+   - [Error Handling](#error-handling)
+5. [Admin UI Configuration](#admin-ui-configuration)
+   - [JSON-Config Setup](#json-config-setup)
+   - [Translation Management](#translation-management)
+6. [Documentation](#documentation)
+   - [README Updates](#readme-updates)
+   - [Changelog Management](#changelog-management)
+7. [CI/CD & GitHub Actions](#cicd--github-actions)
+   - [Workflow Configuration](#workflow-configuration)
+   - [Testing Integration](#testing-integration)
+8. [Adapter-Specific Coding Standards](#adapter-specific-coding-standards)
+
+---
 
 ## Project Context
 
 You are working on an ioBroker adapter. ioBroker is an integration platform for the Internet of Things, focused on building smart home and industrial IoT solutions. Adapters are plugins that connect ioBroker to external systems, devices, or services.
 
-### Adapter-Specific Context: Sonoff/Tasmota MQTT Integration
+### Adapter-Specific Context: Sonoff / Tasmota
 
-This is an ioBroker adapter for Sonoff/Tasmota devices that enables MQTT communication between ioBroker and ESP8266/ESP32-based Sonoff devices running Tasmota firmware.
+This adapter connects ioBroker via MQTT with devices running the [Tasmota](https://tasmota.github.io/) firmware (Sonoff and other ESP8266/ESP32 devices) and compatible firmwares like OpenBeken. Every device becomes a device object (`sonoff.<instance>.<clientId>`), its states are created dynamically from the MQTT telegrams of the device.
 
-**Key Features:**
-- MQTT server/client implementation for Tasmota devices
-- Automatic device discovery and state mapping
-- Support for sensors, switches, relays, LED controllers, and more
-- Dynamic datapoint creation from MQTT telegrams
+**Operating modes** (both share the processing in `src/lib/mqttBase.ts`):
+- **Built-in MQTT broker** (default, `src/lib/server.ts`): the devices connect to the adapter (`port`, `bind`, optional `user`/`password` or a credential from the central credential storage of admin).
+- **External broker / bridge** (`useExternalBroker`, `src/lib/bridge.ts`): the adapter subscribes as client to an existing broker (e.g. the ioBroker MQTT adapter or Mosquitto), also with `mqtts://` and certificates. The device name is learned from `STATUS6` (`MqttClient`), messages of unknown devices are buffered until the name is known.
 
-**Repository Structure:**
-- `admin/` - Admin UI configuration files and translations
-- `lib/` - Core library files
-  - `datapoints.ts` - Defines all supported Tasmota datapoints and their properties
-  - `server.ts` - Main MQTT server implementation
-- `main.ts` - Adapter entry point
-- `test/` - Test files
-  - `integration.js` - Integration tests for MQTT message processing
-  - `testPackageFiles.js` - Validates package.json and io-package.json
+**Repository structure:**
+- `src/main.ts` - adapter entry point: starts the server or the bridge, firmware check, device manager
+- `src/lib/mqttBase.ts` - common MQTT processing: parsing of the Tasmota telegrams, creation of objects and states, commands to the devices
+- `src/lib/server.ts` / `src/lib/bridge.ts` - built-in broker / client of an external broker
+- `src/lib/datapoints.ts` - known Tasmota data points with type, role, unit and read/write; `autoRoles` for automatically created diagnostic states
+- `src/lib/deviceManager.ts` - device manager (`@iobroker/dm-utils`): device cards, controls, firmware update, discovery
+- `src/lib/discovery.ts` - search for Tasmota devices in the network and writing their MQTT settings
+- `src/lib/firmware.ts` - parsing of Tasmota versions and check of the latest release on GitHub
+- `src/lib/onOff.ts` - ON/OFF texts of a device (`StateText1`/`StateText2`, e.g. "AN"/"AUS" of a German build)
+- `src/lib/checkStates.ts` - detects states with shortened names created by 3.3.x (#489)
+- `src/lib/usedResources.ts` - reports the TCP port of the built-in broker to js-controller 8
+- `src/lib/i18n/<lang>.json` - translations of the device manager
+- `admin/jsonConfig.json`, `admin/i18n/<lang>.json` - instance configuration and its translations
+- `build/` - compiled JavaScript, **committed to the repository** (`npm run build`)
+- `test/` - mocha tests, see [Adapter-Specific Coding Standards](#adapter-specific-coding-standards)
 
-**Key Concepts:**
+**Key concepts:**
+- **MQTT topics:** devices send `tele/<topic>/STATE|SENSOR|INFO1-3|ENERGY|MARGINS|RESULT|LWT` and `stat/<topic>/RESULT|POWER<x>|STATUS<x>`, commands go to `cmnd/<topic>/<Command>`. Full topics like `tasmota/<device>/tele/...` and OpenBeken topics (`<device>/led_*/get`) are supported too.
+- **"Create object tree" (`OBJ_TREE`):** with this option nested JSON creates channels (`INFO.Info1.Version`), without it the keys are joined with `_` (`INFO.Info1_Version`). Code that looks for a data point must handle both forms.
+- **Device information:** the adapter asks every connected device for `Status 5` (network: IP, MAC), `Status 2` (firmware) and `StateText1`/`StateText2`.
+- **Connection:** every device has an `alive` state, `info.connection` holds the list of the connected clients.
 
-#### Datapoints
-Datapoints in `lib/datapoints.ts` define how Tasmota device parameters are mapped to ioBroker states. Each datapoint has:
-- `type` - Data type (string, number, boolean)
-- `role` - ioBroker role (state, level, switch, etc.)
-- `read/write` - Access permissions
-- Optional `min/max` - Value ranges
+Where the project-specific rules in this file differ from the generic template sections, the project-specific rules take precedence.
 
-#### MQTT Message Processing
-The adapter processes MQTT messages from Tasmota devices:
-- `tele/*/STATE` - Telemetry status messages
-- `tele/*/SENSOR` - Sensor data messages
-- `stat/*/RESULT` - Command responses
-- `cmnd/*` - Commands to devices
+---
 
-**Development Guidelines:**
-1. **Adding New Datapoints**: Update `lib/datapoints.ts` with proper type definitions
-2. **Testing**: Add corresponding test cases in `test/integration.js` with real MQTT message examples
-3. **Translations**: When adding new UI elements to admin configuration:
-   - Add all English text entries to `admin/i18n/en/translations.json`
-   - Run `npm run translate` to automatically generate translations for all supported languages
-   - Verify translations were created in all language directories under `admin/i18n/`
-4. **Changelog**: Add entries to README.md under `### **WORK IN PROGRESS**` section for user-facing changes. DO NOT modify `io-package.json` news section as it's automatically updated during releases
-5. **Linting**: Always run `npm run lint` to verify code passes ESLint validation
-6. **Compatibility**: Maintain backward compatibility with existing Tasmota configurations
+## Code Quality & Standards
 
-**Code Style:**
-- Use strict mode and JSHint directives
-- Follow existing patterns for consistency
-- Use meaningful variable names
-- Add comments for complex logic
-- Prefer ES6 features where appropriate
+### Code Style Guidelines
 
-**Testing Strategy:**
-- Integration tests validate end-to-end MQTT processing using `@iobroker/testing` framework
-- Use realistic Tasmota message examples
-- Test both positive and negative scenarios
-- Ensure all new datapoints have corresponding tests
+- Follow JavaScript/TypeScript best practices
+- Use async/await for asynchronous operations
+- Implement proper resource cleanup in `unload()` method
+- Use semantic versioning for adapter releases
+- Include proper JSDoc comments for public methods
+
+**Timer and Resource Cleanup Example:**
+```javascript
+private connectionTimer?: NodeJS.Timeout;
+
+async onReady() {
+  this.connectionTimer = setInterval(() => this.checkConnection(), 30000);
+}
+
+onUnload(callback) {
+  try {
+    if (this.connectionTimer) {
+      clearInterval(this.connectionTimer);
+      this.connectionTimer = undefined;
+    }
+    callback();
+  } catch (e) {
+    callback();
+  }
+}
+```
+
+### ESLint Configuration
+
+**CRITICAL:** ESLint validation must run FIRST in your CI/CD pipeline, before any other tests. This "lint-first" approach catches code quality issues early.
+
+#### Setup
+```bash
+npm install --save-dev eslint @iobroker/eslint-config
+```
+
+#### Configuration (.eslintrc.json)
+```json
+{
+  "extends": "@iobroker/eslint-config",
+  "rules": {
+    // Add project-specific rule overrides here if needed
+  }
+}
+```
+
+#### Package.json Scripts
+```json
+{
+  "scripts": {
+    "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint . --fix"
+  }
+}
+```
+
+#### Best Practices
+1. ✅ Run ESLint before committing — fix ALL warnings, not just errors
+2. ✅ Use `lint:fix` for auto-fixable issues
+3. ✅ Don't disable rules without documentation
+4. ✅ Lint all relevant files (main code, tests, build scripts)
+5. ✅ Keep `@iobroker/eslint-config` up to date
+6. ✅ **ESLint warnings are treated as errors in CI** (`--max-warnings 0`). The `lint` script above already includes this flag — run `npm run lint` to match CI behavior locally
+
+#### Common Issues
+- **Unused variables**: Remove or prefix with underscore (`_variable`)
+- **Missing semicolons**: Run `npm run lint:fix`
+- **Indentation**: Use 4 spaces (ioBroker standard)
+- **console.log**: Replace with `adapter.log.debug()` or remove
+
+---
 
 ## Testing
 
 ### Unit Testing
-- Use Jest as the primary testing framework for ioBroker adapters
+
+- Use Jest as the primary testing framework
 - Create tests for all adapter main functions and helper methods
 - Test error handling scenarios and edge cases
 - Mock external API calls and hardware dependencies
-- For adapters connecting to APIs/devices not reachable by internet, provide example data files to allow testing of functionality without live connections
-- Example test structure:
-  ```javascript
-  describe('AdapterName', () => {
-    let adapter;
-    
-    beforeEach(() => {
-      // Setup test adapter instance
-    });
-    
-    test('should initialize correctly', () => {
-      // Test adapter initialization
-    });
+- For adapters connecting to APIs/devices not reachable by internet, provide example data files
+
+**Example Structure:**
+```javascript
+describe('AdapterName', () => {
+  let adapter;
+  
+  beforeEach(() => {
+    // Setup test adapter instance
   });
-  ```
+  
+  test('should initialize correctly', () => {
+    // Test adapter initialization
+  });
+});
+```
 
 ### Integration Testing
 
-**IMPORTANT**: Use the official `@iobroker/testing` framework for all integration tests. This is the ONLY correct way to test ioBroker adapters.
+**CRITICAL:** Use the official `@iobroker/testing` framework. This is the ONLY correct way to test ioBroker adapters.
 
-**Official Documentation**: https://github.com/ioBroker/testing
+**Official Documentation:** https://github.com/ioBroker/testing
 
 #### Framework Structure
-Integration tests MUST follow this exact pattern:
 
+**✅ Correct Pattern:**
 ```javascript
 const path = require('path');
 const { tests } = require('@iobroker/testing');
 
-// Define test coordinates or configuration
-const TEST_COORDINATES = '52.520008,13.404954'; // Berlin
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-// Use tests.integration() with defineAdditionalTests
 tests.integration(path.join(__dirname, '..'), {
     defineAdditionalTests({ suite }) {
         suite('Test adapter with specific configuration', (getHarness) => {
@@ -122,342 +198,570 @@ tests.integration(path.join(__dirname, '..'), {
             it('should configure and start adapter', function () {
                 return new Promise(async (resolve, reject) => {
                     try {
-                        harness = getHarness();
+                        // Get adapter object
+                        const obj = await new Promise((res, rej) => {
+                            harness.objects.getObject('system.adapter.your-adapter.0', (err, o) => {
+                                if (err) return rej(err);
+                                res(o);
+                            });
+                        });
                         
+                        if (!obj) return reject(new Error('Adapter object not found'));
+
                         // Configure adapter
-                        await harness.changeAdapterConfig('adaptername', {
-                            native: {
-                                configKey: 'configValue'
-                            }
+                        Object.assign(obj.native, {
+                            position: '52.520008,13.404954',
+                            createHourly: true,
                         });
 
-                        // Start adapter
+                        harness.objects.setObject(obj._id, obj);
+                        
+                        // Start and wait
                         await harness.startAdapterAndWait();
+                        await new Promise(resolve => setTimeout(resolve, 15000));
 
                         // Verify states
-                        const state = await harness.getState('adaptername.0.someState');
-                        expect(state).toBeDefined();
-                        expect(state.val).toBe(expectedValue);
-
-                        resolve();
+                        const stateIds = await harness.dbConnection.getStateIDs('your-adapter.0.*');
+                        
+                        if (stateIds.length > 0) {
+                            console.log('✅ Adapter successfully created states');
+                            await harness.stopAdapter();
+                            resolve(true);
+                        } else {
+                            reject(new Error('Adapter did not create any states'));
+                        }
                     } catch (error) {
                         reject(error);
                     }
                 });
-            });
+            }).timeout(40000);
         });
     }
 });
 ```
 
-#### Key Patterns
-- Always use `tests.integration(path.join(__dirname, '..'), {...})` as entry point
-- Use `defineAdditionalTests({ suite })` for custom tests
-- Use `getHarness()` to access test harness
-- Use `harness.startAdapterAndWait()` to start adapter
-- Use `harness.getState()` to read state values
-- Use `harness.setState()` to write state values
-- Use `harness.changeAdapterConfig()` to modify configuration
+#### Testing Success AND Failure Scenarios
 
-#### Complete Example
+**IMPORTANT:** For every "it works" test, implement corresponding "it fails gracefully" tests.
+
+**Failure Scenario Example:**
 ```javascript
-const path = require('path');
-const { tests } = require('@iobroker/testing');
-
-tests.integration(path.join(__dirname, '..'), {
-    defineAdditionalTests({ suite }) {
-        suite('Custom tests for my adapter', (getHarness) => {
-            it('Test 1: Start adapter and check initial state', async function() {
-                const harness = getHarness();
-                
-                // Start the adapter and wait until it has started
-                await harness.startAdapterAndWait();
-                
-                // Check if state exists
-                const state = await harness.getState('adaptername.0.info.connection');
-                expect(state).toBeDefined();
-                expect(state.val).toBe(true);
-            });
-
-            it('Test 2: Change adapter configuration', async function() {
-                const harness = getHarness();
-                
-                // Change native configuration
-                await harness.changeAdapterConfig('adaptername', {
-                    native: {
-                        interval: 60000,
-                        someOption: true
-                    }
-                });
-                
-                await harness.startAdapterAndWait();
-                
-                // Verify adapter behavior with new config
-                // ...
-            });
-        });
-    }
-});
-```
-
-### Testing Best Practices
-1. **Framework Usage**: Always use `@iobroker/testing` - never write custom adapter initialization
-2. **Async Handling**: Use async/await for all asynchronous operations
-3. **State Verification**: Always verify state changes after operations
-4. **Error Handling**: Test both success and error scenarios
-5. **Configuration**: Test different configuration scenarios
-6. **Cleanup**: Harness handles cleanup automatically
-7. **Timeouts**: Use appropriate timeouts for operations (default: 30 seconds)
-
-## Core Development Principles
-
-### Adapter Structure
-- Main adapter code goes in `main.ts` (entry point) or a modular structure with `lib/` directory
-- Admin UI configuration in `admin/` directory
-- Adapter metadata in `io-package.json`
-- npm package information in `package.json`
-
-### State Management
-- Use `await this.setStateAsync(id, value, ack)` for setting states (ack: true for values from device, false for user commands)
-- Use `await this.getStateAsync(id)` for reading states
-- Always use `await this.setObjectNotExistsAsync()` before creating states
-- Define state objects with proper common properties:
-  ```javascript
-  await this.setObjectNotExistsAsync('stateName', {
-      type: 'state',
-      common: {
-          name: 'Human readable name',
-          type: 'number',
-          role: 'value',
-          read: true,
-          write: false,
-          unit: '°C'
-      },
-      native: {}
-  });
-  ```
-
-### Lifecycle Methods
-```javascript
-class MyAdapter extends utils.Adapter {
-    constructor(options) {
-        super({
-            ...options,
-            name: 'adaptername',
-        });
-        this.on('ready', this.onReady.bind(this));
-        this.on('stateChange', this.onStateChange.bind(this));
-        this.on('message', this.onMessage.bind(this));
-        this.on('unload', this.onUnload.bind(this));
-    }
-
-    async onReady() {
-        // Initialize your adapter here
-        // Subscribe to state changes
-        this.subscribeStates('*');
-    }
-
-    onStateChange(id, state) {
-        if (state) {
-            // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-        } else {
-            // The state was deleted
-            this.log.info(`state ${id} deleted`);
-        }
-    }
-
-    onMessage(obj) {
-        // Handle messages from admin UI or other adapters
-        if (typeof obj === 'object' && obj.message) {
-            if (obj.command === 'send') {
-                // Handle the send command
-                this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
-            }
-        }
-    }
-
-    onUnload(callback) {
+it('should NOT create daily states when daily is disabled', function () {
+    return new Promise(async (resolve, reject) => {
         try {
-            // Clean up resources here
-            // Stop intervals, close connections, etc.
-            callback();
-        } catch (e) {
-            callback();
+            harness = getHarness();
+            const obj = await new Promise((res, rej) => {
+                harness.objects.getObject('system.adapter.your-adapter.0', (err, o) => {
+                    if (err) return rej(err);
+                    res(o);
+                });
+            });
+            
+            if (!obj) return reject(new Error('Adapter object not found'));
+
+            Object.assign(obj.native, {
+                createDaily: false, // Daily disabled
+            });
+
+            await new Promise((res, rej) => {
+                harness.objects.setObject(obj._id, obj, (err) => {
+                    if (err) return rej(err);
+                    res(undefined);
+                });
+            });
+
+            await harness.startAdapterAndWait();
+            await new Promise((res) => setTimeout(res, 20000));
+
+            const stateIds = await harness.dbConnection.getStateIDs('your-adapter.0.*');
+            const dailyStates = stateIds.filter((key) => key.includes('daily'));
+            
+            if (dailyStates.length === 0) {
+                console.log('✅ No daily states found as expected');
+                resolve(true);
+            } else {
+                reject(new Error('Expected no daily states but found some'));
+            }
+
+            await harness.stopAdapter();
+        } catch (error) {
+            reject(error);
         }
+    });
+}).timeout(40000);
+```
+
+#### Key Rules
+
+1. ✅ Use `@iobroker/testing` framework
+2. ✅ Configure via `harness.objects.setObject()`
+3. ✅ Start via `harness.startAdapterAndWait()`
+4. ✅ Verify states via `harness.states.getState()`
+5. ✅ Allow proper timeouts for async operations
+6. ❌ NEVER test API URLs directly
+7. ❌ NEVER bypass the harness system
+
+#### Workflow Dependencies
+
+Integration tests should run ONLY after lint and adapter tests pass:
+
+```yaml
+integration-tests:
+  needs: [check-and-lint, adapter-tests]
+  runs-on: ubuntu-22.04
+```
+
+### API Testing with Credentials
+
+For adapters connecting to external APIs requiring authentication:
+
+#### Password Encryption for Integration Tests
+
+```javascript
+async function encryptPassword(harness, password) {
+    const systemConfig = await harness.objects.getObjectAsync("system.config");
+    if (!systemConfig?.native?.secret) {
+        throw new Error("Could not retrieve system secret for password encryption");
     }
+    
+    const secret = systemConfig.native.secret;
+    let result = '';
+    for (let i = 0; i < password.length; ++i) {
+        result += String.fromCharCode(secret[i % secret.length].charCodeAt(0) ^ password.charCodeAt(i));
+    }
+    return result;
 }
 ```
+
+#### Demo Credentials Testing Pattern
+
+- Use provider demo credentials when available (e.g., `demo@api-provider.com` / `demo`)
+- Create separate test file: `test/integration-demo.js`
+- Add npm script: `"test:integration-demo": "mocha test/integration-demo --exit"`
+- Implement clear success/failure criteria
+
+**Example Implementation:**
+```javascript
+it("Should connect to API with demo credentials", async () => {
+    const encryptedPassword = await encryptPassword(harness, "demo_password");
+    
+    await harness.changeAdapterConfig("your-adapter", {
+        native: {
+            username: "demo@provider.com",
+            password: encryptedPassword,
+        }
+    });
+
+    await harness.startAdapter();
+    await new Promise(resolve => setTimeout(resolve, 60000));
+    
+    const connectionState = await harness.states.getStateAsync("your-adapter.0.info.connection");
+    
+    if (connectionState?.val === true) {
+        console.log("✅ SUCCESS: API connection established");
+        return true;
+    } else {
+        throw new Error("API Test Failed: Expected API connection. Check logs for API errors.");
+    }
+}).timeout(120000);
+```
+
+---
+
+## Development Best Practices
+
+### Dependency Management
+
+- Always use `npm` for dependency management
+- Use `npm ci` for installing existing dependencies (respects package-lock.json)
+- Use `npm install` only when adding or updating dependencies
+- Keep dependencies minimal and focused
+- Only update dependencies in separate Pull Requests
+
+**When modifying package.json:**
+1. Run `npm install` to sync package-lock.json
+2. Commit both package.json and package-lock.json together
+
+**Best Practices:**
+- Prefer built-in Node.js modules when possible
+- Use `@iobroker/adapter-core` for adapter base functionality
+- Avoid deprecated packages
+- Document specific version requirements
+
+### HTTP Client Libraries
+
+- **Preferred:** Use native `fetch` API (Node.js 20+ required)
+- **Avoid:** `axios` unless specific features are required
+
+**Example with fetch:**
+```javascript
+try {
+  const response = await fetch('https://api.example.com/data');
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  const data = await response.json();
+} catch (error) {
+  this.log.error(`API request failed: ${error.message}`);
+}
+```
+
+**Other Recommendations:**
+- **Logging:** Use adapter built-in logging (`this.log.*`)
+- **Scheduling:** Use adapter built-in timers and intervals
+- **File operations:** Use Node.js `fs/promises`
+- **Configuration:** Use adapter config system
 
 ### Error Handling
-- Always use try-catch blocks for async operations
-- Log errors with appropriate severity levels
-- Provide meaningful error messages for users
-- Implement graceful degradation
-- Use `this.log.error()`, `this.log.warn()`, `this.log.info()`, `this.log.debug()`
 
-### Configuration
-- Define configuration schema in `io-package.json` under `native`
-- Access configuration via `this.config.parameterName`
-- Validate configuration values in `onReady()`
-- Support JSON configuration UI (admin5+)
+- Always catch and log errors appropriately
+- Use adapter log levels (error, warn, info, debug)
+- Provide meaningful, user-friendly error messages
+- Handle network failures gracefully
+- Implement retry mechanisms where appropriate
+- Always clean up timers, intervals, and resources in `unload()` method
 
-### Object and State IDs
-- Use hierarchical structure: `adaptername.instance.category.subcategory.state`
-- Use meaningful, descriptive names
-- Follow naming conventions: camelCase for JavaScript, lowercase with dots for states
-- Sanitize user input used in IDs (remove special characters)
+**Example:**
+```javascript
+try {
+  await this.connectToDevice();
+} catch (error) {
+  this.log.error(`Failed to connect to device: ${error.message}`);
+  this.setState('info.connection', false, true);
+  // Implement retry logic if needed
+}
+```
 
-### Dependencies and npm
-- List all runtime dependencies in `package.json` under `dependencies`
-- Use exact versions or narrow ranges (e.g., `^1.2.3` rather than `*`)
-- Keep dependencies up to date but test thoroughly before updating
+---
 
-## Translation and Internationalization
+## Admin UI Configuration
 
-### Admin UI
-- Store translations in `admin/i18n/[language]/translations.json`
-- Supported languages: en, de, ru, pt, nl, fr, it, es, pl, uk, zh-cn
-- Use translation keys in admin HTML: `<span data-i18n="translationKey"></span>`
-- For JSON config UI, define translations directly in `io-package.json`
+### JSON-Config Setup
 
-### Code Messages
-- Define translatable strings in `io-package.json` under `common.messages`
-- Access translations in code: `this.log.info(this._(messageKey))`
+Use JSON-Config format for modern ioBroker admin interfaces.
 
-### Translation Workflow
-When adding new UI text to admin configuration:
-1. Add English text entries to `admin/i18n/en/translations.json`
-2. Run `npm run translate` to automatically generate translations for all languages
-3. Review and verify translations were created in all language directories
+**Example Structure:**
+```json
+{
+  "type": "panel",
+  "items": {
+    "host": {
+      "type": "text",
+      "label": "Host address",
+      "help": "IP address or hostname of the device"
+    }
+  }
+}
+```
 
-## ioBroker Best Practices
+**Guidelines:**
+- ✅ Use consistent naming conventions
+- ✅ Provide sensible default values
+- ✅ Include validation for required fields
+- ✅ Add tooltips for complex options
+- ✅ Ensure translations for all supported languages (minimum English and German)
+- ✅ Write end-user friendly labels, avoid technical jargon
+
+### Translation Management
+
+**CRITICAL:** Translation files must stay synchronized with `admin/jsonConfig.json`. Orphaned keys or missing translations cause UI issues and PR review delays.
+
+#### Overview
+- **Location:** `admin/i18n/{lang}/translations.json` for 11 languages (de, en, es, fr, it, nl, pl, pt, ru, uk, zh-cn)
+- **Source of truth:** `admin/jsonConfig.json` - all `label` and `help` properties must have translations
+- **Command:** `npm run translate` - auto-generates translations but does NOT remove orphaned keys
+- **Formatting:** English uses tabs, other languages use 4 spaces
+
+#### Critical Rules
+1. ✅ Keys must match exactly with jsonConfig.json
+2. ✅ No orphaned keys in translation files
+3. ✅ All translations must be in native language (no English fallbacks)
+4. ✅ Keys must be sorted alphabetically
+
+#### Workflow for Translation Updates
+
+**When modifying admin/jsonConfig.json:**
+
+1. Make your changes to labels/help texts
+2. Run automatic translation: `npm run translate`
+3. Create validation script (`scripts/validate-translations.js`):
+
+```javascript
+const fs = require('fs');
+const path = require('path');
+const jsonConfig = JSON.parse(fs.readFileSync('admin/jsonConfig.json', 'utf8'));
+
+function extractTexts(obj, texts = new Set()) {
+    if (typeof obj === 'object' && obj !== null) {
+        if (obj.label) texts.add(obj.label);
+        if (obj.help) texts.add(obj.help);
+        for (const key in obj) {
+            extractTexts(obj[key], texts);
+        }
+    }
+    return texts;
+}
+
+const requiredTexts = extractTexts(jsonConfig);
+const languages = ['de', 'en', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'ru', 'uk', 'zh-cn'];
+let hasErrors = false;
+
+languages.forEach(lang => {
+    const translationPath = path.join('admin', 'i18n', lang, 'translations.json');
+    const translations = JSON.parse(fs.readFileSync(translationPath, 'utf8'));
+    const translationKeys = new Set(Object.keys(translations));
+    
+    const missing = Array.from(requiredTexts).filter(text => !translationKeys.has(text));
+    const orphaned = Array.from(translationKeys).filter(key => !requiredTexts.has(key));
+    
+    console.log(`\n=== ${lang} ===`);
+    if (missing.length > 0) {
+        console.error('❌ Missing keys:', missing);
+        hasErrors = true;
+    }
+    if (orphaned.length > 0) {
+        console.error('❌ Orphaned keys (REMOVE THESE):', orphaned);
+        hasErrors = true;
+    }
+    if (missing.length === 0 && orphaned.length === 0) {
+        console.log('✅ All keys match!');
+    }
+});
+
+process.exit(hasErrors ? 1 : 0);
+```
+
+4. Run validation: `node scripts/validate-translations.js`
+5. Remove orphaned keys manually from all translation files
+6. Add missing translations in native languages
+7. Run: `npm run lint && npm run test`
+
+#### Add Validation to package.json
+
+```json
+{
+  "scripts": {
+    "translate": "translate-adapter",
+    "validate:translations": "node scripts/validate-translations.js",
+    "pretest": "npm run lint && npm run validate:translations"
+  }
+}
+```
+
+#### Translation Checklist
+
+Before committing changes to admin UI or translations:
+1. ✅ Validation script shows "All keys match!" for all 11 languages
+2. ✅ No orphaned keys in any translation file
+3. ✅ All translations in native language
+4. ✅ Keys alphabetically sorted
+5. ✅ `npm run lint` passes
+6. ✅ `npm run test` passes
+7. ✅ Admin UI displays correctly
+
+---
+
+## Documentation
+
+### README Updates
+
+#### Required Sections
+1. **Installation** - Clear npm/ioBroker admin installation steps
+2. **Configuration** - Detailed configuration options with examples
+3. **Usage** - Practical examples and use cases
+4. **Changelog** - Version history (use "## **WORK IN PROGRESS**" for ongoing changes)
+5. **License** - License information (typically MIT for ioBroker adapters)
+6. **Support** - Links to issues, discussions, community support
+
+#### Documentation Standards
+- Use clear, concise language
+- Include code examples for configuration
+- Add screenshots for admin interface when applicable
+- Maintain multilingual support (minimum English and German)
+- Always reference issues in commits and PRs (e.g., "fixes #xx")
+
+#### Mandatory README Updates for PRs
+
+For **every PR or new feature**, always add a user-friendly entry to README.md:
+
+- Add entries under `## **WORK IN PROGRESS**` section
+- Use format: `* (author) **TYPE**: Description of user-visible change`
+- Types: **NEW** (features), **FIXED** (bugs), **ENHANCED** (improvements), **TESTING** (test additions), **CI/CD** (automation)
+- Focus on user impact, not technical details
+
+**Example:**
+```markdown
+## **WORK IN PROGRESS**
+
+* (DutchmanNL) **FIXED**: Adapter now properly validates login credentials (fixes #25)
+* (DutchmanNL) **NEW**: Added device discovery to simplify initial setup
+```
+
+### Changelog Management
+
+Follow the [AlCalzone release-script](https://github.com/AlCalzone/release-script) standard.
+
+#### Format Requirements
+
+```markdown
+# Changelog
+
+<!--
+  Placeholder for the next version (at the beginning of the line):
+  ## **WORK IN PROGRESS**
+-->
+
+## **WORK IN PROGRESS**
+
+- (author) **NEW**: Added new feature X
+- (author) **FIXED**: Fixed bug Y (fixes #25)
+
+## v0.1.0 (2023-01-01)
+Initial release
+```
+
+#### Workflow Process
+- **During Development:** All changes go under `## **WORK IN PROGRESS**`
+- **For Every PR:** Add user-facing changes to WORK IN PROGRESS section
+- **Before Merge:** Version number and date added when merging to main
+- **Release Process:** Release-script automatically converts placeholder to actual version
+
+#### Change Entry Format
+- Format: `- (author) **TYPE**: User-friendly description`
+- Types: **NEW**, **FIXED**, **ENHANCED**
+- Focus on user impact, not technical implementation
+- Reference issues: "fixes #XX" or "solves #XX"
+
+---
+
+## CI/CD & GitHub Actions
+
+### Workflow Configuration
+
+#### GitHub Actions Best Practices
+
+**Must use ioBroker official testing actions:**
+- `ioBroker/testing-action-check@v1` for lint and package validation
+- `ioBroker/testing-action-adapter@v1` for adapter tests
+- `ioBroker/testing-action-deploy@v1` for automated releases with Trusted Publishing (OIDC)
+
+**Configuration:**
+- **Node.js versions:** Test on 20.x, 22.x, 24.x
+- **Platform:** Use ubuntu-22.04
+- **Automated releases:** Deploy to npm on version tags (requires NPM Trusted Publishing)
+- **Monitoring:** Include Sentry release tracking for error monitoring
+
+#### Critical: Lint-First Validation Workflow
+
+**ALWAYS run ESLint checks BEFORE other tests.** Benefits:
+- Catches code quality issues immediately
+- Prevents wasting CI resources on tests that would fail due to linting errors
+- Provides faster feedback to developers
+- Enforces consistent code quality
+
+**Workflow Dependency Configuration:**
+```yaml
+jobs:
+  check-and-lint:
+    # Runs ESLint and package validation
+    # Uses: ioBroker/testing-action-check@v1
+    
+  adapter-tests:
+    needs: [check-and-lint]  # Wait for linting to pass
+    # Run adapter unit tests
+    
+  integration-tests:
+    needs: [check-and-lint, adapter-tests]  # Wait for both
+    # Run integration tests
+```
+
+**Key Points:**
+- The `check-and-lint` job has NO dependencies - runs first
+- ALL other test jobs MUST list `check-and-lint` in their `needs` array
+- If linting fails, no other tests run, saving time
+- Fix all ESLint errors before proceeding
+
+### Testing Integration
+
+#### API Testing in CI/CD
+
+For adapters with external API dependencies:
+
+```yaml
+demo-api-tests:
+  if: contains(github.event.head_commit.message, '[skip ci]') == false
+  runs-on: ubuntu-22.04
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run demo API tests
+      run: npm run test:integration-demo
+```
+
+#### Testing Best Practices
+- Run credential tests separately from main test suite
+- Don't make credential tests required for deployment
+- Provide clear failure messages for API issues
+- Use appropriate timeouts for external calls (120+ seconds)
+
+#### Package.json Integration
+```json
+{
+  "scripts": {
+    "test:integration-demo": "mocha test/integration-demo --exit"
+  }
+}
+```
+
+---
+
+## Adapter-Specific Coding Standards
+
+These rules apply to this repository and override the generic examples above.
+
+### Language and Build
+- The source code is TypeScript in `src/`. `build/` is generated with `npm run build` (copies `src/lib/i18n` and runs `tsc`) and **must be committed together with the source changes**.
+- Requirements: Node.js >= 22.19 (`engines`), js-controller >= 6.0.11, admin >= 7.9.0. The CI tests Node.js 22.x, 24.x and 26.x on Ubuntu, Windows and macOS.
+- ESLint uses `@iobroker/eslint-config` via `eslint.config.mjs` with its Prettier rules (4 spaces, single quotes, 120 columns). `npm run lint` checks `src/` only, format test files with `npx prettier --write test/<file>.js`.
+
+### Timers
+- Use the timers of the adapter: `this.adapter.setTimeout()`, `setInterval()`, `clearTimeout()` and `clearInterval()` (in `src/main.ts`: `this.setTimeout()` ...). js-controller clears them when the adapter stops. Plain `setTimeout`/`setInterval` are reported by the repository checker (S5004/S5005), so do not copy the timer example of the generic section above.
 
 ### Logging
-- Use appropriate log levels:
-  - `error`: Critical errors requiring immediate attention
-  - `warn`: Warning conditions that should be addressed
-  - `info`: General informational messages (default visibility)
-  - `debug`: Detailed debugging information (only visible when debug logging is enabled)
-- Include context in log messages (device names, state IDs, etc.)
-- Don't log sensitive information (passwords, API keys)
+- Payloads of devices can be corrupted. Do not write them raw to the log at warn or error level, use `escapeControlChars()` from `src/lib/mqttBase.ts` (#586).
+- A message that a device triggers again and again (e.g. on every reconnect) must not flood the log: warn once, log the repetitions as debug (see `warnAuthFailure()` in `src/lib/server.ts`, #548).
 
-### Performance
-- Use intervals wisely - don't poll too frequently
-- Implement debouncing for rapidly changing values
-- Clean up timers and intervals in `onUnload()`
-- Use `setStateChanged()` to only update when value actually changes
+### Data Points and Objects
+- New known data points go to `src/lib/datapoints.ts` with the correct `type`, `role`, `unit` and `read`/`write`. Use valid ioBroker roles, and the type-detector must not mistake diagnostic values for dimmers or blinds.
+- Keep the object IDs backward compatible: users have histories, scripts and aliases bound to them. Never delete states of the user automatically.
+- Commands are sent with `sendCommand()` in `src/lib/mqttBase.ts`, shutters and colors have their own transformations there.
 
-### Security
-- Never store passwords in plain text
-- Use `this.encrypt()` and `this.decrypt()` for sensitive data
-- Validate all user input
-- Use HTTPS for external API calls when available
-- Follow principle of least privilege
+### Tests
+- The tests use **mocha** (not Jest). The unit tests load the compiled code from `build/`, so run `npm run build` first.
+  - `npm run test:unit` - unit tests (`test/bridge.js`, `test/deviceManager.js`, `test/server.js`, ...) with the in-memory adapter of `test/lib/mqttMock.js`
+  - `npm run test:integration` - `test/integration.js` with `@iobroker/testing` and a real js-controller
+  - `npm run test:package` - validation of `package.json` and `io-package.json`
+- `test/lib/mqttMock.js` replaces the `mqtt` package in the require cache with a fake client. A test that needs a real MQTT client must use `mqtt-connection` with a socket (see `test/server.js`).
+- Add a new test file to the `test:unit` script in `package.json`.
+- Use realistic Tasmota telegrams (e.g. from issues or logs) as test data and test with and without `OBJ_TREE`.
 
-### Compatibility
-- Support js-controller 5.0+ (check `io-package.json` engine requirements)
-- Test with different Node.js versions (see GitHub Actions)
-- Follow semantic versioning (MAJOR.MINOR.PATCH)
-- Document breaking changes in changelog
+### Translations
+- Instance configuration: the texts of `admin/jsonConfig.json` are translated in the flat files `admin/i18n/<lang>.json` (11 languages), not in `admin/i18n/<lang>/translations.json`. There is no `npm run translate` script, add every key to all 11 files.
+- Device manager: the texts are in `src/lib/i18n/<lang>.json` and are used with `I18n.getTranslatedObject()`.
 
-## Common Patterns
-
-### Polling Pattern
-```javascript
-class MyAdapter extends utils.Adapter {
-    onReady() {
-        this.updateInterval = setInterval(() => {
-            this.updateData();
-        }, this.config.interval || 60000);
-    }
-
-    async updateData() {
-        try {
-            // Fetch and update data
-        } catch (error) {
-            this.log.error(`Error updating data: ${error.message}`);
-        }
-    }
-
-    onUnload(callback) {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-        callback();
-    }
-}
-```
-
-### Connection Management
-```javascript
-async onReady() {
-    await this.setStateAsync('info.connection', false, true);
-    try {
-        await this.connect();
-        await this.setStateAsync('info.connection', true, true);
-    } catch (error) {
-        this.log.error(`Connection failed: ${error.message}`);
-    }
-}
-```
-
-### State Change Handling
-```javascript
-onStateChange(id, state) {
-    if (!state || state.ack) return; // Ignore acknowledged states
-    
-    // Parse the state ID
-    const idParts = id.split('.');
-    const command = idParts[idParts.length - 1];
-    
-    // Handle the command
-    this.handleCommand(command, state.val);
-}
-```
-
-## Code Quality
-
-### Linting and Formatting
-- Use ESLint with ioBroker configuration
-- Run `npm run lint` before committing
-- Configure ESLint in `eslint.config.mjs` or `.eslintrc.json`
-- Use Prettier for consistent code formatting
-
-### Code Review Checklist
-- [ ] All async operations use await and proper error handling
-- [ ] No blocking operations in main thread
-- [ ] Resources cleaned up in onUnload()
-- [ ] States have proper roles and types
-- [ ] Configuration validated
-- [ ] Meaningful log messages
-- [ ] Tests pass
-- [ ] Documentation updated
-- [ ] Changelog updated
-
-## Release Process
-
-### Version Bumping
-1. Update version in `package.json`
-2. Update version in `io-package.json`
-3. Add changelog entry in README.md under `### **WORK IN PROGRESS**`
-4. Ensure all tests pass
-5. Commit changes
-6. Create git tag
-7. GitHub Actions will automatically publish to npm
-
-### Changelog Format
-```markdown
-### X.Y.Z (YYYY-MM-DD)
-* (developer) Description of change
-* (developer) Another change
-```
-
-## Resources
-
-- ioBroker Developer Documentation: https://github.com/ioBroker/ioBroker.docs/blob/master/docs/en/dev/adapterdev.md
-- Adapter Testing Framework: https://github.com/ioBroker/testing
-- ioBroker Type Definitions: https://github.com/ioBroker/ioBroker.js-controller
-- Adapter Development Template: https://github.com/ioBroker/ioBroker.template
-- ioBroker Forum: https://forum.iobroker.net/
-- Discord Community: https://discord.gg/5jGWNKnpZ8
+### Changelog and Release
+- Add user-visible changes to README.md under `### **WORK IN PROGRESS**` (three `#`, at the beginning of the line) in the format `* (@githubname) Description (#issue)`. This project does not use the `**TYPE**:` prefixes of the generic section above.
+- Do not change the version in `package.json`/`io-package.json` and do not edit `common.news` in `io-package.json`: the release script does this.
+- Release: `npm run release-patch`, `release-minor` or `release-major` (AlCalzone release-script with the plugins `iobroker`, `license` and `manual-review`, which asks "Are you done?" before the commit). The pushed tag starts `test-and-release.yml`, which publishes the package to npm.
+- The release script keeps the last 5 versions in README.md and moves older entries to `CHANGELOG_OLD.md`.
