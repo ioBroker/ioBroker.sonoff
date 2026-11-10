@@ -227,7 +227,7 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.4.0 (2026-11-10)
 * (@GermanBluefox) The built-in MQTT server supports encrypted connections (MQTTS) with the certificates of ioBroker, new option "Secure (MQTTS)". The search for devices enables TLS on the devices then (#529)
 
 ### 5.3.0 (2026-11-10)
@@ -248,9 +248,6 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 
 ### 5.2.0 (2026-10-22)
 * (@GermanBluefox) The MQTT login of the built-in server and of the external broker can be taken from the central credential storage of admin (Settings → Credentials), admin 7.9.0+ is required (#629)
-
-### 5.1.1 (2026-10-13)
-* (@GermanBluefox) Admin 7.6.20+ is required. Added missing translations. The tests run on Windows and macOS too
 
 Older changes can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md)
 
