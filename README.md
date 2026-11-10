@@ -196,7 +196,7 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.2.2 (2026-11-10)
 * (@patricknitsch) The firmware update dialog of the device manager recognizes the new version also with "Create object tree" ("INFO.Info1.Version"), before it waited till the timeout
 * (@patricknitsch) The firmware update from the device manager clears the "Upgrade" command afterwards, so a restart of the external broker (e.g. the ioBroker MQTT adapter) does not start the update again
 * (@patricknitsch) Bridge mode: "INFO.Version" and the IP address are requested again after a device restarted (e.g. after a firmware update)
@@ -219,11 +219,6 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 * (@GermanBluefox) Device manager: the connection state and the Wi-Fi signal are updated live, the signal is shown in dBm (`Wifi_Signal`) instead of the link quality in percent. Toggles like `Fade` are switches instead of buttons
 * (@GermanBluefox) The devices are linked with their `alive` state (`common.statusStates`), so admin shows in the object tree whether a device is connected
 * (@GermanBluefox) The port of the built-in MQTT server is reported to js-controller 8 as a used resource (`common.declareUsedResources`), so admin shows which ports are occupied. In bridge mode no port is reported. If the port is already used, the log names the instance that occupies it
-
-### 5.0.0 (2026-10-13)
-* (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
-* (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
-* (@GermanBluefox) `Switch1`...`Switch28` (inputs of the device) are read-only sensors now
 
 Older changes can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md)
 

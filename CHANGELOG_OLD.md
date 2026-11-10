@@ -1,4 +1,9 @@
 # Older changes
+## 5.0.0 (2026-10-13)
+* (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
+* (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
+* (@GermanBluefox) `Switch1`...`Switch28` (inputs of the device) are read-only sensors now
+
 ## 4.2.1 (2026-09-14)
 * (@patricknitsch) Fixed Device Manager showing no devices at all if a data point exists twice, e.g. `POWER` and `STATE.POWER` (#604)
 * (@patricknitsch) Fixed writing to nested data points, e.g. `STATE.POWER1` with "Create object tree" enabled
