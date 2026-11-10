@@ -81,7 +81,7 @@ class MQTTBridge extends mqttBase_1.default {
     }
     async destroy() {
         for (const topicPrefix in this.pendingTimers) {
-            clearTimeout(this.pendingTimers[topicPrefix]);
+            this.adapter.clearTimeout(this.pendingTimers[topicPrefix]);
         }
         this.pendingTimers = {};
         this.pendingMessages = {};
@@ -376,7 +376,7 @@ class MQTTBridge extends mqttBase_1.default {
             return;
         }
         if (this.pendingTimers[topicPrefix]) {
-            clearTimeout(this.pendingTimers[topicPrefix]);
+            this.adapter.clearTimeout(this.pendingTimers[topicPrefix]);
             delete this.pendingTimers[topicPrefix];
         }
         const topicIobId = topicPrefix.replace(mqttBase_1.FORBIDDEN_CHARS, '_');
@@ -440,7 +440,7 @@ class MQTTBridge extends mqttBase_1.default {
             pending.shift();
         }
         pending.push({ topic, payload, packet });
-        this.pendingTimers[topicPrefix] ||= setTimeout(() => {
+        this.pendingTimers[topicPrefix] ||= this.adapter.setTimeout(() => {
             this.queue = this.queue
                 .then(() => this.fallbackToTopicPrefix(topicPrefix))
                 .catch(err => this.adapter.log.error(`Cannot create device "${topicPrefix}": ${err.message}`));

@@ -141,6 +141,11 @@ function createAdapter(config) {
         getStatesOfAsync: async () => Object.values(objects).filter(obj => obj.type === 'state'),
         subscribeStatesAsync: async () => {},
         subscribeObjectsAsync: async () => {},
+        // --- timers of the adapter (cleared by js-controller on unload) -----
+        setTimeout: (cb, ms, ...args) => setTimeout(cb, ms, ...args),
+        clearTimeout: timer => clearTimeout(timer),
+        setInterval: (cb, ms, ...args) => setInterval(cb, ms, ...args),
+        clearInterval: timer => clearInterval(timer),
     };
 
     return adapter;

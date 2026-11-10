@@ -1417,7 +1417,7 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
         try {
             // Every progress update is awaited: the GUI has to confirm one message before the next one is sent
             while (!result) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise<void>(resolve => this.adapter.setTimeout(() => resolve(), 2000));
 
                 const upgradeSuffix = this.findDataPointSuffix(prefix, 'Upgrade');
                 const upgrade = upgradeSuffix ? this.states[`${prefix}${upgradeSuffix}`] : undefined;

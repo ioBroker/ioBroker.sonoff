@@ -200,6 +200,9 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 * (@patricknitsch) The firmware update dialog of the device manager recognizes the new version also with "Create object tree" ("INFO.Info1.Version"), before it waited till the timeout
 * (@patricknitsch) The firmware update from the device manager clears the "Upgrade" command afterwards, so a restart of the external broker (e.g. the ioBroker MQTT adapter) does not start the update again
 * (@patricknitsch) Bridge mode: "INFO.Version" and the IP address are requested again after a device restarted (e.g. after a firmware update)
+* (@GermanBluefox) A device with a wrong MQTT password is reported only once per hour instead of on every connection attempt, the other attempts are logged as debug (#548)
+* (@GermanBluefox) Control characters (e.g. 0x00) of a corrupted payload are escaped in the warning "cannot parse data", so they do not corrupt the log file (#586)
+* (@GermanBluefox) The timers use the adapter functions, so they are cleared when the adapter stops
 
 ### 5.2.1 (2026-10-23)
 * (@GermanBluefox) Firmware with other texts for ON/OFF (e.g. "AN"/"AUS" of a German build) is supported: the texts of every device are requested and recognized automatically
@@ -221,6 +224,8 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 * (@GermanBluefox) Breaking change: the roles of the objects change, see [Roles of the objects since 5.0](#roles-of-the-objects-since-50)
 * (@GermanBluefox) Better roles for the type-detector: diagnostic values (e.g. `Wifi_Channel`, `Heap`, `MqttPort`) are not detected as dimmer, blind or window anymore, `POWER` is the switch of RGB lights and `switch.power` of the relays is migrated to `switch`, `Scheme` is the light effect. The roles of the existing objects are updated, roles changed by the user are kept
 * (@GermanBluefox) `Switch1`...`Switch28` (inputs of the device) are read-only sensors now
+
+Older changes can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md)
 
 ## License
 

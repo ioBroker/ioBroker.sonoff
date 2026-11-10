@@ -479,4 +479,22 @@ describe('MQTT bridge (external broker)', function () {
 
         await bridge.destroy();
     });
+
+    // https://github.com/ioBroker/ioBroker.sonoff/issues/586
+    it('escapes control characters of a corrupted payload in the log', async () => {
+        const { adapter, bridge, send } = setup();
+        const warnings = [];
+        adapter.log.warn = text => warnings.push(text);
+
+        await send('stat/meter/STATUS6', '{"StatusMQT":{"MqttClient":"meter"}}');
+        await send('tele/meter/SENSOR', '{"Time":"2026-06-23T10:36:54","ENERGY":{"To\u0000\u0002\u0019tele/x"}}');
+
+        assert.strictEqual(warnings.length, 1, warnings.join('\n'));
+        assert.match(warnings[0], /^Client \[meter\] cannot parse data "SENSOR": _/);
+        assert.ok(warnings[0].includes('"To\\x00\\x02\\x19tele/x"'), warnings[0]);
+        // eslint-disable-next-line no-control-regex
+        assert.ok(!/[\u0000-\u001f\u007f]/.test(warnings[0]), 'no control character may be written to the log');
+
+        await bridge.destroy();
+    });
 });

@@ -34,11 +34,22 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FORBIDDEN_CHARS = void 0;
+exports.escapeControlChars = escapeControlChars;
 const datapoints_1 = __importStar(require("./datapoints"));
 const onOff_1 = require("./onOff");
 const hueCalc = true;
 exports.FORBIDDEN_CHARS = /[\]\\[*,;'"`<>\\?]/g;
 const NO_PREFIX = '';
+/**
+ * Escapes control characters, e.g. a 0x00 byte of a corrupted MQTT message, as `\x00`. A text received
+ * from a device is written to the log in one line then and does not corrupt the log file.
+ *
+ * @param text text to be logged
+ */
+function escapeControlChars(text) {
+    // eslint-disable-next-line no-control-regex
+    return text.replace(/[\u0000-\u001f\u007f]/g, char => `\\x${char.charCodeAt(0).toString(16).padStart(2, '0')}`);
+}
 /*
  * HSV to RGB color conversion
  *
@@ -150,6 +161,13 @@ class MQTTBase {
         this.adapter = adapter;
         this.config = adapter.config;
         this.config.defaultQoS = parseInt(this.config.defaultQoS, 10) || 0;
+    }
+    /**
+     * Warns that the payload of a device is not valid JSON. The payload is logged as received, but with
+     * escaped control characters (a corrupted message can contain e.g. 0x00), see #586
+     */
+    warnParseError(client, stateId, val, e) {
+        this.adapter.log.warn(escapeControlChars(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${String(e)}`));
     }
     setColor(channelId, val) {
         const stateId = 'Color';
@@ -1255,7 +1273,7 @@ class MQTTBase {
                     }
                 }
                 catch (e) {
-                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    this.warnParseError(client, stateId, val, e);
                     return;
                 }
             }
@@ -1269,7 +1287,7 @@ class MQTTBase {
                     }
                 }
                 catch (e) {
-                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    this.warnParseError(client, stateId, val, e);
                 }
             }
             return;
@@ -1299,7 +1317,7 @@ class MQTTBase {
                 }
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'tele' && stateId.match(/^INFO\d?$/)) {
@@ -1310,7 +1328,7 @@ class MQTTBase {
                 this.checkData(client, packet.topic, 'INFO', JSON.parse(val));
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'tele' && stateId.match(/^(ENERGY)\d?$/)) {
@@ -1319,7 +1337,7 @@ class MQTTBase {
                 this.checkData(client, packet.topic, 'ENERGY', JSON.parse(val));
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'tele' && stateId.match(/^(MARGINS)\d?$/)) {
@@ -1328,7 +1346,7 @@ class MQTTBase {
                 this.checkData(client, packet.topic, 'MARGINS', JSON.parse(val));
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'stat' && stateId === 'STATUS10') {
@@ -1343,7 +1361,7 @@ class MQTTBase {
                 }
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'stat' && stateId === 'STATUS5') {
@@ -1355,7 +1373,7 @@ class MQTTBase {
                 }
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (parts[0] === 'stat' && stateId === 'STATUS2') {
@@ -1367,7 +1385,7 @@ class MQTTBase {
                 }
             }
             catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         }
         else if (datapoints_1.default[stateId]) {

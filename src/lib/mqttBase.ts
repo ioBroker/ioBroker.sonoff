@@ -6,6 +6,17 @@ const hueCalc = true;
 export const FORBIDDEN_CHARS = /[\]\\[*,;'"`<>\\?]/g;
 const NO_PREFIX = '';
 
+/**
+ * Escapes control characters, e.g. a 0x00 byte of a corrupted MQTT message, as `\x00`. A text received
+ * from a device is written to the log in one line then and does not corrupt the log file.
+ *
+ * @param text text to be logged
+ */
+export function escapeControlChars(text: string): string {
+    // eslint-disable-next-line no-control-regex
+    return text.replace(/[\u0000-\u001f\u007f]/g, char => `\\x${char.charCodeAt(0).toString(16).padStart(2, '0')}`);
+}
+
 /*
  * HSV to RGB color conversion
  *
@@ -126,7 +137,7 @@ export interface MQTTClient {
     _messages: MQTTPacketStored[];
     _subsID: { [key: string]: number };
     _subs: { [key: string]: string[] };
-    _resendonStart: ReturnType<typeof setTimeout> | null;
+    _resendonStart?: ioBroker.Timeout | null;
     _map: { [key: string]: string };
     _fallBackName: string;
     /** True as soon as the information of the device (Status 5 and Status 2) was requested */
@@ -202,6 +213,16 @@ export default abstract class MQTTBase {
     ): void;
 
     abstract destroy(): Promise<void>;
+
+    /**
+     * Warns that the payload of a device is not valid JSON. The payload is logged as received, but with
+     * escaped control characters (a corrupted message can contain e.g. 0x00), see #586
+     */
+    private warnParseError(client: MQTTClient, stateId: string, val: string, e: unknown): void {
+        this.adapter.log.warn(
+            escapeControlChars(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${String(e)}`),
+        );
+    }
 
     private setColor(channelId: string, val: ioBroker.StateValue): void {
         const stateId = 'Color';
@@ -1502,7 +1523,7 @@ export default abstract class MQTTBase {
                         return;
                     }
                 } catch (e) {
-                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    this.warnParseError(client, stateId, val, e);
                     return;
                 }
             }
@@ -1515,7 +1536,7 @@ export default abstract class MQTTBase {
                         this.checkData(client, packet.topic, NO_PREFIX, JSON.parse(val));
                     }
                 } catch (e) {
-                    this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                    this.warnParseError(client, stateId, val, e);
                 }
             }
             return;
@@ -1541,7 +1562,7 @@ export default abstract class MQTTBase {
                     this.checkData(client, packet.topic, NO_PREFIX, JSON.parse(val));
                 }
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'tele' && stateId.match(/^INFO\d?$/)) {
             // tele/SonoffPOW/INFO1 = {"Module":"Sonoff Pow", "Version":"5.8.0", "FallbackTopic":"SonoffPOW", "GroupTopic":"sonoffs"}
@@ -1550,21 +1571,21 @@ export default abstract class MQTTBase {
             try {
                 this.checkData(client, packet.topic, 'INFO', JSON.parse(val));
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'tele' && stateId.match(/^(ENERGY)\d?$/)) {
             // tele/sonoff_4ch/ENERGY = {"Time":"2017-10-02T19:24:32", "Total":1.753, "Yesterday":0.308, "Today":0.205, "Period":0, "Power":3, "Factor":0.12, "Voltage":221, "Current":0.097}
             try {
                 this.checkData(client, packet.topic, 'ENERGY', JSON.parse(val));
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'tele' && stateId.match(/^(MARGINS)\d?$/)) {
             // tele/sonoffPOW/MARGINS = {"Time":"2020-04-23T10:15:00","PowerLow":100,"PowerHigh":2000,"PowerDelta":50}
             try {
                 this.checkData(client, packet.topic, 'MARGINS', JSON.parse(val));
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data"${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'stat' && stateId === 'STATUS10') {
             // stat/device/STATUS10 = {"StatusSNS":{"Time":"...","Switch2":"ON","Switch3":"OFF",...}}
@@ -1577,7 +1598,7 @@ export default abstract class MQTTBase {
                     this.checkData(client, packet.topic, this.config.OBJ_TREE ? 'SENSOR' : NO_PREFIX, data.StatusSNS);
                 }
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'stat' && stateId === 'STATUS5') {
             // stat/device/STATUS5 = {"StatusNET":{"Hostname":"...","IPAddress":"...",...}}
@@ -1587,7 +1608,7 @@ export default abstract class MQTTBase {
                     this.checkData(client, packet.topic, 'INFO', data.StatusNET);
                 }
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (parts[0] === 'stat' && stateId === 'STATUS2') {
             // stat/device/STATUS2 = {"StatusFWR":{"Version":"...","Hardware":"...",...}}
@@ -1597,7 +1618,7 @@ export default abstract class MQTTBase {
                     this.checkData(client, packet.topic, 'INFO', data.StatusFWR);
                 }
             } catch (e) {
-                this.adapter.log.warn(`Client [${client.id}] cannot parse data "${stateId}": _${val}_ - ${e}`);
+                this.warnParseError(client, stateId, val, e);
             }
         } else if (types[stateId]) {
             // /ESP_BOX/BM280/Pressure = 1010.09

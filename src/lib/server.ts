@@ -4,6 +4,9 @@ import mqtt from 'mqtt-connection';
 import MQTTBase, { FORBIDDEN_CHARS, type MQTTClient, type MQTTPacket, type MQTTPacketStored } from './mqttBase';
 import { findPortHolders, registerTcpPort } from './usedResources';
 
+/** A device with a wrong password retries every few seconds: warn about it only once per hour */
+const AUTH_WARN_INTERVAL = 3_600_000;
+
 /**
  * MQTT Server constructor
  */
@@ -20,7 +23,9 @@ export default class MQTTServer extends MQTTBase {
         };
     } = {};
     private resending = false;
-    private resendTimer: ReturnType<typeof setTimeout> | null = null;
+    private resendTimer: ioBroker.Interval | null | undefined = null;
+    /** Clients rejected because of a wrong user or password: time of the last warning and the attempts since */
+    private authFailures: { [clientId: string]: { lastWarning: number; attempts: number } } = {};
 
     constructor(adapter: ioBroker.Adapter) {
         super(adapter);
@@ -59,7 +64,7 @@ export default class MQTTServer extends MQTTBase {
                             options.password = options.password.toString();
                         }
                         if (this.config.user !== options.username || this.config.password !== options.password) {
-                            this.adapter.log.warn(`Client [${client.id}] has invalid password or username`);
+                            this.warnAuthFailure(client.id);
                             client.connack({ returnCode: 4 });
                             if (oldClient) {
                                 // delete existing client
@@ -71,6 +76,8 @@ export default class MQTTServer extends MQTTBase {
                             client.destroy();
                             return;
                         }
+                        // a later wrong password is reported at once again
+                        delete this.authFailures[client.id];
                     }
 
                     if (oldClient) {
@@ -123,8 +130,8 @@ export default class MQTTServer extends MQTTBase {
                             client._subs = this.persistentSessions[client.id]._subs;
                             if (this.persistentSessions[client.id].messages.length) {
                                 // give to the client a little bit time
-                                client._resendonStart = setTimeout(
-                                    clientId => {
+                                client._resendonStart = this.adapter.setTimeout(
+                                    (clientId: string) => {
                                         client._resendonStart = null;
                                         this.resendMessages2Client(client, this.persistentSessions[clientId].messages);
                                     },
@@ -409,16 +416,44 @@ export default class MQTTServer extends MQTTBase {
             // info.connection is filled with the list of the connected clients
             this.updateClients().catch(err => this.adapter.log.error(`Cannot update clients: ${err}`));
 
-            this.resendTimer = setInterval(
+            this.resendTimer = this.adapter.setInterval(
                 () => !this.resending && this.checkResends(),
                 this.config.retransmitInterval || 2000,
             );
         });
     }
 
+    /**
+     * Warns about a client with a wrong user or password. A device retries every few seconds, so the
+     * warning is repeated only once per hour with the number of attempts, the other attempts are
+     * logged as debug (#548)
+     */
+    private warnAuthFailure(clientId: string): void {
+        const now = Date.now();
+        const failure = this.authFailures[clientId];
+        if (failure && now - failure.lastWarning < AUTH_WARN_INTERVAL) {
+            failure.attempts++;
+            this.adapter.log.debug(`Client [${clientId}] has invalid password or username`);
+            return;
+        }
+
+        const attempts = failure?.attempts ? ` (${failure.attempts} more attempts since the last warning)` : '';
+        this.adapter.log.warn(
+            `Client [${clientId}] has invalid password or username${attempts}. Further attempts are logged as debug for one hour`,
+        );
+
+        // forget clients which did not try again, so random client IDs do not fill the memory
+        for (const id in this.authFailures) {
+            if (now - this.authFailures[id].lastWarning >= AUTH_WARN_INTERVAL) {
+                delete this.authFailures[id];
+            }
+        }
+        this.authFailures[clientId] = { lastWarning: now, attempts: 0 };
+    }
+
     async destroy(): Promise<void> {
         if (this.resendTimer) {
-            clearInterval(this.resendTimer);
+            this.adapter.clearInterval(this.resendTimer);
             this.resendTimer = null;
         }
 
@@ -497,7 +532,10 @@ export default class MQTTServer extends MQTTBase {
             }
 
             if (this.config.sendInterval) {
-                setTimeout(() => this.resendMessages2Client(client, messages, i + 1), this.config.sendInterval);
+                this.adapter.setTimeout(
+                    () => this.resendMessages2Client(client, messages, i + 1),
+                    this.config.sendInterval,
+                );
             } else {
                 setImmediate(() => this.resendMessages2Client(client, messages, i + 1));
             }
@@ -514,7 +552,7 @@ export default class MQTTServer extends MQTTBase {
         }
 
         if (client._resendonStart) {
-            clearTimeout(client._resendonStart);
+            this.adapter.clearTimeout(client._resendonStart);
             client._resendonStart = null;
         }
 
@@ -565,7 +603,7 @@ export default class MQTTServer extends MQTTBase {
                         }
 
                         if (this.config.sendInterval) {
-                            setTimeout(() => this.checkResends(), this.config.sendInterval);
+                            this.adapter.setTimeout(() => this.checkResends(), this.config.sendInterval);
                         } else {
                             setImmediate(() => this.checkResends());
                         }

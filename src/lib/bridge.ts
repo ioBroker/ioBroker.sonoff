@@ -70,7 +70,7 @@ export default class MQTTBridge extends MQTTBase {
     private mqttClient: ReturnType<typeof mqtt.connect> | null = null;
     private deviceNames: Record<string, DeviceName> = {};
     private pendingMessages: Record<string, PendingMessage[]> = {};
-    private pendingTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+    private pendingTimers: Record<string, ioBroker.Timeout | undefined> = {};
     private tasmotaTopics: Set<string> = new Set();
     private topicFormats: Record<string, TopicFormat> = {};
     private reportedConflicts: Set<string> = new Set();
@@ -90,7 +90,7 @@ export default class MQTTBridge extends MQTTBase {
 
     async destroy(): Promise<void> {
         for (const topicPrefix in this.pendingTimers) {
-            clearTimeout(this.pendingTimers[topicPrefix]);
+            this.adapter.clearTimeout(this.pendingTimers[topicPrefix]);
         }
         this.pendingTimers = {};
         this.pendingMessages = {};
@@ -440,7 +440,7 @@ export default class MQTTBridge extends MQTTBase {
         }
 
         if (this.pendingTimers[topicPrefix]) {
-            clearTimeout(this.pendingTimers[topicPrefix]);
+            this.adapter.clearTimeout(this.pendingTimers[topicPrefix]);
             delete this.pendingTimers[topicPrefix];
         }
 
@@ -518,7 +518,7 @@ export default class MQTTBridge extends MQTTBase {
         }
         pending.push({ topic, payload, packet });
 
-        this.pendingTimers[topicPrefix] ||= setTimeout(() => {
+        this.pendingTimers[topicPrefix] ||= this.adapter.setTimeout(() => {
             this.queue = this.queue
                 .then(() => this.fallbackToTopicPrefix(topicPrefix))
                 .catch(err => this.adapter.log.error(`Cannot create device "${topicPrefix}": ${err.message}`));
