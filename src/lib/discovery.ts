@@ -32,6 +32,8 @@ export interface MqttSettings {
     port: number;
     user: string;
     password: string;
+    /** The broker uses TLS (MQTTS) */
+    tls?: boolean;
 }
 
 /** The device answered, but requires its web password */
@@ -201,6 +203,10 @@ export function buildMqttCommand(settings: MqttSettings): string {
     }
     return [
         'Backlog SetOption3 1',
+        // TLS (only Tasmota builds with TLS, e.g. tasmota32) with the fingerprint of the server instead of
+        // the built-in CAs, so self-signed certificates work too. The fingerprint is learned on the first
+        // connection (MqttFingerprint1 is 00... by default)
+        ...(settings.tls ? ['SetOption103 1', 'SetOption132 1'] : []),
         `MqttHost ${settings.host}`,
         `MqttPort ${settings.port}`,
         `MqttUser ${settings.user || '0'}`,

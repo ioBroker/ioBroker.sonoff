@@ -7,6 +7,12 @@ export interface SonoffAdapterConfig {
     credentialId?: string;
     user: string;
     password: string;
+    /** MQTTS: the built-in server uses TLS with the certificates below (#529) */
+    ssl?: boolean;
+    /** Names of the certificates of admin (Settings → Certificates), empty = the default ones of ioBroker */
+    certPublic?: string;
+    certPrivate?: string;
+    certChained?: string;
     timeout: number | string;
     TELE_SENSOR: boolean;
     TELE_MARGINS: boolean;

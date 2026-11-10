@@ -162,6 +162,10 @@ function buildMqttCommand(settings) {
     }
     return [
         'Backlog SetOption3 1',
+        // TLS (only Tasmota builds with TLS, e.g. tasmota32) with the fingerprint of the server instead of
+        // the built-in CAs, so self-signed certificates work too. The fingerprint is learned on the first
+        // connection (MqttFingerprint1 is 00... by default)
+        ...(settings.tls ? ['SetOption103 1', 'SetOption132 1'] : []),
         `MqttHost ${settings.host}`,
         `MqttPort ${settings.port}`,
         `MqttUser ${settings.user || '0'}`,

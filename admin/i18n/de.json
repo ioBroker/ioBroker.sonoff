@@ -101,5 +101,8 @@
     "Managed in the system settings under \"Credentials\"": "Wird in den Systemeinstellungen unter \"Zugangsdaten\" verwaltet",
     "For tele/SWITCH": "Für tele/SWITCH",
     "Additional topics": "Zusätzliche Topics",
-    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Letzter Teil des Topics von unbekannten Werten, durch Kommas getrennt. * als Platzhalter, z. B. PIR*, Motion"
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Letzter Teil des Topics von unbekannten Werten, durch Kommas getrennt. * als Platzhalter, z. B. PIR*, Motion",
+    "Secure (MQTTS)": "Verschlüsselt (MQTTS)",
+    "TLS, usually on port 8883. Only Tasmota builds with TLS (tasmota32), see README": "TLS, üblicherweise auf Port 8883. Nur Tasmota-Builds mit TLS (tasmota32), siehe README",
+    "Empty: default certificate of ioBroker": "Leer: Standardzertifikat von ioBroker"
 }

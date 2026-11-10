@@ -87,13 +87,39 @@ class SonoffAdapter extends adapter_core_1.Adapter {
                 this.log.warn('No external broker URL configured. Starting the built-in MQTT server');
             }
             if (await this.applyCredentials(false)) {
-                this.server = new server_1.default(this);
+                const certificates = await this.loadCertificates();
+                if (certificates !== null) {
+                    this.server = new server_1.default(this, certificates);
+                }
             }
         }
         if (this.config.checkFirmware !== false) {
             await this.checkFirmware();
             // Managed by the adapter, so it is stopped on unload
             this.setInterval(() => void this.checkFirmware(), FIRMWARE_CHECK_INTERVAL);
+        }
+    }
+    /**
+     * Reads the certificates of the built-in server if it uses TLS (MQTTS, #529). They are selected in the
+     * instance configuration from the certificates of admin (Settings → Certificates), by default the
+     * self-signed certificates which ioBroker creates on installation.
+     *
+     * @returns undefined without TLS, null if the certificates cannot be read, so the server must not be started
+     */
+    async loadCertificates() {
+        if (!this.config.ssl) {
+            return undefined;
+        }
+        try {
+            const [certificates] = await this.getCertificatesAsync(this.config.certPublic || 'defaultPublic', this.config.certPrivate || 'defaultPrivate', this.config.certChained || undefined);
+            if (!certificates?.key || !certificates.cert) {
+                throw new Error('the certificate or its private key is empty');
+            }
+            return certificates;
+        }
+        catch (err) {
+            this.log.error(`Cannot read the certificates for MQTTS (Settings → Certificates): ${err.message}. The MQTT server is not started`);
+            return null;
         }
     }
     /**

@@ -89,10 +89,13 @@ describe('Search for Tasmota devices', () => {
             shelly.address,
             '127.0.0.1:1',
         ]);
-        assert.deepStrictEqual(found.map(d => [d.ip, d.protected]).sort(), [
-            [open.address, false],
-            [secured.address, true],
-        ].sort());
+        assert.deepStrictEqual(
+            found.map(d => [d.ip, d.protected]).sort(),
+            [
+                [open.address, false],
+                [secured.address, true],
+            ].sort(),
+        );
 
         open.close();
         secured.close();
@@ -172,6 +175,11 @@ describe('Search for Tasmota devices', () => {
         assert.strictEqual(
             buildMqttCommand({ host: '10.0.0.1', port: 1884, user: '', password: '' }),
             'Backlog SetOption3 1; MqttHost 10.0.0.1; MqttPort 1884; MqttUser 0; MqttPassword 0',
+        );
+        // MQTTS (#529): TLS with the learned fingerprint of the server, so self-signed certificates work
+        assert.strictEqual(
+            buildMqttCommand({ host: '10.0.0.1', port: 8883, user: 'a', password: 'b', tls: true }),
+            'Backlog SetOption3 1; SetOption103 1; SetOption132 1; MqttHost 10.0.0.1; MqttPort 8883; MqttUser a; MqttPassword b',
         );
         assert.throws(() => buildMqttCommand({ host: '10.0.0.1', port: 1883, user: 'a', password: 'x;y' }), /;/);
     });

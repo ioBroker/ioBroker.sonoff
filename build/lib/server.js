@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_net_1 = require("node:net");
+const node_tls_1 = require("node:tls");
 // @ts-expect-error no types
 const mqtt_connection_1 = __importDefault(require("mqtt-connection"));
 const mqttBase_1 = __importStar(require("./mqttBase"));
@@ -52,18 +53,41 @@ class MQTTServer extends mqttBase_1.default {
     persistentSessions = {};
     resending = false;
     resendTimer = null;
-    /** Clients rejected because of a wrong user or password: time of the last warning and the attempts since */
-    authFailures = {};
-    constructor(adapter) {
+    /** Repeated problems (wrong password, failed TLS handshake): time of the last warning and the attempts since */
+    repeatedWarnings = {};
+    /** MQTTS: the server uses TLS (#529) */
+    secure;
+    /**
+     * @param adapter the adapter
+     * @param certificates certificates for MQTTS (TLS), without them the server uses plain MQTT
+     */
+    constructor(adapter, certificates) {
         super(adapter);
-        this.server = new node_net_1.Server();
+        this.secure = !!certificates;
+        this.server = certificates
+            ? (0, node_tls_1.createServer)({ key: certificates.key, cert: certificates.cert, ca: certificates.ca || undefined })
+            : new node_net_1.Server();
         if (this.config.timeout === undefined) {
             this.config.timeout = 300;
         }
         else {
             this.config.timeout = parseInt(this.config.timeout, 10);
         }
-        this.server.on('connection', stream => {
+        if (this.secure) {
+            // E.g. a device without TLS (SetOption103 0) or one which rejects the certificate. It retries
+            // every few seconds, so this is reported only once per hour
+            this.server.on('tlsClientError', (err, socket) => {
+                const address = socket.remoteAddress || 'unknown address';
+                this.warnRepeated(`tls ${address}`, `TLS connection from ${address} failed: ${err.message}. The device must use TLS (Tasmota: SetOption103 1)`);
+                socket.destroy();
+            });
+        }
+        // With TLS, "connection" delivers the still encrypted socket, the MQTT stream is the one after the handshake
+        this.server.on(this.secure ? 'secureConnection' : 'connection', (stream) => {
+            if (this.secure) {
+                // a later TLS problem of this address is reported at once again
+                delete this.repeatedWarnings[`tls ${stream.remoteAddress || 'unknown address'}`];
+            }
             const client = (0, mqtt_connection_1.default)(stream);
             // Store unique connection identifier
             client.__secret = `${Date.now()}_${Math.round(Math.random() * 10000)}`;
@@ -93,7 +117,7 @@ class MQTTServer extends mqttBase_1.default {
                         return;
                     }
                     // a later wrong password is reported at once again
-                    delete this.authFailures[client.id];
+                    delete this.repeatedWarnings[`auth ${client.id}`];
                 }
                 if (oldClient) {
                     this.adapter.log.info(`Client [${client.id}] reconnected. Old secret ${this.clients[client.id].__secret} ==> New secret ${client.__secret}`);
@@ -351,7 +375,7 @@ class MQTTServer extends mqttBase_1.default {
                 : parseInt(this.config.storeClientsTime, 10) || 0;
         // to start
         this.server.listen(this.config.port, this.config.bind, () => {
-            this.adapter.log.info(`Starting MQTT ${this.config.user ? 'authenticated ' : ''} server on port ${this.config.port}`);
+            this.adapter.log.info(`Starting MQTT ${this.secure ? 'secure (TLS) ' : ''}${this.config.user ? 'authenticated ' : ''}server on port ${this.config.port}`);
             // only after the port was really opened
             void (0, usedResources_1.registerTcpPort)(this.adapter, this.config.port, this.config.bind);
             // info.connection is filled with the list of the connected clients
@@ -365,22 +389,32 @@ class MQTTServer extends mqttBase_1.default {
      * logged as debug (#548)
      */
     warnAuthFailure(clientId) {
+        this.warnRepeated(`auth ${clientId}`, `Client [${clientId}] has invalid password or username`);
+    }
+    /**
+     * Warns about a problem which a device repeats again and again, e.g. on every connection attempt: only
+     * once per hour with the number of attempts, the other attempts are logged as debug
+     *
+     * @param key what and who, e.g. "auth DVES_123456"
+     * @param text the warning
+     */
+    warnRepeated(key, text) {
         const now = Date.now();
-        const failure = this.authFailures[clientId];
-        if (failure && now - failure.lastWarning < AUTH_WARN_INTERVAL) {
-            failure.attempts++;
-            this.adapter.log.debug(`Client [${clientId}] has invalid password or username`);
+        const repeated = this.repeatedWarnings[key];
+        if (repeated && now - repeated.lastWarning < AUTH_WARN_INTERVAL) {
+            repeated.attempts++;
+            this.adapter.log.debug(text);
             return;
         }
-        const attempts = failure?.attempts ? ` (${failure.attempts} more attempts since the last warning)` : '';
-        this.adapter.log.warn(`Client [${clientId}] has invalid password or username${attempts}. Further attempts are logged as debug for one hour`);
-        // forget clients which did not try again, so random client IDs do not fill the memory
-        for (const id in this.authFailures) {
-            if (now - this.authFailures[id].lastWarning >= AUTH_WARN_INTERVAL) {
-                delete this.authFailures[id];
+        const attempts = repeated?.attempts ? ` (${repeated.attempts} more attempts since the last warning)` : '';
+        this.adapter.log.warn(`${text}${attempts}. Further attempts are logged as debug for one hour`);
+        // forget the ones which did not try again, so random client IDs do not fill the memory
+        for (const id in this.repeatedWarnings) {
+            if (now - this.repeatedWarnings[id].lastWarning >= AUTH_WARN_INTERVAL) {
+                delete this.repeatedWarnings[id];
             }
         }
-        this.authFailures[clientId] = { lastWarning: now, attempts: 0 };
+        this.repeatedWarnings[key] = { lastWarning: now, attempts: 0 };
     }
     async destroy() {
         if (this.resendTimer) {

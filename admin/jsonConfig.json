@@ -243,6 +243,54 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "ssl": {
+                    "newLine": true,
+                    "type": "checkbox",
+                    "label": "Secure (MQTTS)",
+                    "help": "TLS, usually on port 8883. Only Tasmota builds with TLS (tasmota32), see README",
+                    "hidden": "!!data.useExternalBroker",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "certPublic": {
+                    "newLine": true,
+                    "type": "certificate",
+                    "certType": "public",
+                    "label": "Public certificate:",
+                    "help": "Empty: default certificate of ioBroker",
+                    "hidden": "!!data.useExternalBroker || !data.ssl",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "certPrivate": {
+                    "type": "certificate",
+                    "certType": "private",
+                    "label": "Private certificate:",
+                    "help": "Empty: default certificate of ioBroker",
+                    "hidden": "!!data.useExternalBroker || !data.ssl",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "certChained": {
+                    "type": "certificate",
+                    "certType": "chained",
+                    "label": "Chained certificate:",
+                    "hidden": "!!data.useExternalBroker || !data.ssl",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "_header2": {
                     "newLine": true,
                     "type": "header",

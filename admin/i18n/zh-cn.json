@@ -101,5 +101,8 @@
     "Managed in the system settings under \"Credentials\"": "在系统设置的 \"凭据\" 中管理",
     "For tele/SWITCH": "用于 tele/SWITCH",
     "Additional topics": "附加主题",
-    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "未知值的主题的最后一部分，用逗号分隔。* 作为通配符，例如 PIR*, Motion"
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "未知值的主题的最后一部分，用逗号分隔。* 作为通配符，例如 PIR*, Motion",
+    "Secure (MQTTS)": "加密 (MQTTS)",
+    "TLS, usually on port 8883. Only Tasmota builds with TLS (tasmota32), see README": "TLS，通常使用端口 8883。仅限支持 TLS 的 Tasmota 固件 (tasmota32)，请参阅 README",
+    "Empty: default certificate of ioBroker": "留空：ioBroker 的默认证书"
 }

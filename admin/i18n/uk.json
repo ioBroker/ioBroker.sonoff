@@ -101,5 +101,8 @@
     "Managed in the system settings under \"Credentials\"": "Керується в системних налаштуваннях у розділі \"Облікові дані\"",
     "For tele/SWITCH": "Для tele/SWITCH",
     "Additional topics": "Додаткові топіки",
-    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Остання частина топіка невідомих значень, через кому. * як шаблон, наприклад PIR*, Motion"
+    "Last part of the topic of unknown values, separated by commas. * as wildcard, e.g. PIR*, Motion": "Остання частина топіка невідомих значень, через кому. * як шаблон, наприклад PIR*, Motion",
+    "Secure (MQTTS)": "Шифрування (MQTTS)",
+    "TLS, usually on port 8883. Only Tasmota builds with TLS (tasmota32), see README": "TLS, зазвичай на порту 8883. Лише збірки Tasmota з TLS (tasmota32), див. README",
+    "Empty: default certificate of ioBroker": "Порожньо: стандартний сертифікат ioBroker"
 }

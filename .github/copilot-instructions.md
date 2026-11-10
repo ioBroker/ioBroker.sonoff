@@ -740,7 +740,7 @@ These rules apply to this repository and override the generic examples above.
 
 ### Logging
 - Payloads of devices can be corrupted. Do not write them raw to the log at warn or error level, use `escapeControlChars()` from `src/lib/mqttBase.ts` (#586).
-- A message that a device triggers again and again (e.g. on every reconnect) must not flood the log: warn once, log the repetitions as debug (see `warnAuthFailure()` in `src/lib/server.ts`, #548).
+- A message that a device triggers again and again (e.g. on every reconnect) must not flood the log: warn once, log the repetitions as debug (use `warnRepeated()` in `src/lib/server.ts`, e.g. for wrong passwords #548 and failed TLS handshakes #529).
 
 ### Data Points and Objects
 - New known data points go to `src/lib/datapoints.ts` with the correct `type`, `role`, `unit` and `read`/`write`. Use valid ioBroker roles, and the type-detector must not mistake diagnostic values for dimmers or blinds.

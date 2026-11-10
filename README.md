@@ -98,6 +98,20 @@ Every device has the state `Backlog`. Its text is sent to `cmnd/<topic>/Backlog`
 
 The `POWERx` states stay boolean (on/off), so that visualizations, scripts and histories keep working. Use `Backlog` for `TOGGLE` or `BLINK`.
 
+## Encrypted connections (MQTTS)
+With **Secure (MQTTS)** the built-in server accepts only TLS connections. Usually port `8883` is used for it, so set the port too. The certificates are selected from the certificates of ioBroker (admin: Settings → Certificates), empty fields use the self-signed default certificates of ioBroker. If the certificates cannot be read, the server is not started and the log tells why.
+
+On the Tasmota side:
+
+* TLS is only included in the `tasmota32` and `tasmota-zbbridge` builds. ESP8266 devices need an own build with `USE_MQTT_TLS`, see the [Tasmota TLS documentation](https://tasmota.github.io/docs/TLS/).
+* `SetOption103 1` enables TLS, `MqttPort 8883` sets the port.
+* `SetOption132 1` checks the fingerprint of the server instead of the built-in certificate authorities (Let's Encrypt, Amazon). It is required for self-signed certificates, e.g. the default ones of ioBroker. Tasmota learns the fingerprint on the first connection.
+* The search for devices of the device manager writes `SetOption103 1; SetOption132 1` automatically, if the server (or in bridge mode the external broker, `mqtts://`) uses TLS.
+
+A device without TLS on the MQTTS port is reported once per hour (`TLS connection from <address> failed`), the further attempts are logged as debug.
+
+For the connection to an external broker see [Encrypted connections](#encrypted-connections) of the bridge mode.
+
 ## Bridge mode
 
 By default the adapter runs a built-in TCP broker that Tasmota devices connect to directly. If you already run a dedicated MQTT broker (e.g. Mosquitto) you can use bridge mode instead — the adapter connects to your existing broker as a client.
@@ -213,6 +227,9 @@ The device card shows the connection and the Wi-Fi signal (`Wifi_Signal` in dBm)
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) The built-in MQTT server supports encrypted connections (MQTTS) with the certificates of ioBroker, new option "Secure (MQTTS)". The search for devices enables TLS on the devices then (#529)
+
 ### 5.3.0 (2026-11-10)
 * (@GermanBluefox) Presses of remote controls (`tele/<topic>/SWITCH`, e.g. eWeLink R5 with the Berry script Tasmota-eWeLinkRemote) are stored, new option "For tele/SWITCH" (#515)
 * (@GermanBluefox) New option "Additional topics": values of own topics like `stat/<topic>/PIR1` are stored, also with wildcards (`PIR*`) (#281)

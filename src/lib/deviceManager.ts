@@ -270,11 +270,13 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
                         ? config.externalBrokerUrl
                         : `mqtt://${config.externalBrokerUrl}`,
                 );
+                const tls = url.protocol === 'mqtts:' || url.protocol === 'ssl:' || url.protocol === 'tls:';
                 return {
                     host: url.hostname,
-                    port: parseInt(url.port, 10) || (url.protocol === 'mqtts:' ? 8883 : 1883),
+                    port: parseInt(url.port, 10) || (tls ? 8883 : 1883),
                     user: config.externalBrokerUser || '',
                     password: config.externalBrokerPassword || '',
+                    tls,
                 };
             } catch {
                 // invalid URL, use the own address
@@ -285,6 +287,7 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
             port: parseInt(config.port as string, 10) || 1883,
             user: config.user || '',
             password: config.password || '',
+            tls: !!config.ssl,
         };
     }
 
@@ -446,6 +449,8 @@ export default class SonoffDeviceManagement extends DeviceManagement<SonoffAdapt
             port: parseInt(String(result.port), 10) || 1883,
             user: String(result.user || '').trim(),
             password: String(result.password || ''),
+            // not in the form: the devices must use what the server or the external broker uses
+            tls: defaults.tls,
         };
         if (!settings.host) {
             await context.showMessage(I18n.getTranslatedObject('The MQTT server is missing'));

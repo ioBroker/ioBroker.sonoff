@@ -1,4 +1,5 @@
-import { Server } from 'node:net';
+import { Server, type Socket } from 'node:net';
+import { createServer as createTlsServer, type TLSSocket } from 'node:tls';
 // @ts-expect-error no types
 import mqtt from 'mqtt-connection';
 import MQTTBase, { FORBIDDEN_CHARS, type MQTTClient, type MQTTPacket, type MQTTPacketStored } from './mqttBase';
@@ -24,12 +25,21 @@ export default class MQTTServer extends MQTTBase {
     } = {};
     private resending = false;
     private resendTimer: ioBroker.Interval | null | undefined = null;
-    /** Clients rejected because of a wrong user or password: time of the last warning and the attempts since */
-    private authFailures: { [clientId: string]: { lastWarning: number; attempts: number } } = {};
+    /** Repeated problems (wrong password, failed TLS handshake): time of the last warning and the attempts since */
+    private repeatedWarnings: { [key: string]: { lastWarning: number; attempts: number } } = {};
+    /** MQTTS: the server uses TLS (#529) */
+    private readonly secure: boolean;
 
-    constructor(adapter: ioBroker.Adapter) {
+    /**
+     * @param adapter the adapter
+     * @param certificates certificates for MQTTS (TLS), without them the server uses plain MQTT
+     */
+    constructor(adapter: ioBroker.Adapter, certificates?: ioBroker.Certificates) {
         super(adapter);
-        this.server = new Server();
+        this.secure = !!certificates;
+        this.server = certificates
+            ? createTlsServer({ key: certificates.key, cert: certificates.cert, ca: certificates.ca || undefined })
+            : new Server();
 
         if (this.config.timeout === undefined) {
             this.config.timeout = 300;
@@ -37,7 +47,25 @@ export default class MQTTServer extends MQTTBase {
             this.config.timeout = parseInt(this.config.timeout as string, 10);
         }
 
-        this.server.on('connection', stream => {
+        if (this.secure) {
+            // E.g. a device without TLS (SetOption103 0) or one which rejects the certificate. It retries
+            // every few seconds, so this is reported only once per hour
+            this.server.on('tlsClientError', (err: Error, socket: TLSSocket) => {
+                const address = socket.remoteAddress || 'unknown address';
+                this.warnRepeated(
+                    `tls ${address}`,
+                    `TLS connection from ${address} failed: ${err.message}. The device must use TLS (Tasmota: SetOption103 1)`,
+                );
+                socket.destroy();
+            });
+        }
+
+        // With TLS, "connection" delivers the still encrypted socket, the MQTT stream is the one after the handshake
+        this.server.on(this.secure ? 'secureConnection' : 'connection', (stream: Socket) => {
+            if (this.secure) {
+                // a later TLS problem of this address is reported at once again
+                delete this.repeatedWarnings[`tls ${stream.remoteAddress || 'unknown address'}`];
+            }
             const client: MQTTClient = mqtt(stream);
             // Store unique connection identifier
             client.__secret = `${Date.now()}_${Math.round(Math.random() * 10000)}`;
@@ -77,7 +105,7 @@ export default class MQTTServer extends MQTTBase {
                             return;
                         }
                         // a later wrong password is reported at once again
-                        delete this.authFailures[client.id];
+                        delete this.repeatedWarnings[`auth ${client.id}`];
                     }
 
                     if (oldClient) {
@@ -409,7 +437,7 @@ export default class MQTTServer extends MQTTBase {
         // to start
         this.server.listen(this.config.port, this.config.bind, () => {
             this.adapter.log.info(
-                `Starting MQTT ${this.config.user ? 'authenticated ' : ''} server on port ${this.config.port}`,
+                `Starting MQTT ${this.secure ? 'secure (TLS) ' : ''}${this.config.user ? 'authenticated ' : ''}server on port ${this.config.port}`,
             );
             // only after the port was really opened
             void registerTcpPort(this.adapter, this.config.port as number, this.config.bind);
@@ -429,26 +457,35 @@ export default class MQTTServer extends MQTTBase {
      * logged as debug (#548)
      */
     private warnAuthFailure(clientId: string): void {
+        this.warnRepeated(`auth ${clientId}`, `Client [${clientId}] has invalid password or username`);
+    }
+
+    /**
+     * Warns about a problem which a device repeats again and again, e.g. on every connection attempt: only
+     * once per hour with the number of attempts, the other attempts are logged as debug
+     *
+     * @param key what and who, e.g. "auth DVES_123456"
+     * @param text the warning
+     */
+    private warnRepeated(key: string, text: string): void {
         const now = Date.now();
-        const failure = this.authFailures[clientId];
-        if (failure && now - failure.lastWarning < AUTH_WARN_INTERVAL) {
-            failure.attempts++;
-            this.adapter.log.debug(`Client [${clientId}] has invalid password or username`);
+        const repeated = this.repeatedWarnings[key];
+        if (repeated && now - repeated.lastWarning < AUTH_WARN_INTERVAL) {
+            repeated.attempts++;
+            this.adapter.log.debug(text);
             return;
         }
 
-        const attempts = failure?.attempts ? ` (${failure.attempts} more attempts since the last warning)` : '';
-        this.adapter.log.warn(
-            `Client [${clientId}] has invalid password or username${attempts}. Further attempts are logged as debug for one hour`,
-        );
+        const attempts = repeated?.attempts ? ` (${repeated.attempts} more attempts since the last warning)` : '';
+        this.adapter.log.warn(`${text}${attempts}. Further attempts are logged as debug for one hour`);
 
-        // forget clients which did not try again, so random client IDs do not fill the memory
-        for (const id in this.authFailures) {
-            if (now - this.authFailures[id].lastWarning >= AUTH_WARN_INTERVAL) {
-                delete this.authFailures[id];
+        // forget the ones which did not try again, so random client IDs do not fill the memory
+        for (const id in this.repeatedWarnings) {
+            if (now - this.repeatedWarnings[id].lastWarning >= AUTH_WARN_INTERVAL) {
+                delete this.repeatedWarnings[id];
             }
         }
-        this.authFailures[clientId] = { lastWarning: now, attempts: 0 };
+        this.repeatedWarnings[key] = { lastWarning: now, attempts: 0 };
     }
 
     async destroy(): Promise<void> {
