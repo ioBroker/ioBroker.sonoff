@@ -36,8 +36,13 @@
     "typescript": "~6.0.3"
   },
   "overrides": {
-    "minimatch@>=7.0.0 <11.0.1": "^11.0.5",
-    "glob@>=9.0.0 <14.0.2": "^14.0.2"
+    "glob": "^14.0.2",
+    "mocha": {
+      "minimatch": "^11.0.5"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.5"
+    }
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.sonoff/issues"
